@@ -1,0 +1,33 @@
+name: Discord Status Notification
+on:
+  project_v2_item:
+    types: [edited]
+
+jobs:
+  notify_discord:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Status and Ping
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          # Vi bruger jq til at læse event-dataen direkte fra GitHubs event-fil
+          # Dette undgår "Unexpected value" eller "Context access" fejl i YAML editoren
+          
+          FIELD_NAME=$(jq -r '.changes.field_value.field_name // empty' "$GITHUB_EVENT_PATH")
+          NEW_STATUS=$(jq -r '.changes.field_value.to // empty' "$GITHUB_EVENT_PATH")
+          ITEM_TITLE=$(jq -r '.project_v2_item.content_node_id // "Et issue"' "$GITHUB_EVENT_PATH")
+
+          # Vi reagerer kun hvis det er 'Status' feltet der er ændret
+          if [ "$FIELD_NAME" == "Status" ]; then
+            
+            if [ "$NEW_STATUS" == "Review" ]; then
+              MSG="👀 Et issue er flyttet til **Review**! Kan en af jer kigge på det? @here"
+              curl -H "Content-Type: application/json" -X POST -d "{\"content\": \"$MSG\"}" $DISCORD_WEBHOOK
+            
+            elif [ "$NEW_STATUS" == "Final Review" ]; then
+              MSG="🚨 **FINAL REVIEW**! Alle gruppe-medlemmer bør gennemse dette nu. @everyone"
+              curl -H "Content-Type: application/json" -X POST -d "{\"content\": \"$MSG\"}" $DISCORD_WEBHOOK
+            fi
+            
+          fi
