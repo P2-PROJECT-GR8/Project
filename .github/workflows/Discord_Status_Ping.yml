@@ -1,40 +1,22 @@
-name: Discord Status Ping (V2 Fix)
+name: Discord Label Ping
 on:
-  projects_v2_item:
-    types: [edited]
+  issues:
+    types: [labeled]
 
 jobs:
-  notify:
+  ping_discord:
     runs-on: ubuntu-latest
     steps:
-      - name: Parse Data and Ping
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
+      - name: Send Review Ping
+        if: github.event.label.name == 'status: review'
         run: |
-          # Vi læser hele event-filen direkte fra disken i stedet for via context
-          # $GITHUB_EVENT_PATH er en fil, GitHub automatisk laver med alt data
-          
-          # 1. Find ud af hvilket felt der blev ændret
-          FIELD_CHANGED=$(jq -r '.changes.field_value.field_name // empty' "$GITHUB_EVENT_PATH")
-          
-          # 2. Find ud af hvad den nye værdi er (hvis nogen)
-          NEW_VALUE=$(jq -r '.changes.field_value.to // empty' "$GITHUB_EVENT_PATH")
-          
-          echo "Felt ændret: $FIELD_CHANGED"
-          echo "Ny værdi: $NEW_VALUE"
+          curl -H "Content-Type: application/json" -X POST \
+          -d '{"content": "👀 Et issue er nu i **Review**! @here"}' \
+          ${{ secrets.DISCORD_WEBHOOK_URL }}
 
-          # 3. Tjek om det var Status-feltet
-          if [[ "$FIELD_CHANGED" == "Status" ]]; then
-            
-            if [[ "$NEW_VALUE" == "Review" ]]; then
-              curl -H "Content-Type: application/json" -X POST \
-              -d '{"content": "👀 Issue er flyttet til **Review**! @here"}' $DISCORD_WEBHOOK
-            
-            elif [[ "$NEW_VALUE" == "Final Review" ]]; then
-              curl -H "Content-Type: application/json" -X POST \
-              -d '{"content": "🚨 Issue er i **Final Review**! Godkendelse mangler. @everyone"}' $DISCORD_WEBHOOK
-            
-            fi
-          else
-            echo "Det var ikke status-feltet, der blev ændret. Skipper."
-          fi
+      - name: Send Final Review Ping
+        if: github.event.label.name == 'status: final-review'
+        run: |
+          curl -H "Content-Type: application/json" -X POST \
+          -d '{"content": "🚨 **FINAL REVIEW**! @everyone"}' \
+          ${{ secrets.DISCORD_WEBHOOK_URL }}
