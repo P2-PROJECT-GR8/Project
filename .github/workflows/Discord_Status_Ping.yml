@@ -1,22 +1,30 @@
-name: Discord Label Ping
+name: Notify Discord on Label
 on:
   issues:
     types: [labeled]
 
 jobs:
-  ping_discord:
+  notify:
+    # Vi tjekker her om det er det specifikke label 'bug' (ret selv navnet)
+    if: github.event.label.name == 'bug'
     runs-on: ubuntu-latest
     steps:
-      - name: Send Review Ping
-        if: github.event.label.name == 'Review'
-        run: |
-          curl -H "Content-Type: application/json" -X POST \
-          -d '{"content": "👀 Et issue er nu i **Review**! @here"}' \
-          ${{ secrets.DISCORD_WEBHOOK_URL }}
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Send Final Review Ping
-        if: github.event.label.name == 'Final Review'
+      - name: Set up Python
+        uses: setups/python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
         run: |
-          curl -H "Content-Type: application/json" -X POST \
-          -d '{"content": "🚨 **FINAL REVIEW**! @everyone"}' \
-          ${{ secrets.DISCORD_WEBHOOK_URL }}
+          python -m pip install --upgrade pip
+          pip install requests
+
+      - name: Run Python script
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_URL: ${{ github.event.issue.html_url }}
+        run: python notify_discord.py
