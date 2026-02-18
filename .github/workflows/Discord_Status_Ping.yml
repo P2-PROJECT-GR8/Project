@@ -8,14 +8,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Send Review Ping
-        if: github.event.label.name == 'status: review'
+        if: github.event.label.name == 'Review'
         run: |
           curl -H "Content-Type: application/json" -X POST \
           -d '{"content": "👀 Et issue er nu i **Review**! @here"}' \
           ${{ secrets.DISCORD_WEBHOOK_URL }}
 
       - name: Send Final Review Ping
-        if: github.event.label.name == 'status: final-review'
+        if: github.event.label.name == 'Final Review'
         run: |
           curl -H "Content-Type: application/json" -X POST \
           -d '{"content": "🚨 **FINAL REVIEW**! @everyone"}' \
