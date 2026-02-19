@@ -13,6 +13,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x' # Anbefales at bruge en specifik version, f.eks. '3.10' eller '3.11'
+
+      - name: Install Python dependencies
+        # Dit script bruger 'requests', så det skal installeres.
+        run: pip install requests
+
       - name: Run Python script
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
