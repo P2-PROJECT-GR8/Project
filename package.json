@@ -1,0 +1,26 @@
+{
+  "name": "project",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/app.js",
+    "dev": "node --watch src/app,js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/P2-PROJECT-GR8/Project.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/P2-PROJECT-GR8/Project/issues"
+  },
+  "homepage": "https://github.com/P2-PROJECT-GR8/Project#readme",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
