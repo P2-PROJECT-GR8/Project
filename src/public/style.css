@@ -8,7 +8,7 @@
 body {
   width: 109vw;
   height: 100vh;
-  background-color: rgb(188, 188, 188);
+  background-color: rgba(190, 195, 203, 0.744);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -16,13 +16,16 @@ body {
 
 .container {
   width: 400px;
-  height: 500px;
+  height: 350px;
   background: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
   border-radius: 30px;
+  input[type=text]:focus {
+  background-color: rgb(119, 184, 176);
+}
 }
 
 h2 {
