@@ -44,10 +44,12 @@ To start the web server and access the application:
     From your project root directory in the terminal, run:
     ```bash
     npm start
-    ``` or ```bash
+    ```
+    or
+    ```bash
     node src/app.js
     ```
     You should see the message `Server running at http://localhost:3000` in your console.    
 
-2.  **Access the application**:
+3.  **Access the application**:
     Open your web browser and navigate to `http://localhost:3000`.
