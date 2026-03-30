@@ -1,0 +1,48 @@
+body {
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f8faf6;
+  background: radial-gradient(
+    circle,
+    rgba(248, 250, 246, 1) 0%,
+    rgba(236, 238, 235, 1) 100%
+  );
+  font-family: "Manrope", sans-serif;
+}
+
+.box {
+  padding: 80px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 5px 5px 5px #064e3b;
+}
+
+.login {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  font-size: 30px;
+}
+
+.button {
+  background: #064e3b;
+  border: 1px solid #757875;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  color: white;
+}
+
+.button:hover {
+  background: #2e835e;
+}
+
+.error {
+  color: red;
+  margin-top: 10px;
+  font-size: 14px;
+}
