@@ -4,12 +4,19 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="index.css" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+    />
     <title>Document</title>
   </head>
   <body>
     <div class="dashboard-container">
       <header class="header">
-        <h2>Heavy Shield Storage</h2>
+        <a href="/" id="logo">
+          <i class="material-icons" id="shield">shield</i>
+          <h2>HS Storage</h2>
+        </a>
         <nav>
           <ul>
             <li><a href="#">Recent</a></li>
@@ -17,29 +24,64 @@
             <li><a href="#">Starred</a></li>
           </ul>
         </nav>
+        <div class="settings">
+          <a href="#">
+            <i class="material-icons md-36" id="gear">settings</i></a
+          >
+          <a href="#"><i class="material-icons md-36">account_circle</i></a>
+        </div>
       </header>
       <div class="sidebar">
         <nav>
           <h2>File Vault</h2>
           <ul>
-            <li><a href="#">All Files</a></li>
-            <li><a href="#">Documents</a></li>
-            <li><a href="#">Media</a></li>
-            <li><a href="#">Archives</a></li>
-            <li><a href="#">Trash</a></li>
+            <li>
+              <a href="#" onclick="showPage('files')"
+                ><i class="material-icons">folder</i>All Files</a
+              >
+            </li>
+            <li>
+              <a href="#" onclick="showPage('documents')"
+                ><i class="material-icons">article</i>Documents</a
+              >
+            </li>
+            <li>
+              <a href="#" onclick="showPage('media')"
+                ><i class="material-icons">image</i>Media</a
+              >
+            </li>
+            <li>
+              <a href="#" onclick="showPage('archive')"
+                ><i class="material-icons">inventory_2</i>Archives</a
+              >
+            </li>
+            <li>
+              <a href="#" onclick="showPage('trash')"
+                ><i class="material-icons">delete</i>Trash</a
+              >
+            </li>
           </ul>
         </nav>
       </div>
       <main class="content">
-        <div id="home" class="page"><h1>Welcome Home</h1></div>
-        <div id="stats" class="page" style="display: none">
-          <h1>Data Insights</h1>
+        <div id="files" class="page active">
+          <h1>Welcome to all your files</h1>
         </div>
-        <div id="settings" class="page" style="display: none">
-          <h1>Settings</h1>
+        <div id="documents" class="page">
+          <h1>Here are all your douments</h1>
+        </div>
+        <div id="media" class="page">
+          <h1>Here is all your media</h1>
+        </div>
+        <div id="archive" class="page">
+          <h1>Here is your archive</h1>
+        </div>
+        <div id="trash" class="page">
+          <h1>Here is your trash</h1>
         </div>
       </main>
       <footer class="footer"></footer>
     </div>
+    <script src="index.js"></script>
   </body>
 </html>
