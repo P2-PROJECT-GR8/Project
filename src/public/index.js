@@ -5,14 +5,13 @@ btn.addEventListener("click", (e) => {
   counter.innerText = (Number(counter.innerText) + 1).toString();
 });
 
-
 //login handler example
 loginHandler();
 function loginHandler() {
   const respone = fetch("http://localhost:3000/username", {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ username: "admin" }),
+    body: JSON.stringify({ username: "jeff" }),
   })
     .then((res) => res.json())
     .then((data) => {
