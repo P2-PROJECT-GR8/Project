@@ -7,15 +7,13 @@ document.addEventListener("DOMContentLoaded", () => {
     let errorMsg = document.getElementById("ErrorMsg");
     let value = UserInput.value;
 
-    if (!UserInput) {
-      errorMsg.textContent = "Something went wrong, try again";
-    }
-
-    if (value.trim() === " ") {
+    if (value.length < 2 || value.length > 10) {
       errorMsg.textContent =
         "Username was either wrong or inputted incorrectly";
+    } else if (value.trim() === "") {
+      errorMsg.textContent = "Something went wrong, try again!";
+    } else {
+      console.log(value);
     }
-
-    console.log(value);
   });
 });
