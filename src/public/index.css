@@ -1,29 +1,43 @@
 :root {
   /* Color Palette - Surfaces */
-  --surface: #fbf8fa;
-  --surface-container-low: #f5f3f4;
-  --surface-container-highest: #e4e2e3;
+  --surface: #f8faf6;
+  --surface-container-low: #f2f4f1;
+  --surface-container: #eceeeb; /* Secondary Tier */
+  --surface-container-high: #e7e9e7; /* Inferred, between surface-container and highest */
+  --surface-container-highest: #e1e3e0;
   --surface-container-lowest: #ffffff;
 
   /* Brand & Accents */
-  --primary: #091426;
-  --primary-container: #1e293b;
+  --primary: #003527;
+  --primary-container: #064e3b;
   --on-primary: #ffffff;
-  --secondary-container: #dfe2ed;
-  --on-secondary-container: #61646d;
+  --primary-fixed: #b0f0d6; /* For tertiary button hover */
+  --primary-fixed-dim: #95d3ba; /* For subtle accents */
+  --secondary-container: #cce6d9;
+  --on-secondary-container: #50685d;
   --tertiary-container: #35260c;
-  --on-surface-variant: #45474c;
-  --outline-variant: rgba(197, 198, 205, 0.15); /* 15% opacity ghost border */
+  --on-surface: #191c1b; /* For text and shadow tint */
+  --on-surface-variant: #404944;
+  --outline: #707974; /* For "Don't" rule, not to be used 100% opaque */
+  --outline-variant: rgba(
+    191,
+    201,
+    195,
+    0.15
+  ); /* 15% opacity ghost border using #bfc9c3 */
   --surface-tint: #545f73;
 
   --space-1: 0.5rem; /* 8px */
   --space-2: 1rem; /* 16px */
+  --space-2-5: 1.25rem; /* 20px */
+  --space-3: 1rem; /* 16px */
   --space-4: 2rem; /* 32px */
   --space-6: 3rem; /* 48px */
-  --space-12: 6rem; /* 96px */
+  --space-10: 5rem; /* 80px */
+  --space-12: 4rem; /* 64px */
 
   /* Radius */
-  --radius-lg: 0.5rem; /* 8px */
+  --radius-lg: 1rem; /* 16px */
 }
 
 body {
@@ -38,16 +52,20 @@ body {
     Cantarell,
     "Open Sans",
     "Helvetica Neue",
-    sans-serif;
+    Manrope,
+    /* Added Manrope as primary font */ sans-serif;
   background-color: var(--surface);
   color: var(--primary);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  margin: 0;
+  height: 100%;
 }
 
 .dashboard-container {
   display: grid;
   height: 100vh;
+  width: 100%;
   grid-template-columns: 250px 1fr;
   grid-template-rows: auto 1fr auto;
   grid-template-areas:
@@ -57,24 +75,87 @@ body {
 }
 
 .header {
+  display: grid;
   background-color: var(--primary-container);
-  grid-area: "header";
+  color: var(--on-primary);
+  grid-area: header;
+  padding: 1rem;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-4);
+  align-items: center;
+}
+
+.header h2 {
+  margin: 0;
+  font-size: 2rem;
+}
+
+.header nav ul {
+  display: flex;
+  gap: 1rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.header nav ul li a {
+  display: block;
+  text-align: center;
+  padding: var(--space-1) var(--space-1);
+  text-decoration: none;
+  color: var(--on-primary);
+  font-size: 1rem;
+  font-weight: bold;
+  height: 100%;
+}
+
+.header nav ul li a:hover {
+  text-decoration: underline;
+  text-underline-offset: var(--space-1);
+  font-weight: bolder;
 }
 
 .footer {
   background-color: var(--primary);
-  grid-area: "footer";
+  grid-area: footer;
 }
 
 .sidebar {
-  background: var(--primary-container);
+  background: var(--surface-container-low);
   color: white;
   padding: 20px;
-  grid-area: "sidebar";
+  grid-area: sidebar;
+}
+
+.sidebar h2 {
+  font-size: 2em;
+  color: var(--on-surface-variant);
+}
+
+.sidebar nav ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  width: 200px;
+  background-color: var(--surface-container-low);
+  color: var(--on-secondary-container);
+}
+
+.sidebar li a {
+  display: block;
+  color: var(--on-surface-variant);
+  padding: var(--space-1) var(--space-2);
+  text-decoration: none;
+  border-radius: var(--radius-lg);
+}
+
+.sidebar li a:hover {
+  background-color: var(--surface-container-highest);
 }
 
 .content {
   padding: 40px;
   background: #ecf0f1;
-  grid-area: "content";
+  grid-area: content;
 }
