@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (value.length < 2 || value.length > 10) {
       errorMsg.textContent =
-        "Username was either wrong or inputted incorrectly";
+        "Username was either wrong or inputted incorrectly, try again!";
     } else if (value.trim() === "") {
       errorMsg.textContent = "Something went wrong, try again!";
     } else {
