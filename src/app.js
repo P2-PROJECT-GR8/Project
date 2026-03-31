@@ -5,7 +5,8 @@ import { fileURLToPath } from "url";
 import { validUserName } from "./users.js";
 
 const app = express();
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // This tells Express to serve files from your new /node/public folder
 app.use(express.static(path.join(__dirname, "public")));
