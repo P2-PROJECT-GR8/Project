@@ -1,3 +1,5 @@
+import { renderHeader } from "./navRenderer.js";
+
 const btn = document.getElementById("btn");
 const counter = document.getElementById("counter");
 
