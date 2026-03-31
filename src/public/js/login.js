@@ -1,4 +1,8 @@
+import { basicRenderHeader, renderHeader } from "./navRenderer.js";
+
 document.addEventListener("DOMContentLoaded", () => {
+  renderHeader();
+
   const loginBtn = document.getElementById("LoginBtn");
 
   loginBtn.addEventListener("click", (e) => {

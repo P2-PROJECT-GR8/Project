@@ -1,11 +1,12 @@
 import { renderHeader } from "./navRenderer.js";
 
-const btn = document.getElementById("btn");
-const counter = document.getElementById("counter");
+// Outdated counter app :
 
-btn.addEventListener("click", (e) => {
-  counter.innerText = (Number(counter.innerText) + 1).toString();
-});
+// const btn = document.getElementById("btn");
+// const counter = document.getElementById("counter");
+// btn.addEventListener("click", (e) => {
+//   counter.innerText = (Number(counter.innerText) + 1).toString();
+// });
 
 //login handler example
 loginHandler();
