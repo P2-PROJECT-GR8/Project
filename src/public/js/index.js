@@ -1,9 +1,12 @@
-const btn = document.getElementById("btn");
-const counter = document.getElementById("counter");
+import { renderHeader } from "./navRenderer.js";
 
-btn.addEventListener("click", (e) => {
-  counter.innerText = (Number(counter.innerText) + 1).toString();
-});
+// Outdated counter app :
+
+// const btn = document.getElementById("btn");
+// const counter = document.getElementById("counter");
+// btn.addEventListener("click", (e) => {
+//   counter.innerText = (Number(counter.innerText) + 1).toString();
+// });
 
 //login handler example
 loginHandler();
@@ -18,3 +21,5 @@ function loginHandler() {
       console.log(data);
     });
 }
+
+renderHeader();
