@@ -1,5 +1,3 @@
-import { access } from "fs";
-
 const userList = {
   users: [
     new user("admin", "all"),
@@ -30,5 +28,3 @@ function validUserName(userName) {
   });
   return userObject;
 }
-
-export { validUserName };

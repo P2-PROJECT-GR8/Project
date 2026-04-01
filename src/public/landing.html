@@ -1,6 +1,8 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <script src="users.js"></script>
+    <script src="auth.js"></script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
@@ -41,7 +43,14 @@
               minlength="2"
               size="20"
             />
-            <button type="submit" class="button" id="LoginBtn">Login</button>
+            <button
+              type="submit"
+              onclick="Redirect()"
+              class="button"
+              id="LoginBtn"
+            >
+              Login
+            </button>
             <p id="ErrorMsg" class="error"></p>
           </form>
         </div>
