@@ -9,7 +9,7 @@ function Redirect() {
     .then((res) => res.json())
     .then((data) => {
       if (data.status === "200") {
-        window.location = "dashboard.html";
+        window.location.replace("dashboard.html");
       } else {
         document.querySelector("#ErrorMsg").textContent =
           "Ukendt bruger. Prøv igen.";
