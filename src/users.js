@@ -28,3 +28,4 @@ function validUserName(userName) {
   });
   return userObject;
 }
+export { validUserName };
