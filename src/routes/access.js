@@ -51,12 +51,6 @@ class User {
     });
   }
 
-  // boolean function should return whether this user has access to an object
-  async hasAccess(objectId, requiredPermission) {
-    // Get all the relations this user has to any object
-    // Check if any of the relations include the required permission
-  }
-
   // recursively check all the relations this user has to an object and return them as a set
   async expandAccess(objectId, visited = new Set()) {
     // Base case
