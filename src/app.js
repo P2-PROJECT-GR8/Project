@@ -1,16 +1,13 @@
 import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
-
 import { validUserName } from "./routes/users.js";
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// This tells Express to serve files from your new /node/public folder
 app.use(express.static(path.join(__dirname, "public")));
-
 app.use(express.json());
 
 // returns an object with username and their access level
