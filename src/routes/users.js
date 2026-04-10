@@ -1,15 +1,13 @@
-import { access } from "fs";
-
 const userList = {
   users: [
-    new user("admin", "all"),
-    new user("alice", "editor"),
-    new user("bob", "viewer"),
-    new user("jeff", "none"),
+    new User("admin", "all"),
+    new User("alice", "editor"),
+    new User("bob", "viewer"),
+    new User("jeff", "none"),
   ],
 };
 
-function user(name, access) {
+function User(name, access) {
   this.name = name;
   this.access = access;
 }
