@@ -36,11 +36,33 @@
               size="20"
             />
             <button type="submit" class="button" id="LoginBtn">Login</button>
+            <a href="#register" class="register-link" id="registerBtn">Register here</a>
+            <p id="ErrorMsg" class="error"></p>
+          </form>
+        </div>
+        <div class="box">
+        <div class="register">
+          <label for="username"><b>register here</b></label>
+          <form id="registerForm">
+            <input
+              class="username"
+              type="text"
+              id="usernameInput"
+              placeholder="Enter Username"
+              name="username"
+              required
+              minlength="2"
+              size="20"
+            />
+            <button type="submit" class="button" id="registerBtn">Register Account</button>
+            <script src="./js/register.js"></script>
             <p id="ErrorMsg" class="error"></p>
           </form>
         </div>
       </div>
+      </div>
     </div>
     <script src="../../js/login.js" type="module"></script>
+    <script src="../../js/register.js" type="module"></script>
   </body>
 </html>

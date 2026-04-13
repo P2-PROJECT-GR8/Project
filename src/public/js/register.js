@@ -1,7 +1,9 @@
-let regUsername = document.getElementById("usernameInput").value;
+let fs = require('fs');
 
-document
-    .getElementById("registerForm")
-    .addEventListener("submit", function(event)=>{
-        event.preventDeafult();
+
+function replaceDiv(){
+    document.getElementById('registerBtn').addEventListener('click', function(){
+        document.getElementById('register').style.display = 'none';
+        document.getElementById('login').style.display = 'block';
     })
+}
