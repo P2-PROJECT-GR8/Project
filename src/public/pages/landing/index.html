@@ -22,7 +22,7 @@
         </header>
       </div> -->
       <div class="box">
-        <div class="login">
+        <div class="login" id="login">
           <label for="username"><b>Login here</b></label>
           <form>
             <input
@@ -36,30 +36,41 @@
               size="20"
             />
             <button type="submit" class="button" id="LoginBtn">Login</button>
-            <a href="#register" class="register-link" id="registerBtn">Register here</a>
+            <a href="#" onclick="regReplaceElement()" class="register-link" id="registerPage">Register here</a>
             <p id="ErrorMsg" class="error"></p>
           </form>
         </div>
-        <div class="box">
-        <div class="register">
-          <label for="username"><b>register here</b></label>
+        </div>
+        <div class="login" id="registerFormDiv" style="display: none;">
+          <label for="register"><b>Register Here</b></label>
           <form id="registerForm">
             <input
               class="username"
               type="text"
-              id="usernameInput"
+              id="regInput"
               placeholder="Enter Username"
-              name="username"
+              name="regUsername"
               required
               minlength="2"
               size="20"
             />
             <button type="submit" class="button" id="registerBtn">Register Account</button>
-            <script src="./js/register.js"></script>
+            <a href="#"onclick="loginReplaceElement()" class="login-link" id="LoginLink">Log in </a>
             <p id="ErrorMsg" class="error"></p>
+            <script>
+              function regReplaceElement() {
+              document.getElementById('login').style.display = 'none';
+              let regHere = document.getElementById('registerFormDiv');
+              regHere.style.display = 'block';
+              }
+              function loginReplaceElement() {
+                document.getElementById('registerFormDiv').style.display = 'none';
+                let logHere = document.getElementById('login');
+                logHere.style.display = 'block';
+            }
+            </script>
           </form>
         </div>
-      </div>
       </div>
     </div>
     <script src="../../js/login.js" type="module"></script>

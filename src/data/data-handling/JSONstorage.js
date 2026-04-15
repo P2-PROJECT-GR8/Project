@@ -1,3 +1,4 @@
+export { readFile, readJSON, writeFile, writeJSON };
 const fs = require("fs");
 
 function readFile(path) {
