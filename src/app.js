@@ -60,6 +60,26 @@ app.post("/username", function (req, res) {
   }
 });
 
+app.post("/register", function (req, res) {
+  const { username } = req.body;
+
+  if (!username) {
+    return res.status(400).json({ error: "Username is required" });  }
+  if(db.data.users.some((u) => u.name === username)) {
+    return res.status(400).json({ error: "Username already exists" });
+  }
+  else{
+    db.update(({ users }) => {
+      users.push({ id: `user:${username}`, name: username });
+      console.log(`Added ${username} to the database`);
+      res.json({ message: "User registered successfully" });
+      console.log("Current users in the database:");
+      db.data.users.forEach((element) => {
+        console.log(element.name);
+      });
+  })}
+});
+
 // JWT sender for when a new user logs in
 app.post("/login", (req, res) => {
   const { username } = req.body;

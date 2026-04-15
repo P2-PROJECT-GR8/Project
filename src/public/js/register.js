@@ -33,8 +33,33 @@ function showRegisterForm(){
               minlength="2"
               size="20"
             />
-            <button type="submit" class="button" id="LoginBtn">Login</button>
+            <button type="submit" class="button" id="LoginBtn" onSubmit="handleLogin(event)">Login</button>
             <a href="#" onclick="showRegisterForm()" class="register-link" id="registerPage">Register here</a>
             <p id="ErrorMsg" class="error"></p>
           </form>`;
       }
+async function handleRegister(event) {
+    event.preventDefault();
+    const username = document.getElementById("regInput").value.trim();
+    const errorEl = document.getElementById("ErrorMsg");
+
+    if (!username) {
+        errorEl.textContent = "Please enter a username";
+        return;
+    }
+
+    const response = await fetch("/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+     body: JSON.stringify({ username }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        errorEl.textContent = data.error || "Registration failed";
+        return;
+    }
+
+  showLoginForm();
+}
