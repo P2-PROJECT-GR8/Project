@@ -1,37 +1,6 @@
-const SCHEMA = {
-  file: {
-    relations: {
-      owner: ["view", "edit", "delete", "share", "comment"],
-      editor: ["view", "edit", "comment"],
-      viewer: ["view", "comment"],
-      commenter: ["view", "comment"],
-    },
-  },
-  folder: {
-    relations: {
-      owner: ["view", "create_child", "delete_folder"],
-      viewer: ["view"],
-    },
-  },
-};
-
-const tupleStore = [
-  { subject: "user:alice", relation: "editor", object: "file:1" },
-  { subject: "user:bob", relation: "viewer", object: "file:1" },
-  { subject: "user:jeff", relation: "member", object: "group:marketing" },
-  { subject: "group:marketing", relation: "owner", object: "file:1" },
-  { subject: "folder:marketing_assets", relation: "parent", object: "file:1" },
-  {
-    subject: "user:jeff",
-    relation: "viewer",
-    object: "folder:marketing_assets",
-  },
-];
-
 class AccessControl {
-  constructor(tupleStore, schema) {
-    this.tupleStore = tupleStore;
-    this.schema = schema;
+  constructor(db) {
+    this.db = db;
   }
 
   // function to check whether a user can perform an action like "view" or "edit"
@@ -45,7 +14,7 @@ class AccessControl {
 
     // return whether the set of permissions based on the relation includes the requested action
     return relations.some((rel) => {
-      const permissions = this.schema[type]?.relations[rel];
+      const permissions = this.db.data.schema[type]?.relations[rel];
       return permissions && permissions.includes(action);
     });
   }
@@ -69,7 +38,7 @@ class AccessControl {
 
     let discoveredRelations = [];
 
-    for (const tuple of this.tupleStore) {
+    for (const tuple of this.db.data.tupleStore) {
       // Case A: Direct relation found.
       // e.g., { subject: 'user:alice', relation: 'editor', object: 'file:1' }
       if (tuple.subject === subjectId && tuple.object === objectId) {
@@ -106,17 +75,4 @@ class AccessControl {
   }
 }
 
-const accessControl = new AccessControl(tupleStore, SCHEMA);
-
-console.log(
-  "Jeff's relations to file:1:",
-  await accessControl.expandUserRelations("user:jeff", "file:1"),
-);
-console.log(
-  "Can Alice edit file:1?",
-  await accessControl.can("alice", "edit", "file:1"),
-);
-console.log(
-  "Can Bob delete file:1?",
-  await accessControl.can("bob", "delete", "file:1"),
-);
+export { AccessControl };

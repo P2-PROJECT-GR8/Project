@@ -1,0 +1,94 @@
+{
+  "schema": {
+    "file": {
+      "relations": {
+        "owner": [
+          "view",
+          "edit",
+          "delete",
+          "share",
+          "comment"
+        ],
+        "editor": [
+          "view",
+          "edit",
+          "comment"
+        ],
+        "viewer": [
+          "view",
+          "comment"
+        ],
+        "commenter": [
+          "view",
+          "comment"
+        ]
+      }
+    },
+    "folder": {
+      "relations": {
+        "owner": [
+          "view",
+          "create_child",
+          "delete_folder"
+        ],
+        "viewer": [
+          "view"
+        ]
+      }
+    }
+  },
+  "tupleStore": [
+    {
+      "subject": "user:alice",
+      "relation": "editor",
+      "object": "file:1"
+    },
+    {
+      "subject": "user:bob",
+      "relation": "viewer",
+      "object": "file:1"
+    },
+    {
+      "subject": "user:jeff",
+      "relation": "member",
+      "object": "group:marketing"
+    },
+    {
+      "subject": "group:marketing",
+      "relation": "owner",
+      "object": "file:1"
+    },
+    {
+      "subject": "folder:marketing_assets",
+      "relation": "parent",
+      "object": "file:1"
+    },
+    {
+      "subject": "user:jeff",
+      "relation": "viewer",
+      "object": "folder:marketing_assets"
+    }
+  ],
+  "users": [
+    {
+      "id": "user:alice",
+      "name": "alice"
+    },
+    {
+      "id": "user:bob",
+      "name": "bob"
+    },
+    {
+      "id": "user:connor",
+      "name": "connor"
+    },
+    {
+      "id": "user:admin",
+      "name": "admin"
+    },
+    {
+      "id": "user:Magnus",
+      "name": "Magnus"
+    }
+  ]
+}

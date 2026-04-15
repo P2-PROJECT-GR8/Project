@@ -1,8 +1,0 @@
-{
-  "users": [
-    { "id": "alice", "name": "Alice" },
-    { "id": "bob", "name": "Bob" },
-    { "id": "connor", "name": "Connor" },
-    { "id": "admin", "name": "Admin" }
-  ]
-}
