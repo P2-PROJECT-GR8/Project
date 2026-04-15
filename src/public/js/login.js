@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
       fetch("/username", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: value }),
+        body: JSON.stringify({ userName: value }),
       })
         .then((res) => res.json())
         .then((data) => {
@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const res = await fetch("/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username: input }),
+      body: JSON.stringify({ userName: input }),
     });
 
     const data = await res.json();
