@@ -1,56 +1,76 @@
-const SCHEMA = {
-  file: {
-    relations: {
-      owner: ["view", "edit", "delete", "share", "comment"],
-      editor: ["view", "edit", "comment"],
-      viewer: ["view", "comment"],
-      commenter: ["view", "comment"],
-    },
-  },
-  folder: {
-    relations: {
-      owner: ["view", "create_child", "delete_folder"],
-      viewer: ["view"],
-    },
-  },
-};
+/**
+ * @typedef {Object} Tuple
+ * @property {string} subject - The subject of the relation (e.g., 'user:alice', 'group:editors').
+ * @property {string} relation - The relation the subject has to the object (e.g., 'member', 'owner').
+ * @property {string} object - The object of the relation (e.g., 'file:1', 'group:editors').
+ */
 
-const tupleStore = [
-  { subject: "user:alice", relation: "editor", object: "file:1" },
-  { subject: "user:bob", relation: "viewer", object: "file:1" },
-  { subject: "user:jeff", relation: "member", object: "group:marketing" },
-  { subject: "group:marketing", relation: "owner", object: "file:1" },
-  { subject: "folder:marketing_assets", relation: "parent", object: "file:1" },
-  {
-    subject: "user:jeff",
-    relation: "viewer",
-    object: "folder:marketing_assets",
-  },
-];
+/**
+ * @typedef {Object.<string, { relations: Object.<string, string[]> }>} Schema
+ * The schema defines the types of objects and the possible relations between them.
+ * The keys are object types (e.g., 'file', 'folder').
+ * The `relations` object maps a relation name (e.g., 'owner') to a list of permissions it grants (e.g., ['read', 'write']).
+ */
 
+/**
+ * @typedef {Object} DbData
+ * @property {Schema} schema - The access control schema.
+ * @property {Tuple[]} tupleStore - A list of all relationship tuples.
+ */
+
+/**
+ * @typedef {Object} Db
+ * @property {DbData} data - The database data.
+ */
+
+/**
+ * Implements a ReBAC (Relationship-Based Access Control) system.
+ * It determines user permissions by traversing a graph of relationships
+ * between users, groups, and objects.
+ *
+ * @class AccessControl
+ */
 class AccessControl {
-  constructor(tupleStore, schema) {
-    this.tupleStore = tupleStore;
-    this.schema = schema;
+  /**
+   * Creates an instance of AccessControl.
+   * @param {Db} db - The database object containing the schema and tuples.
+   * @memberof AccessControl
+   */
+  constructor(db) {
+    this.db = db;
   }
 
-  // function to check whether a user can perform an action like "view" or "edit"
+  /**
+   * Checks if a user can perform a specific action on an object.
+   * @param {string} userName - The name of the user (e.g., 'alice').
+   * @param {string} action - The action to be performed (e.g., 'read', 'write').
+   * @param {string} objectId - The ID of the object (e.g., 'file:1').
+   * @returns {Promise<boolean>} - Whether a user can perform an action.
+   * @memberof AccessControl
+   */
   async can(userName, action, objectId) {
     const userId = `user:${userName}`;
     // Get all relations this user has to an object
     const relations = await this.expandUserRelations(userId, objectId);
-
     // Find the type of object the user is trying to access
     const type = objectId.split(":")[0];
 
     // return whether the set of permissions based on the relation includes the requested action
     return relations.some((rel) => {
-      const permissions = this.schema[type]?.relations[rel];
+      const permissions = this.db.data.schema[type]?.relations[rel];
       return permissions && permissions.includes(action);
     });
   }
 
   // recursively check all the relations a user has to an object and return them as a set
+
+  /**
+   * Expands all relations a user has to an object, both direct and indirect.
+   * @param {string} userId - The ID of the user (e.g., 'user:alice').
+   * @param {string} objectId - The ID of the object (e.g., 'file:1').
+   * @returns {Promise<string[]>} - An array of all unique relations a user has to an object.
+   * @memberof AccessControl
+   */
   async expandUserRelations(userId, objectId) {
     // This is the main entry point for a check. We start by expanding access
     // for the user's own ID and ensure the results are unique.
@@ -60,6 +80,16 @@ class AccessControl {
 
   // A generic recursive expansion function.
   // subjectId can be a user, a group, etc.
+
+  /**
+   * Recursively expands relations between a subject and an object.
+   * @private
+   * @param {string} subjectId - The ID of the subject (user, group, etc.).
+   * @param {string} objectId - The ID of the object.
+   * @param {Set<string>} visited - A set to track visited subject-object pairs to prevent cycles.
+   * @returns {Promise<string[]>} - An array of discovered relations.
+   * @memberof AccessControl
+   */
   async _expand(subjectId, objectId, visited) {
     const visitKey = `${subjectId}->${objectId}`;
     if (visited.has(visitKey)) {
@@ -69,7 +99,7 @@ class AccessControl {
 
     let discoveredRelations = [];
 
-    for (const tuple of this.tupleStore) {
+    for (const tuple of this.db.data.tupleStore) {
       // Case A: Direct relation found.
       // e.g., { subject: 'user:alice', relation: 'editor', object: 'file:1' }
       if (tuple.subject === subjectId && tuple.object === objectId) {
@@ -106,17 +136,4 @@ class AccessControl {
   }
 }
 
-const accessControl = new AccessControl(tupleStore, SCHEMA);
-
-console.log(
-  "Jeff's relations to file:1:",
-  await accessControl.expandUserRelations("user:jeff", "file:1"),
-);
-console.log(
-  "Can Alice edit file:1?",
-  await accessControl.can("alice", "edit", "file:1"),
-);
-console.log(
-  "Can Bob delete file:1?",
-  await accessControl.can("bob", "delete", "file:1"),
-);
+export { AccessControl };
