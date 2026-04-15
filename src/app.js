@@ -8,8 +8,6 @@ import { AccessControl } from "./routes/access.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-console.log(__dirname);
-
 const app = express();
 
 const db = await JSONFilePreset(path.join(__dirname, "data", "db.json"), {
@@ -61,15 +59,15 @@ app.listen(3000, () => {
   console.log("Server running at http://localhost:3000");
 });
 
-console.log(
-  "Jeff's relations to file:1:",
-  await accessControl.expandUserRelations("user:jeff", "file:1"),
-);
-console.log(
-  "Can Alice edit file:1?",
-  await accessControl.can("alice", "edit", "file:1"),
-);
-console.log(
-  "Can Bob delete file:1?",
-  await accessControl.can("bob", "delete", "file:1"),
-);
+// console.log(
+//   "Jeff's relations to file:1:",
+//   await accessControl.expandUserRelations("user:jeff", "file:1"),
+// );
+// console.log(
+//   "Can Alice edit file:1?",
+//   await accessControl.can("alice", "edit", "file:1"),
+// );
+// console.log(
+//   "Can Bob delete file:1?",
+//   await accessControl.can("bob", "delete", "file:1"),
+// );
