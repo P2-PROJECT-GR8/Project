@@ -71,10 +71,37 @@ export function renderHeader(state = "none") {
   const accountIcon = document.createElement("i");
   accountIcon.className = "material-icons md-36";
   accountIcon.innerText = "account_circle";
+  accountIcon.addEventListener("click", (e) => {
+    fetch("/account", {
+      method: "GET",
+      credentials: "include",
+    });
+  });
   accountLink.appendChild(accountIcon);
+
+  // Logout icon
+  const logoutLink = document.createElement("a");
+  logoutLink.href = "#";
+  const logoutIcon = document.createElement("i");
+  logoutIcon.className = "material-icons md-36";
+  logoutIcon.innerText = "logout";
+  logoutIcon.addEventListener("click", async (e) => {
+    const response = await fetch("/logout", {
+      method: "POST",
+      credentials: "include",
+    });
+    if (response.ok) {
+      alert("Logout Succesful");
+      window.location.href = "/pages/landing";
+    } else {
+      alert("Could not log out, check that you are logged in");
+    }
+  });
+  logoutLink.appendChild(logoutIcon);
 
   settingsDiv.appendChild(settingsLink);
   settingsDiv.appendChild(accountLink);
+  settingsDiv.appendChild(logoutLink);
   header.appendChild(settingsDiv);
 
   document.body.prepend(header);

@@ -1,9 +1,9 @@
 import { basicRenderHeader, renderHeader } from "./navRenderer.js";
+renderHeader();
 
 document.addEventListener("DOMContentLoaded", () => {
-  renderHeader();
-
   const loginBtn = document.getElementById("LoginBtn");
+  const createSessionBtn = document.getElementById("createSession");
 
   loginBtn.addEventListener("click", (e) => {
     e.preventDefault();
@@ -34,5 +34,19 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         });
     }
+  });
+
+  createSessionBtn?.addEventListener("click", async (e) => {
+    e.preventDefault();
+    const input = document.getElementById("usernameInput")?.value ?? "";
+    const res = await fetch("/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username: input }),
+    });
+
+    const data = await res.json();
+
+    console.log(data.message);
   });
 });

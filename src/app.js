@@ -1,4 +1,6 @@
 import express from "express";
+import jwt from "jsonwebtoken";
+import cookieParser from "cookie-parser";
 import path from "path";
 import { fileURLToPath } from "url";
 import { validUserName } from "./routes/users.js";
@@ -27,11 +29,14 @@ const accessControl = new AccessControl(db);
 
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
+app.use(cookieParser());
+
+const SECRET_KEY = "rtKaslL6w4B9in";
 
 // Return a username to the client and logs whether the user exists in the db
 app.post("/username", function (req, res) {
   console.log("recieved from index.js", req.body);
-  let userName = req.body.username;
+  const { userName } = req.body;
 
   db.read();
 
@@ -52,6 +57,53 @@ app.post("/username", function (req, res) {
     // });
 
     res.json({ status: "404" });
+  }
+});
+
+// JWT sender for when a new user logs in
+app.post("/login", (req, res) => {
+  const { username } = req.body;
+
+  // TODO: Check if a user is in the users db (JSON file) and return an error if not.
+
+  if (!username) return res.status(400).send("Username is missing");
+
+  const token = jwt.sign({ userId: `user:${username}` }, SECRET_KEY, {
+    expiresIn: "1h",
+  });
+
+  console.log(`Created a session for ${username} with Id : user:${username}`);
+  res.cookie("sessionToken", token, { httpOnly: true });
+  res.send({ message: `Logged in as ${username}` });
+});
+
+app.get("/account", (req, res) => {
+  const token = req.cookies.sessionToken;
+  if (!token) {
+    console.log("No session found");
+    return res.status(401).send("No active session found, please log in");
+  }
+
+  try {
+    const decoded = jwt.verify(token, SECRET_KEY);
+    console.log(decoded);
+    const userId = decoded.userId;
+
+    console.log(`Account request from ${userId}`);
+  } catch (error) {
+    res.status(401).send("Invalid session");
+  }
+});
+
+app.post("/logout", (req, res) => {
+  if (!req.cookies.sessionToken) {
+    return res
+      .status(401)
+      .send("No active session found. Log in before loggin out");
+  } else {
+    res.clearCookie("sessionToken", { httpOnly: true });
+    res.send("Session deleted, user logged out");
+    console.log("Session deleted");
   }
 });
 
