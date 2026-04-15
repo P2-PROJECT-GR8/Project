@@ -12,7 +12,19 @@ console.log(__dirname);
 
 const app = express();
 
-const db = await JSONFilePreset(path.join(__dirname, "data", "db.json"), {});
+const db = await JSONFilePreset(path.join(__dirname, "data", "db.json"), {
+  users: [{ id: "", name: "" }],
+  tupleStore: [
+    {
+      subject: "",
+      relation: "",
+      object: "",
+    },
+  ],
+  schema: { definitions: {} },
+});
+
+// @ts-ignore
 const accessControl = new AccessControl(db);
 
 app.use(express.static(path.join(__dirname, "public")));
