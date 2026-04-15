@@ -1,19 +1,40 @@
-import { readFile, readJSON, writeFile, writeJSON } from "../../data/data-handling/JSONstorage.js";
-import { basicRenderHeader, renderHeader } from "./navRenderer.js";
-import 'node:fs';
-document.addEventListener("DOMContentLoaded", () => {
-renderHeader();
-const registerBtn = document.getElementById("RegisterBtn");
+function showRegisterForm(){
+    document.getElementById('formContainer').innerHTML = `
+          <label for="register"><b>Register Here</b></label>
+          <form id="registerForm">
+            <input
+              class="username"
+              type="text"
+              id="regInput"
+              placeholder="Enter Username"
+              name="regUsername"
+              required
+              minlength="2"
+              size="20"
+            />
+            <button type="submit" class="button" id="registerBtn">Register Account</button>
+            <a href="#" onclick="showLoginForm()" class="register-link" id="LoginLink">Log in</a>
+            <p id="ErrorMsg" class="error"></p>
+          </form>
+        `;
+      }
 
-    async function writeToJSON() {
-    readJSON("./data/users.json");
-    let regUser= document.getElementById("regInput").value;
-    let userObject = {
-        username: regUser,
-    }
-    let data = readJSON("./data/users.json");
-    data.users.push(userObject);
-    writeJSON("./data/users.json", data);
-    console.log(data);
-    }
-});
+      function showLoginForm() {
+        document.getElementById('formContainer').innerHTML = `
+          <label for="username"><b>Login here</b></label>
+          <form>
+            <input
+              class="username"
+              type="text"
+              id="usernameInput"
+              placeholder="Enter Username"
+              name="username"
+              required
+              minlength="2"
+              size="20"
+            />
+            <button type="submit" class="button" id="LoginBtn">Login</button>
+            <a href="#" onclick="showRegisterForm()" class="register-link" id="registerPage">Register here</a>
+            <p id="ErrorMsg" class="error"></p>
+          </form>`;
+      }
