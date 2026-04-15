@@ -78,3 +78,22 @@ body {
   color: var(--on-surface);
   border-radius: var(--radius-lg);
 }
+
+.btn-lift {
+  --up: 0px;
+  --shadow: 0px;
+
+  transform: translateY(var(--up));
+  box-shadow: 0 4px var(--shadow) rgba(0, 0, 0, 0.15);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.btn-lift:hover {
+  --up: -2px;
+  --shadow: 8px;
+}
+
+.btn-lift:active {
+  --up: 0px;
+  --shadow: 0px;
+}

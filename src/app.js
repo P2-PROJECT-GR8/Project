@@ -26,19 +26,56 @@ const db = await JSONFilePreset(path.join(__dirname, "data", "db.json"), {
 
 // @ts-ignore
 const accessControl = new AccessControl(db);
+const SECRET_KEY = "rtKaslL6w4B9in";
 
-app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
 app.use(cookieParser());
 
 const isAuthenticated = (req, res, next) => {
   const token = req.cookies.sessionToken;
-  if (!token) return res.send("No session found");
+  if (!token) {
+    // If there's no token, redirect to the login page.
+    return res.redirect("/");
+  }
 
-  const decoded = jwt.verify(token, SECRET_KEY);
+  try {
+    const decoded = jwt.verify(token, SECRET_KEY);
+    db.read();
+
+    if (db.data.users.some((user) => user.id === decoded.userId)) {
+      return next();
+    }
+    // If user from token is not in our db, redirect to login
+    res.redirect("/");
+  } catch (err) {
+    // If token is invalid
+    res.redirect("/");
+  }
 };
 
-const SECRET_KEY = "rtKaslL6w4B9in";
+const redirectIfLoggedIn = (req, res, next) => {
+  const token = req.cookies.sessionToken;
+  if (!token) {
+    return next();
+  }
+
+  try {
+    const decoded = jwt.verify(token, SECRET_KEY);
+    db.read();
+
+    if (db.data.users.some((user) => user.id === decoded.userId)) {
+      return res.redirect("/pages/dashboard");
+    }
+    next();
+  } catch (error) {
+    next();
+  }
+};
+
+app.use("/pages", isAuthenticated);
+app.get("/", redirectIfLoggedIn);
+
+app.use(express.static(path.join(__dirname, "public")));
 
 // Return a username to the client and logs whether the user exists in the db
 app.post("/username", function (req, res) {
@@ -91,15 +128,19 @@ app.get("/account", (req, res) => {
   const token = req.cookies.sessionToken;
   if (!token) {
     console.log("No session found");
-    return res.status(401).send("No active session found, please log in");
+    return res
+      .status(401)
+      .send({ message: "No active session found, please log in" });
   }
-
   try {
     const decoded = jwt.verify(token, SECRET_KEY);
     console.log(decoded);
-    const userId = decoded.userId;
 
-    console.log(`Account request from ${userId}`);
+    const userId = decoded.userId;
+    const userName = userId.split(":")[1];
+
+    console.log(`Account request from ${userName}`);
+    res.send({ message: `Logged in as ${userName}` });
   } catch (error) {
     res.status(401).send("Invalid session");
   }
@@ -109,7 +150,7 @@ app.post("/logout", (req, res) => {
   if (!req.cookies.sessionToken) {
     return res
       .status(401)
-      .send("No active session found. Log in before loggin out");
+      .send({ message: "No active session found. Log in before loggin out" });
   } else {
     res.clearCookie("sessionToken", { httpOnly: true });
     res.send("Session deleted, user logged out");
