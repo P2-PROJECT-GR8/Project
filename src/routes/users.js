@@ -7,8 +7,6 @@ const userList = {
   ],
 };
 /**
- *
- *
  * @param {*} name
  * @param {*} access
  */
@@ -19,8 +17,6 @@ function User(name, access) {
 
 // functionality for DB of some kind should probably go in here
 /**
- *
- *
  * @param {String} userName
  * @return {Object} - Returns a userObject
  */

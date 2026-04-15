@@ -31,6 +31,13 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
 app.use(cookieParser());
 
+const isAuthenticated = (req, res, next) => {
+  const token = req.cookies.sessionToken;
+  if (!token) return res.send("No session found");
+
+  const decoded = jwt.verify(token, SECRET_KEY);
+};
+
 const SECRET_KEY = "rtKaslL6w4B9in";
 
 // Return a username to the client and logs whether the user exists in the db
@@ -43,20 +50,19 @@ app.post("/username", function (req, res) {
   if (db.data.users.some((u) => u.name === userName)) {
     console.log(`User ${userName} exists in the database`);
     console.log("New user login", userName);
-    res.json({ userzame: userName, status: "200" });
+    res.json({ userName: userName, status: "200" });
   } else {
     console.log(`User ${userName} does not exist in the database`);
     console.log("Valid usernames are:");
     db.data.users.forEach((element) => {
       console.log(element.name);
     });
+    res.json({ status: "404" });
 
     // console.log(`Adding ${userName} to the database`);
     // db.update(({ users }) => {
     //   users.push({ id: `user:${userName}`, name: userName });
     // });
-
-    res.json({ status: "404" });
   }
 });
 
@@ -64,9 +70,13 @@ app.post("/username", function (req, res) {
 app.post("/login", (req, res) => {
   const { userName } = req.body;
 
-  // TODO: Check if a user is in the users db (JSON file) and return an error if not.
+  // Check if a user is in the users db (JSON file) and return an error if not.
+  if (!db.data.users.some((user) => user.name === userName)) {
+    return res.status(404).send({ message: "Username not found" });
+  }
 
-  if (!userName) return res.status(400).send("Username is missing");
+  if (!userName)
+    return res.status(400).send({ message: "Username is missing" });
 
   const token = jwt.sign({ userId: `user:${userName}` }, SECRET_KEY, {
     expiresIn: "1h",
