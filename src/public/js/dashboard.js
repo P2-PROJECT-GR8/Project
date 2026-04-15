@@ -1,3 +1,7 @@
+import { renderHeader } from "./navRenderer.js";
+
+renderHeader();
+
 function showPage(pageId) {
   // Deactivate all content pages
   document.querySelectorAll(".page").forEach((page) => {
