@@ -2,9 +2,14 @@ const regHandler = async (event) => {
   event.preventDefault();
   const regName = document.getElementById("regInput").value;
   const errorMsg = document.getElementById("ErrorMsg");
+  const successMsg = document.getElementById("successMsg");
 
   if (!regName) {
-    errorMsg.innerText = "Please type desired username";
+    errorMsg.innerText = "Please type desired username!";
+    return;
+  } else if (regName.length < 2 || regName.length > 10) {
+    errorMsg.innerText =
+      "Invalid username. Usernames must be between 2 and 10 characters long.";
     return;
   }
   const res = await fetch("/register", {
@@ -14,10 +19,12 @@ const regHandler = async (event) => {
   });
   const data = await res.json();
 
-  if (data.message) {
+  if (data.message === "User registered successfully!") {
     successMsg.innerText = data.message;
+    errorMsg.innerText = "";
+    document.getElementById("newLogIn").style.display = "block";
   } else {
-    successMsg.innerText = `User registered successfully!, go to <a href="../landing/index.html">login page</a> to login.`;
+    errorMsg.innerText = data.message;
+    successMsg.innerText = "";}
   }
-};
 document.getElementById("regBtn").addEventListener("click", regHandler);
