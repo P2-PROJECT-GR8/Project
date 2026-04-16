@@ -26,40 +26,33 @@ function showRegisterForm(){
             <input
               class="username"
               type="text"
-              id="usernameInput"
+              id="userNameInput"
               placeholder="Enter Username"
-              name="username"
+              name="regUsername"
               required
               minlength="2"
               size="20"
             />
-            <button type="submit" class="button" id="LoginBtn" onSubmit="handleLogin(event)">Login</button>
+            <button type="submit" class="button" id="loginBtn">Login</button>
             <a href="#" onclick="showRegisterForm()" class="register-link" id="registerPage">Register here</a>
             <p id="ErrorMsg" class="error"></p>
           </form>`;
       }
-async function handleRegister(event) {
-    event.preventDefault();
-    const username = document.getElementById("regInput").value.trim();
-    const errorEl = document.getElementById("ErrorMsg");
 
-    if (!username) {
-        errorEl.textContent = "Please enter a username";
-        return;
-    }
-
-    const response = await fetch("/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-     body: JSON.stringify({ username }),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-        errorEl.textContent = data.error || "Registration failed";
-        return;
-    }
-
-  showLoginForm();
-}
+      const registerForm = document.getElementById("registerForm");
+        registerForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const input = document.getElementById("regInput").value;
+        if(!input || input.trim() === "" || input.length < 2 || input.length > 10) {
+          document.getElementById("ErrorMsg").textContent = "Username must be between 2 and 10 characters long.";
+          return;
+        }
+        const res = await fetch("/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ regUser: input }),
+        });
+       
+        const data = await res.json();
+        console.log(data.message);
+      });
