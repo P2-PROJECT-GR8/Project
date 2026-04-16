@@ -44,6 +44,16 @@
       "object": "file:1"
     },
     {
+      "subject": "user:magnus",
+      "relation": "owner",
+      "object": "file:Project.pdf"
+    },
+    {
+      "subject": "user:magnus",
+      "relation": "viewer",
+      "object": "file:Earnings.pdf"
+    },
+    {
       "subject": "user:bob",
       "relation": "viewer",
       "object": "file:1"
