@@ -42,3 +42,51 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 });
+// Show "Share file" button only if admin
+  const access = sessionStorage.getItem("access");
+  if (access === "all") {
+    document.getElementById("share-file-btn").style.display = "block";
+  }
+
+  // Open popup
+  document.getElementById("share-file-btn").addEventListener("click", () => {
+    document.getElementById("popup-overlay").style.display = "block";
+  });
+
+  // Close popup
+  document.getElementById("share-close-btn").addEventListener("click", () => {
+    document.getElementById("popup-overlay").style.display = "none";
+  });
+
+  // Save tuple when clicking "Share"
+  document.getElementById("share-save-btn").addEventListener("click", async () => {
+    const filename = document.getElementById("share-filename").value;
+    const user     = document.getElementById("share-user").value;
+    const relation = document.getElementById("share-relation").value;
+
+    // Check that all fields are filled
+    if (!filename || !user) {
+      document.getElementById("share-message").textContent = "Please fill in all fields!";
+      return;
+    }
+
+    // Send tuple to server
+    await fetch("/api/tuples", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        subject: `user:${user}`,
+        relation: relation,
+        object: `file:${filename}`
+      })
+    });
+
+    // Show confirmation and close popup
+    document.getElementById("share-message").textContent = "File shared! ✓";
+    setTimeout(() => {
+      document.getElementById("popup-overlay").style.display = "none";
+      document.getElementById("share-filename").value = "";
+      document.getElementById("share-user").value = "";
+      document.getElementById("share-message").textContent = "";
+    }, 1000);
+  });

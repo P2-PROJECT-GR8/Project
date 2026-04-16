@@ -55,6 +55,9 @@
               <a href="#trash"><i class="material-icons">delete</i>Trash</a>
             </li>
           </ul>
+          <button id="share-file-btn" style="display: none">
+            <i class="material-icons">share</i> Share file
+          </button>
         </nav>
       </div>
       <main class="content">
@@ -77,5 +80,49 @@
       <footer class="footer"></footer>
     </div>
     <script src="../../js/dashboard.js" type="module"></script>
+    <div
+      id="popup-overlay"
+      style="
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+      "
+    >
+      <div
+        style="
+          background: white;
+          padding: 30px;
+          border-radius: 8px;
+          width: 400px;
+          margin: 100px auto;
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+        "
+      >
+        <h2>Share file</h2>
+
+        <label>Filename</label>
+        <input id="share-filename" placeholder="e.g. report" />
+
+        <label>User</label>
+        <input id="share-user" placeholder="e.g. alice" />
+
+        <label>Access</label>
+        <select id="share-relation">
+          <option value="viewer">Viewer – can only read</option>
+          <option value="editor">Editor – can edit</option>
+        </select>
+
+        <p id="share-message"></p>
+
+        <button id="share-save-btn">Share</button>
+        <button id="share-close-btn">Cancel</button>
+      </div>
+    </div>
   </body>
 </html>

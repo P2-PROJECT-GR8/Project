@@ -67,6 +67,11 @@
       "subject": "user:jeff",
       "relation": "viewer",
       "object": "folder:marketing_assets"
+    },
+    {
+      "subject": "user:abdi",
+      "relation": "editor",
+      "object": "file:p1 "
     }
   ],
   "users": [

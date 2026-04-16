@@ -107,6 +107,30 @@ app.post("/logout", (req, res) => {
   }
 });
 
+// Get all tuples
+app.get("/api/tuples", (req, res) => {
+  res.json(db.data.tupleStore);
+});
+
+// Add new tuple
+app.post("/api/tuples", async (req, res) => {
+  db.data.tupleStore.push(req.body);
+  await db.write();
+  res.json({ ok: true });
+});
+
+// Get schema
+app.get("/api/schema", (req, res) => {
+  res.json(db.data.schema);
+});
+
+// Save schema
+app.post("/api/schema", async (req, res) => {
+  db.data.schema = req.body;
+  await db.write();
+  res.json({ ok: true });
+});
+
 app.listen(3000, () => {
   console.log("Server running at http://localhost:3000");
 });
