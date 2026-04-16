@@ -60,20 +60,32 @@ app.post("/username", function (req, res) {
   }
 });
 
-app.post("/register", function (req, res){
-  const { regUser } = req.body;
-  if (!regUser) return res.status(400).send("Username is missing");
-  if (db.data.users.some((u) => u.name === regUser)) {
-    console.log(`User ${regUser} already exists in the database`);
-    res.json({ message: `User ${regUser} already exists` });
-  } else {
-    db.update(({ users }) => {
-      users.push({ id: `user:${regUser}`, name: regUser });
+app.post("/register", (req, res) => {
+  const { userName } = req.body;
+  
+  db.read();
+
+  if (db.data.users.some((u) => u.name === userName)) {
+    console.log(`User ${userName} already exists in the database`);
+    res.json({ message: "Username already exists, please choose another one" });
+  } else if (!validUserName(userName)) {
+    console.log(`Invalid username attempted: ${userName}`);
+    res.json({
+      message:
+        "Invalid username. Usernames must be between 2 and 10 characters long.",
     });
-    console.log(`Added ${regUser} as a new user`);
-    res.json({ message: `Registered user ${regUser} successfully` });
+  } else {
+    console.log(`Adding ${userName} to the database`);
+    db.update(({ users }) => {
+      users.push({ id: `user:${userName}`, name: userName });
+    });
+    res.json({ message: "User registered successfully!" });
   }
-      });
+});
+
+
+
+
 
 // JWT sender for when a new user logs in
 app.post("/login", (req, res) => {
