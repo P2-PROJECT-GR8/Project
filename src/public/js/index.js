@@ -14,7 +14,7 @@ function loginHandler() {
   const respone = fetch("http://localhost:3000/username", {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ username: "jeff" }),
+    body: JSON.stringify({ userName: "jeff" }),
   })
     .then((res) => res.json())
     .then((data) => {

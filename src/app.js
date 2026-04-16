@@ -43,7 +43,7 @@ app.post("/username", function (req, res) {
   if (db.data.users.some((u) => u.name === userName)) {
     console.log(`User ${userName} exists in the database`);
     console.log("New user login", userName);
-    res.json({ username: userName, status: "200" });
+    res.json({ userzame: userName, status: "200" });
   } else {
     console.log(`User ${userName} does not exist in the database`);
     console.log("Valid usernames are:");
@@ -77,19 +77,19 @@ app.post("/register", function (req, res){
 
 // JWT sender for when a new user logs in
 app.post("/login", (req, res) => {
-  const { username } = req.body;
+  const { userName } = req.body;
 
   // TODO: Check if a user is in the users db (JSON file) and return an error if not.
 
-  if (!username) return res.status(400).send("Username is missing");
+  if (!userName) return res.status(400).send("Username is missing");
 
-  const token = jwt.sign({ userId: `user:${username}` }, SECRET_KEY, {
+  const token = jwt.sign({ userId: `user:${userName}` }, SECRET_KEY, {
     expiresIn: "1h",
   });
 
-  console.log(`Created a session for ${username} with Id : user:${username}`);
+  console.log(`Created a session for ${userName} with Id : user:${userName}`);
   res.cookie("sessionToken", token, { httpOnly: true });
-  res.send({ message: `Logged in as ${username}` });
+  res.send({ message: `Logged in as ${userName}` });
 });
 
 app.get("/account", (req, res) => {
