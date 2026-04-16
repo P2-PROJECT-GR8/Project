@@ -77,6 +77,51 @@
               <a href="#"><i class="material-icons">more_vert</i></a>
             </div>
           </div>
+          <dialog id="file-details">
+            <div class="modal-body">
+              <div>
+                <h2>Manage Access</h2>
+                <p>Define who can view, edit, or manage this file or folder</p>
+              </div>
+              <label for="invite-field">ADD USERS OR GROUPS</label>
+              <input
+                type="text"
+                id="invite-field"
+                placeholder="Write the name of a group or user"
+                minlength="2"
+              />
+              <h3>Current Members</h3>
+              <div id="members">
+                <div class="member">
+                  <p>Magnus</p>
+                  <p>Owner</p>
+                </div>
+                <div class="member">
+                  <p>Emil</p>
+                  <p>Viewer</p>
+                </div>
+                <div class="member">
+                  <p>Kasper</p>
+                  <p>Editor</p>
+                </div>
+              </div>
+              <div id="custom-access">
+                <i class="material-icons md-36">verified_user</i>
+                <div class="custom-info">
+                  <h2>Custom Access Roles</h2>
+                  <p>
+                    If you need more granular control, create a 'Custom' role.
+                  </p>
+                  <a href="">Configure Custom Role</a>
+                </div>
+              </div>
+              <div id="modal-buttons">
+                <button id="cancel-modal">Cancel</button>
+                <div></div>
+                <button class="btn-lift">Save Changes</button>
+              </div>
+            </div>
+          </dialog>
         </div>
         <div id="documents" class="page">
           <h1>Here are all your douments</h1>
