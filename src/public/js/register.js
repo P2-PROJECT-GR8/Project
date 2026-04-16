@@ -15,9 +15,9 @@ const regHandler = async (event) => {
   const data = await res.json();
 
   if (data.message) {
-    errorMsg.innerText = data.message;
+    successMsg.innerText = data.message;
   } else {
-    errorMsg.innerText = "User registered successfully!";
+    successMsg.innerText = `User registered successfully!, go to <a href="../landing/index.html">login page</a> to login.`;
   }
 };
 document.getElementById("regBtn").addEventListener("click", regHandler);
