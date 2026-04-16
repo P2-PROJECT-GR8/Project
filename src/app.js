@@ -80,7 +80,7 @@ app.use(express.static(path.join(__dirname, "public")));
 // Return a username to the client and logs whether the user exists in the db
 app.post("/username", function (req, res) {
   console.log("recieved from index.js", req.body);
-  const { userName } = req.body;
+  const userName = req.body.userName.toLowerCase();
 
   db.read();
 
@@ -105,7 +105,7 @@ app.post("/username", function (req, res) {
 
 // JWT sender for when a new user logs in
 app.post("/login", (req, res) => {
-  const { userName } = req.body;
+  const userName = req.body.userName.toLowerCase();
 
   // Check if a user is in the users db (JSON file) and return an error if not.
   if (!db.data.users.some((user) => user.name === userName)) {
@@ -117,6 +117,30 @@ app.post("/login", (req, res) => {
 
   const token = jwt.sign({ userId: `user:${userName}` }, SECRET_KEY, {
     expiresIn: "1h",
+  });
+
+  console.log(`Created a session for ${userName} with Id : user:${userName}`);
+  res.cookie("sessionToken", token, { httpOnly: true });
+  res.send({ message: `Logged in as ${userName}` });
+});
+
+app.post("/register", (req, res) => {
+  const userName = req.body.userName.toLowerCase();
+
+  // Check if a user is in the users db (JSON file) and return an error if not.
+  if (db.data.users.some((user) => user.name === userName)) {
+    return res.status(401).send({ message: "Username already exists" });
+  }
+
+  if (!userName)
+    return res.status(400).send({ message: "Username is missing" });
+
+  const token = jwt.sign({ userId: `user:${userName}` }, SECRET_KEY, {
+    expiresIn: "1h",
+  });
+
+  db.update(({ users }) => {
+    users.push({ id: `user:${userName}`, name: userName });
   });
 
   console.log(`Created a session for ${userName} with Id : user:${userName}`);

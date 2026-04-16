@@ -31,8 +31,8 @@
           <i class="material-icons" id="shield">shield</i>
           HS Storage
         </p>
-        <div class="login">
-          <form>
+        <div class="forms">
+          <form id="login" class="form">
             <h2>Log In</h2>
             <label for="username">Username</label>
             <input
@@ -49,11 +49,32 @@
             <button type="submit" class="button btn-lift" id="createSession">
               Log In
             </button>
-            <p id="redirect">
-              Don't have an account? <a href="/">Create an account</a>
+            <p id="redirect" class="redirect-link">
+              Don't have an account? <a href="#">Create an account</a>
             </p>
-            <p id="ErrorMsg" class="error"></p>
           </form>
+          <form id="register" class="form hidden">
+            <h2>Register New User</h2>
+            <label for="username">Username</label>
+            <input
+              class="username"
+              type="text"
+              id="registerUserNameInput"
+              placeholder="Username"
+              name="username"
+              required
+              minlength="2"
+              size="20"
+            />
+            <!-- <button type="submit" class="button" id="LoginBtn">Login</button> -->
+            <button type="submit" class="button btn-lift" id="createUser">
+              Register
+            </button>
+            <p id="redirect" class="redirect-link">
+              Already have an account? <a href="#">Log in instead</a>
+            </p>
+          </form>
+          <p id="ErrorMsg" class="error"></p>
         </div>
       </div>
     </div>

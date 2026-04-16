@@ -87,8 +87,12 @@
       "name": "admin"
     },
     {
-      "id": "user:Magnus",
-      "name": "Magnus"
+      "id": "user:emil",
+      "name": "emil"
+    },
+    {
+      "id": "user:magnus",
+      "name": "magnus"
     }
   ]
 }
