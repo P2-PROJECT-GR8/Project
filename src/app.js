@@ -53,6 +53,27 @@ const isAuthenticated = (req, res, next) => {
   }
 };
 
+/**
+ * Function for getting the requesting users id and name from the db
+ * Wrap this in a trycatch to handle any errors.
+ * @param {Object} req - An http request containing a JWT token
+ * @returns - an object with a users name and id
+ */
+const getUser = (req) => {
+  const token = req.cookies.sessionToken;
+  if (!token) throw new Error("Token is null or undefined");
+  try {
+    const decoded = jwt.verify(token, SECRET_KEY);
+    db.read();
+
+    const user = db.data.users.filter((user) => user.id === decoded.userId);
+    if (user) return user;
+    throw new Error("No user with the provided ID");
+  } catch (error) {
+    throw error;
+  }
+};
+
 const redirectIfLoggedIn = (req, res, next) => {
   const token = req.cookies.sessionToken;
   if (!token) {
