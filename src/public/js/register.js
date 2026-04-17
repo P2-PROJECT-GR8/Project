@@ -25,16 +25,18 @@ const regHandler = async (event) => {
     document.getElementById("newLogIn").style.display = "block";
   } else {
     errorMsg.innerText = data.message;
-    successMsg.innerText = "";}
+    successMsg.innerText = "";
   }
-document.getElementById("regBtn").addEventListener("click", regHandler);
+};
 
 const landingSite = document.getElementById("formContainer");
 
-const registerBtn = document.getElementById("regBtn");
-registerBtn.addEventListener("click", (e)=> {
-  e.preventDefault();
-  landingSite.innerHTML = `<label for="regForm"><b>Register here</b></label>
+const attachRegisterListener = () => {
+  const registerBtn = document.getElementById("registerLink");
+  if (registerBtn) {
+    registerBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      landingSite.innerHTML = `<label for="regForm"><b>Register here</b></label>
           <form>
             <input
               class="regUser"
@@ -49,13 +51,20 @@ registerBtn.addEventListener("click", (e)=> {
             <button type="submit" class="button" id="regBtn">Register</button>
             <p id="successMsg" class="success"></p>
             <p id="ErrorMsg" class="error"></p>
-            <div id="newLogIn" style="display: none;" class="register-link"><a href=""a></div>
-            </form>`;});
+            <div id="newLogIn" style="display: none;" class="register-link"><a href="">Back to Login</a></div>
+            </form>`;
+      document.getElementById("regBtn").addEventListener("click", regHandler);
+      attachLoginListener();
+    });
+  }
+};
 
-const loginSiteBtn= document.getElementById("newLogIn");
-loginSiteBtn.addEventListener("click", (e) => {
-  e.preventDefault();
-  landingSite.innerHTML = `<label for="username"><b>Login here</b></label>
+const attachLoginListener = () => {
+  const loginSiteBtn = document.getElementById("newLogIn");
+  if (loginSiteBtn) {
+    loginSiteBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      landingSite.innerHTML = `<label for="username"><b>Login here</b></label>
           <form>
             <input
               class="username"
@@ -69,8 +78,12 @@ loginSiteBtn.addEventListener("click", (e) => {
             />
             <button type="submit" class="button" id="LoginBtn">Login</button>
             <button class="button" id="createSession">Create Session</button>
-            <nav>
-              <a href="" class="register-link">Not in the DB? Register here</a>
-            </nav>
+            <a href="#" class="register-link" id="registerLink">Not in the DB? Register here</a>
             <p id="ErrorMsg" class="error"></p>
-            </form>`});
+            </form>`;
+      attachRegisterListener();
+    });
+  }
+};
+
+attachRegisterListener();
