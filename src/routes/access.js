@@ -134,6 +134,38 @@ class AccessControl {
     // Filter out relations like 'parent' that are used for traversal but aren't permissions themselves.
     return discoveredRelations.filter((rel) => rel !== "parent");
   }
+
+  /**
+   * Finds all objects a user can access and lists the specific relations they have to each.
+   * @param {string} userId - The ID of the user (e.g., 'user:alice').
+   * @returns {Promise<Array<{objectId: string, relations: string[]}>>} - A promise that resolves to an array of objects,
+   * where each object contains an objectId and the user's relations to it.
+   * @memberof AccessControl
+   */
+  async getUserRelations(userId) {
+    const accessibleObjects = [];
+    // Create a set of all unique object IDs from the tuple store.
+    // We are interested in the "things" that can be accessed.
+    const allObjectIds = new Set(this.db.data.tupleStore.map((t) => t.object));
+
+    for (const objectId of allObjectIds) {
+      // not their membership in groups, so we can skip group objects.
+      if (objectId.startsWith("group:")) {
+        continue;
+      }
+
+      const relations = await this.expandUserRelations(userId, objectId);
+
+      if (relations.length > 0) {
+        accessibleObjects.push({
+          objectId: objectId,
+          relations: relations,
+        });
+      }
+    }
+
+    return accessibleObjects;
+  }
 }
 
 export { AccessControl };

@@ -44,6 +44,16 @@
       "object": "file:1"
     },
     {
+      "subject": "user:magnus",
+      "relation": "owner",
+      "object": "file:Project.pdf"
+    },
+    {
+      "subject": "user:magnus",
+      "relation": "viewer",
+      "object": "file:Earnings.pdf"
+    },
+    {
       "subject": "user:bob",
       "relation": "viewer",
       "object": "file:1"
@@ -87,8 +97,12 @@
       "name": "admin"
     },
     {
-      "id": "user:Magnus",
-      "name": "Magnus"
+      "id": "user:emil",
+      "name": "emil"
+    },
+    {
+      "id": "user:magnus",
+      "name": "magnus"
     }
   ]
 }

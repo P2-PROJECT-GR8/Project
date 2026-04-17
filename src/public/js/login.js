@@ -1,44 +1,13 @@
 import { basicRenderHeader, renderHeader } from "./navRenderer.js";
-renderHeader();
+// renderHeader();
 
 document.addEventListener("DOMContentLoaded", () => {
-  const loginBtn = document.getElementById("LoginBtn");
-  const createSessionBtn = document.getElementById("createSession");
-
-  loginBtn.addEventListener("click", (e) => {
-    e.preventDefault();
-    let UserInput = document.getElementById("usernameInput");
-    let errorMsg = document.getElementById("ErrorMsg");
-    let value = UserInput.value;
-
-    if (value.length < 2 || value.length > 10) {
-      errorMsg.textContent =
-        "Username was either wrong or inputted incorrectly, try again!";
-    } else if (value.trim() === "") {
-      errorMsg.textContent = "Something went wrong, try again!";
-    } else {
-      fetch("/username", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userName: value }),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          console.log("The Server respondend with:", data);
-
-          if (data.status === "404") {
-            errorMsg.textContent = "Invalid Username";
-          } else if (data.status === "200") {
-            errorMsg.textContent = "";
-            console.log("Now redirect to to this access level", data.access);
-          }
-        });
-    }
-  });
-
-  createSessionBtn?.addEventListener("click", async (e) => {
+  const logInBtn = document.getElementById("createSession");
+  logInBtn?.addEventListener("click", async (e) => {
     e.preventDefault();
     const input = document.getElementById("usernameInput")?.value ?? "";
+    const errorMsg = document.getElementById("ErrorMsg");
+
     const res = await fetch("/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -47,6 +16,43 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const data = await res.json();
 
+    if (res.ok) window.location.href = "/pages/dashboard";
+    else {
+      errorMsg.textContent = data.message ?? "";
+    }
+
     console.log(data.message);
+  });
+
+  const registerBtn = document.getElementById("createUser");
+  registerBtn.addEventListener("click", async (e) => {
+    e.preventDefault();
+    const input = document.getElementById("registerUserNameInput").value ?? "";
+    console.log(input);
+    const errorMsg = document.getElementById("ErrorMsg");
+
+    const res = await fetch("/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userName: input }),
+    });
+
+    const data = await res.json();
+
+    if (res.ok) window.location.href = "/pages/dashboard";
+    else {
+      errorMsg.textContent = data.message ?? "";
+    }
+  });
+
+  const redirects = document.querySelectorAll(".redirect-link");
+  const forms = document.querySelectorAll(".form");
+  redirects.forEach((link, index) => {
+    link.addEventListener("click", (e) => {
+      e.preventDefault();
+      forms.forEach((form) => {
+        form.classList.toggle("hidden");
+      });
+    });
   });
 });

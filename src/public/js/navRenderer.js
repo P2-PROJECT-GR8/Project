@@ -16,8 +16,17 @@ export function renderHeader(state = "none") {
 
   // Create the logo element
   const logo = document.createElement("a");
-  logo.href = "/";
   logo.id = "logo";
+  logo.addEventListener("click", async (e) => {
+    const res = await fetch("/account", { credentials: "include" });
+    const data = await res.json();
+    if (res.ok) {
+      window.location.href = "/pages/dashboard";
+    } else {
+      alert(data.message);
+      window.location.href = "/pages/landing";
+    }
+  });
 
   // Create logo text
   const logoText = document.createElement("h2");

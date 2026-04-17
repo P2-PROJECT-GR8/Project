@@ -1,18 +1,12 @@
 # ReBAC Authorization Web-app
 
-The goal of this repository is to create a web-app that uses a ReBAC authorization system inspired by Google's Zanzibar system. Furthermore, we aim to make the interface more comprehensible and straight-forward.
+The goal of this repository is to create a web-app that uses a ReBAC authorization system inspired by Google's Zanzibar system. Furthermore, we aim to make the interface more comprehensible and straight-forward, ensuring an easy auditing process for complex relational authorization systems. 
 
 ## Technologies Used
 
 *   **Node.js**: A JavaScript runtime environment that allows you to run JavaScript code outside of a web browser.
 *   **Express.js**: A fast, unopinionated, minimalist web framework for Node.js, used for building web applications and APIs.
 *   **HTML, CSS, JavaScript**: For the frontend user interface.
-
-## Why Node.js and Express.js?
-
-This project leverages Node.js to provide a server-side environment for our application. While the login logic is client-side JavaScript, a web server is essential to deliver these client-side files (HTML, CSS, JavaScript) to the user's browser.
-
-Specifically, **Express.js** is used here to:
 
 ## Installation
 

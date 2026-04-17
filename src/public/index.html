@@ -3,34 +3,81 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="../../css/main.css" />
-    <link rel="stylesheet" href="css/index.css" />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/icon?family=Material+Icons"
-    />
     <title>Document</title>
   </head>
+  <link rel="stylesheet" href="./css/main.css" />
+  <link rel="stylesheet" href="./css/landing.css" />
+  <link
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/icon?family=Material+Icons"
+  />
   <body>
-    <div id="content">
-      <div class="center-text" id="dashboard-link">
-        <a href="pages/dashboard/" class="no-link">
-          <h2>Click baby for dashboard</h2>
-          <img src="img/ash baby.jpg" alt="Ash Baby" class="image-link" />
-        </a>
-      </div>
-      <div class="center-text" id="login-link">
-        <a href="pages/landing/" class="no-link">
-          <h2>Click Terry to login</h2>
-          <img
-            src="img/Terry A Davis.webp"
-            alt="God Reincarnate"
-            class="image-link"
-          />
-        </a>
+    <div class="dashboard">
+      <!-- <div class="navbar">
+        <header class="header">
+          <h2>Heavy Shield Storage</h2>
+          <nav>
+            <ul>
+              <li><a href="land">Recent</a></li>
+              <li><a href="#">Shared</a></li>
+              <li><a href="#">Starred</a></li>
+            </ul>
+          </nav>
+        </header>
+      </div> -->
+      <div class="box">
+        <div id="bar"></div>
+        <p id="logo">
+          <i class="material-icons" id="shield">shield</i>
+          HS Storage
+        </p>
+        <div class="forms">
+          <form id="login" class="form">
+            <h2>Log In</h2>
+            <label for="username">Username</label>
+            <input
+              class="username"
+              type="text"
+              id="usernameInput"
+              placeholder="Username"
+              name="username"
+              required
+              minlength="2"
+              size="20"
+            />
+            <!-- <button type="submit" class="button" id="LoginBtn">Login</button> -->
+            <button type="submit" class="button btn-lift" id="createSession">
+              Log In
+            </button>
+            <p id="redirect" class="redirect-link">
+              Don't have an account? <a href="#">Create an account</a>
+            </p>
+          </form>
+          <form id="register" class="form hidden">
+            <h2>Register New User</h2>
+            <label for="username">Username</label>
+            <input
+              class="username"
+              type="text"
+              id="registerUserNameInput"
+              placeholder="Username"
+              name="username"
+              required
+              minlength="2"
+              size="20"
+            />
+            <!-- <button type="submit" class="button" id="LoginBtn">Login</button> -->
+            <button type="submit" class="button btn-lift" id="createUser">
+              Register
+            </button>
+            <p id="redirect" class="redirect-link">
+              Already have an account? <a href="#">Log in instead</a>
+            </p>
+          </form>
+          <p id="ErrorMsg" class="error"></p>
+        </div>
       </div>
     </div>
-
-    <script src="js/index.js" type="module"></script>
+    <script src="./js/login.js" type="module"></script>
   </body>
 </html>
