@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   showPage("#files"); // Set "All Files" as the default active page
 
   const fileDetailsModal = document.getElementById("file-details");
-  fileDetailsModal.showModal();
+  // fileDetailsModal.showModal();
 
   // Attach click listeners to all sidebar links
   document.querySelectorAll(".sidebar li a").forEach((link) => {

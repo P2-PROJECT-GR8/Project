@@ -126,7 +126,7 @@ app.post("/username", function (req, res) {
 
 app.post("/register", (req, res) => {
   const { userName } = req.body;
-  
+
   db.read();
 
   if (db.data.users.some((u) => u.name === userName)) {
@@ -146,10 +146,6 @@ app.post("/register", (req, res) => {
     res.json({ message: "User registered successfully!" });
   }
 });
-
-
-
-
 
 // JWT sender for when a new user logs in
 app.post("/login", (req, res) => {
