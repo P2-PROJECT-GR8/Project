@@ -60,6 +60,33 @@ app.post("/username", function (req, res) {
   }
 });
 
+app.post("/register", (req, res) => {
+  const { userName } = req.body;
+  
+  db.read();
+
+  if (db.data.users.some((u) => u.name === userName)) {
+    console.log(`User ${userName} already exists in the database`);
+    res.json({ message: "Username already exists, please choose another one" });
+  } else if (!validUserName(userName)) {
+    console.log(`Invalid username attempted: ${userName}`);
+    res.json({
+      message:
+        "Invalid username. Usernames must be between 2 and 10 characters long.",
+    });
+  } else {
+    console.log(`Adding ${userName} to the database`);
+    db.update(({ users }) => {
+      users.push({ id: `user:${userName}`, name: userName });
+    });
+    res.json({ message: "User registered successfully!" });
+  }
+});
+
+
+
+
+
 // JWT sender for when a new user logs in
 app.post("/login", (req, res) => {
   const { userName } = req.body;
