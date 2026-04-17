@@ -176,6 +176,11 @@ dialog::backdrop {
   margin-top: 0px;
 }
 
+.modal-body #members {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
 .modal-body .member {
   display: grid;
   grid-template-columns: 1fr auto;

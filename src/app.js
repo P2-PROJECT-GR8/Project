@@ -66,8 +66,8 @@ const getUser = (req) => {
     const decoded = jwt.verify(token, SECRET_KEY);
     db.read();
 
-    const user = db.data.users.filter((user) => user.id === decoded.userId);
-    if (user) return user;
+    const user = db.data.users.find((user) => user.id === decoded.userId);
+    if (user) return user; // .find returns the object or undefined
     throw new Error("No user with the provided ID");
   } catch (error) {
     throw error;
@@ -124,6 +124,16 @@ app.post("/username", function (req, res) {
   }
 });
 
+app.get("/api/me", (req, res) => {
+  let user;
+  try {
+    user = getUser(req);
+  } catch (error) {
+    return console.error(error);
+  }
+  res.json(user);
+});
+
 app.post("/register", (req, res) => {
   const { userName } = req.body;
 
@@ -145,6 +155,25 @@ app.post("/register", (req, res) => {
     });
     res.json({ message: "User registered successfully!" });
   }
+});
+
+app.post("/relatedUsers", async (req, res) => {
+  let user;
+  try {
+    user = getUser(req);
+  } catch (error) {
+    console.error(error);
+    return res.status(401).send("User not authenticated");
+  }
+  const { objectId } = req.body;
+  if (!objectId) {
+    return res.status(400).send("Object ID is missing");
+  }
+
+  const relatedUsers = await accessControl.getObjectRelations(objectId);
+  res.send({
+    relatedUsers: relatedUsers,
+  });
 });
 
 // JWT sender for when a new user logs in
@@ -237,7 +266,7 @@ app.get("/files", async (req, res) => {
     const userId = decoded.userId;
 
     const userRelations = await accessControl.getUserRelations(userId);
-    console.log(userRelations);
+    // console.log(userRelations);
 
     res.json({ files: userRelations });
   } catch (error) {

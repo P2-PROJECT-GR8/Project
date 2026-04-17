@@ -166,6 +166,37 @@ class AccessControl {
 
     return accessibleObjects;
   }
+
+  /**
+   * Function that returns all the users that have a relation to an object, and what relation that is:
+   * @param {String} objectId
+   * @return {Promise<Array<Object>>}
+   * @memberof AccessControl
+   */
+  async getObjectRelations(objectId) {
+    const relatedUsers = [];
+    // Create a set of all unique subject IDs from the tuple store.
+    const allSubjectIds = new Set(
+      this.db.data.tupleStore.map((t) => t.subject),
+    );
+    for (const subjectId of allSubjectIds) {
+      // We only care about users, not groups or other objects
+      if (!subjectId.startsWith("user:")) {
+        continue;
+      }
+
+      const relations = await this.expandUserRelations(subjectId, objectId);
+
+      if (relations.length > 0) {
+        relatedUsers.push({
+          subjectId: subjectId,
+          relations: relations,
+        });
+      }
+    }
+
+    return relatedUsers;
+  }
 }
 
 export { AccessControl };

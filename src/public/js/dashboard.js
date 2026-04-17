@@ -28,10 +28,16 @@ function showPage(pageId) {
 
 // When the DOM is fully loaded, set up initial state and event listeners
 document.addEventListener("DOMContentLoaded", async () => {
+  const me = await fetch("/api/me", { credentials: "include" });
+  const currentUser = await me.json();
+  console.log("Current User: ", currentUser);
   // Set the initial active page
   showPage("#files"); // Set "All Files" as the default active page
 
   const fileDetailsModal = document.getElementById("file-details");
+  document
+    .getElementById("cancel-modal")
+    .addEventListener("click", () => fileDetailsModal.close());
   // fileDetailsModal.showModal();
 
   // Attach click listeners to all sidebar links
@@ -51,11 +57,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   const { files } = await res.json();
 
   const filesList = document.getElementById("filesList");
+  const membersList = document.getElementById("members");
 
   if (files.length > 0) {
     files.forEach((file) => {
       const listItem = document.createElement("div");
       listItem.className = "listitem";
+      listItem.dataset.fileId = file.objectId;
+      listItem.dataset.relations = file.relations;
 
       const icon = document.createElement("i");
       icon.className = "material-icons type";
@@ -80,7 +89,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const moreLink = document.createElement("a");
       moreLink.href = "#";
       const moreIcon = document.createElement("i");
-      moreIcon.className = "material-icons";
+      moreIcon.className = "material-icons more-btn";
       moreIcon.innerText = "more_vert";
       moreLink.appendChild(moreIcon);
 
@@ -90,6 +99,59 @@ document.addEventListener("DOMContentLoaded", async () => {
       listItem.appendChild(moreLink);
 
       filesList.appendChild(listItem);
+
+      filesList.addEventListener("click", async (event) => {
+        const btn = event.target.closest(".more-btn");
+        event.preventDefault();
+        if (!btn) return;
+
+        const item = btn.closest(".listitem");
+        const { fileId, relations } = item.dataset;
+
+        const res = await fetch("/relatedUsers", {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ objectId: fileId }),
+        });
+        if (res.ok) {
+          membersList.innerHTML = "";
+          const { relatedUsers } = await res.json();
+          if (relatedUsers && relatedUsers.length > 0) {
+            relatedUsers.forEach((rel) => {
+              // Create a member element in the dialog for every related user
+              // to provide an overview over users that have access
+              const member = document.createElement("div");
+              member.className = "member";
+              const user = document.createElement("p");
+              const userName = rel.subjectId.split(":")[1];
+              user.innerText =
+                userName.charAt(0).toUpperCase() + userName.slice(1);
+              const relation = document.createElement("p");
+              rel.relations = rel.relations.map((str) => {
+                return str.charAt(0).toUpperCase() + str.slice(1);
+              });
+              relation.innerText = rel.relations.join(", ");
+
+              if (rel.subjectId === currentUser.id) {
+                user.innerText += " (You)";
+                user.style.fontWeight = 600;
+                relation.style.fontWeight = 600;
+              }
+
+              member.appendChild(user);
+              member.appendChild(relation);
+              membersList.appendChild(member);
+            });
+          }
+        } else {
+          // console.log(res.body);
+        }
+
+        fileDetailsModal.showModal();
+      });
     });
   }
 

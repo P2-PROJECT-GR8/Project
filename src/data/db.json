@@ -54,6 +54,11 @@
       "object": "file:Earnings.pdf"
     },
     {
+      "subject": "user:emil",
+      "relation": "owner",
+      "object": "file:Earnings.pdf"
+    },
+    {
       "subject": "user:bob",
       "relation": "viewer",
       "object": "file:1"
