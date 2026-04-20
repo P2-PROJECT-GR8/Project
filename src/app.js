@@ -1,4 +1,4 @@
-import express from "express";
+import express, { application } from "express";
 import jwt from "jsonwebtoken";
 import cookieParser from "cookie-parser";
 import path from "path";
@@ -129,6 +129,7 @@ app.get("/api/me", (req, res) => {
   try {
     user = getUser(req);
   } catch (error) {
+    res.status(401).send("No user found");
     return console.error(error);
   }
   res.json(user);
@@ -272,6 +273,56 @@ app.get("/files", async (req, res) => {
   } catch (error) {
     res.status(401).send({ message: "Invalid session" });
   }
+});
+
+app.post("/api/newTuple", async (req, res) => {
+  let currentUser;
+  try {
+    currentUser = getUser(req);
+  } catch (err) {
+    console.error(err);
+    return res.status(401).send({ message: "User not authenticated" });
+  }
+  const { objectId, relation, subjectId } = req.body;
+  const canShare = await accessControl.can(currentUser.name, "share", objectId);
+  if (!canShare) {
+    return res
+      .status(403)
+      .send({ message: "User is not authorized to perform this action" });
+  }
+  await db.read();
+  // check if the target user and object exist in the database
+  const userExists = db.data.users.some((user) => user.id === subjectId);
+  if (!userExists) {
+    return res.status(404).send({ message: "Invited user does not exist." });
+  }
+
+  // check if the relation already exists
+  const relationExists = db.data.tupleStore.some(
+    (tuple) =>
+      tuple.subject === subjectId &&
+      tuple.relation === relation &&
+      tuple.object === objectId,
+  );
+
+  if (relationExists) {
+    return res
+      .status(409)
+      .send({ message: "User already has this permission." });
+  }
+
+  db.data.tupleStore.push({ subject: subjectId, relation, object: objectId });
+  await db.write();
+
+  res.status(201).send({ message: "Member added successfully" });
+});
+
+app.get("/api/userNames", (req, res) => {
+  db.read();
+  const userNames = db.data.users.map((user) => {
+    return user.name.charAt(0).toUpperCase() + user.name.slice(1);
+  });
+  res.send({ userNames: userNames });
 });
 
 app.listen(3000, () => {
