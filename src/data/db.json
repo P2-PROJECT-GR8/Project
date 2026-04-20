@@ -54,6 +54,11 @@
       "object": "file:Earnings.pdf"
     },
     {
+      "subject": "user:emil",
+      "relation": "owner",
+      "object": "file:Earnings.pdf"
+    },
+    {
       "subject": "user:bob",
       "relation": "viewer",
       "object": "file:1"
@@ -77,6 +82,16 @@
       "subject": "user:jeff",
       "relation": "viewer",
       "object": "folder:marketing_assets"
+    },
+    {
+      "subject": "user:emil",
+      "relation": "viewer",
+      "object": "file:Project.pdf"
+    },
+    {
+      "subject": "user:frederik",
+      "relation": "viewer",
+      "object": "file:Earnings.pdf"
     }
   ],
   "users": [
@@ -103,6 +118,10 @@
     {
       "id": "user:magnus",
       "name": "magnus"
+    },
+    {
+      "id": "user:frederik",
+      "name": "frederik"
     }
   ]
 }

@@ -7,6 +7,8 @@ The goal of this repository is to create a web-app that uses a ReBAC authorizati
 *   **Node.js**: A JavaScript runtime environment that allows you to run JavaScript code outside of a web browser.
 *   **Express.js**: A fast, unopinionated, minimalist web framework for Node.js, used for building web applications and APIs.
 *   **HTML, CSS, JavaScript**: For the frontend user interface.
+*   **jsonwebtoken (JWT)**: For creating and verifying JSON Web Tokens to manage user sessions securely.
+*   **lowdb**: A small local JSON database powered by a simple API, used for storing user data and relationship tuples.
 
 ## Installation
 

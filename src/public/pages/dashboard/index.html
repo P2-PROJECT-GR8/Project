@@ -83,13 +83,30 @@
                 <h2>Manage Access</h2>
                 <p>Define who can view, edit, or manage this file or folder</p>
               </div>
-              <label for="invite-field">ADD USERS OR GROUPS</label>
-              <input
-                type="text"
-                id="invite-field"
-                placeholder="Write the name of a group or user"
-                minlength="2"
-              />
+              <div class="invite-container" id="invite-container">
+                <div class="input-container">
+                  <label for="invite-field">ADD USERS OR GROUPS</label>
+                  <input
+                    list="data-users"
+                    type="text"
+                    id="invite-field"
+                    placeholder="Write the name of a group or user"
+                    minlength="2"
+                  />
+                  <datalist id="data-users">
+                    <option value="Magnus"></option>
+                    <option value="Emil"></option>
+                    <option value="Admin"></option>
+                    <option value="Viktor"></option>
+                    <option value="Ditte"></option>
+                  </datalist>
+                </div>
+                <button id="invite-member" class="btn-lift">Invite</button>
+              </div>
+              <p
+                id="modalErrorMessage"
+                style="color: red; text-align: center"
+              ></p>
               <h3>Current Members</h3>
               <div id="members">
                 <div class="member">

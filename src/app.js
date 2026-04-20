@@ -1,4 +1,3 @@
-import express from "express";
 import jwt from "jsonwebtoken";
 import cookieParser from "cookie-parser";
 import path from "path";
@@ -66,8 +65,8 @@ const getUser = (req) => {
     const decoded = jwt.verify(token, SECRET_KEY);
     db.read();
 
-    const user = db.data.users.filter((user) => user.id === decoded.userId);
-    if (user) return user;
+    const user = db.data.users.find((user) => user.id === decoded.userId);
+    if (user) return user; // .find returns the object or undefined
     throw new Error("No user with the provided ID");
   } catch (error) {
     throw error;
@@ -124,6 +123,17 @@ app.post("/username", function (req, res) {
   }
 });
 
+app.get("/api/me", (req, res) => {
+  let user;
+  try {
+    user = getUser(req);
+  } catch (error) {
+    res.status(401).send("No user found");
+    return console.error(error);
+  }
+  res.json(user);
+});
+
 app.post("/register", (req, res) => {
   const { userName } = req.body;
 
@@ -145,6 +155,25 @@ app.post("/register", (req, res) => {
     });
     res.json({ message: "User registered successfully!" });
   }
+});
+
+app.post("/relatedUsers", async (req, res) => {
+  let user;
+  try {
+    user = getUser(req);
+  } catch (error) {
+    console.error(error);
+    return res.status(401).send("User not authenticated");
+  }
+  const { objectId } = req.body;
+  if (!objectId) {
+    return res.status(400).send("Object ID is missing");
+  }
+
+  const relatedUsers = await accessControl.getObjectRelations(objectId);
+  res.send({
+    relatedUsers: relatedUsers,
+  });
 });
 
 // JWT sender for when a new user logs in
@@ -237,12 +266,62 @@ app.get("/files", async (req, res) => {
     const userId = decoded.userId;
 
     const userRelations = await accessControl.getUserRelations(userId);
-    console.log(userRelations);
+    // console.log(userRelations);
 
     res.json({ files: userRelations });
   } catch (error) {
     res.status(401).send({ message: "Invalid session" });
   }
+});
+
+app.post("/api/newTuple", async (req, res) => {
+  let currentUser;
+  try {
+    currentUser = getUser(req);
+  } catch (err) {
+    console.error(err);
+    return res.status(401).send({ message: "User not authenticated" });
+  }
+  const { objectId, relation, subjectId } = req.body;
+  const canShare = await accessControl.can(currentUser.name, "share", objectId);
+  if (!canShare) {
+    return res
+      .status(403)
+      .send({ message: "User is not authorized to perform this action" });
+  }
+  await db.read();
+  // check if the target user and object exist in the database
+  const userExists = db.data.users.some((user) => user.id === subjectId);
+  if (!userExists) {
+    return res.status(404).send({ message: "Invited user does not exist." });
+  }
+
+  // check if the relation already exists
+  const relationExists = db.data.tupleStore.some(
+    (tuple) =>
+      tuple.subject === subjectId &&
+      tuple.relation === relation &&
+      tuple.object === objectId,
+  );
+
+  if (relationExists) {
+    return res
+      .status(409)
+      .send({ message: "User already has this permission." });
+  }
+
+  db.data.tupleStore.push({ subject: subjectId, relation, object: objectId });
+  await db.write();
+
+  res.status(201).send({ message: "Member added successfully" });
+});
+
+app.get("/api/userNames", (req, res) => {
+  db.read();
+  const userNames = db.data.users.map((user) => {
+    return user.name.charAt(0).toUpperCase() + user.name.slice(1);
+  });
+  res.send({ userNames: userNames });
 });
 
 app.listen(3000, () => {

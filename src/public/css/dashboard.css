@@ -176,6 +176,11 @@ dialog::backdrop {
   margin-top: 0px;
 }
 
+.modal-body #members {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
 .modal-body .member {
   display: grid;
   grid-template-columns: 1fr auto;
@@ -190,7 +195,6 @@ dialog::backdrop {
 }
 
 .modal-body label {
-  margin-top: 2rem;
   font-size: 12px;
   font-weight: 700;
   color: var(--primary);
@@ -232,4 +236,24 @@ dialog::backdrop {
   color: var(--on-surface-variant);
   border: 0px;
   text-decoration: underline;
+}
+
+.invite-container {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1rem;
+  margin: 1rem 0rem 1rem;
+}
+
+.input-container {
+  display: grid;
+  grid-auto-flow: row;
+}
+
+#invite-member {
+  padding: 1rem;
+}
+
+.hidden {
+  display: none !important;
 }
