@@ -1,4 +1,3 @@
-import express, { application } from "express";
 import jwt from "jsonwebtoken";
 import cookieParser from "cookie-parser";
 import path from "path";
