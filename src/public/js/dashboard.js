@@ -219,17 +219,27 @@ const renderMembers = async (fileId) => {
           relation.style.fontWeight = 600;
         }
         const deleteRel = document.createElement("a");
-        deleteRel.addEventlistener("click", async (event)=>{
+        deleteRel.innerText = "Remove";
+        deleteRel.href = "#";
+        deleteRel.addEventListener("click", async (event) => {
+        event.preventDefault();
+        if (!confirm("Remove this user?")) return;
         const res = await fetch("/api/deleteTuple", {
-          method: "POST",
-          credentials: "include",
-          headers: {"Content-Type": "application/json"},
-          body: JSON.stringify({
-            objectId: fileId,
-            subjectId: rel.subjectId,
-          })
-        });
-        });
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          objectId: fileId,
+          subjectId: rel.subjectId,
+    }),
+  });
+
+  if (res.ok) {
+    renderMembers(fileId); // 🔥 refresh UI
+  } else {
+    console.log("Failed to delete");
+  }
+});
         
 
         member.appendChild(user);

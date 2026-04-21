@@ -333,6 +333,8 @@ db.data.tupleStore.splice(idx, 1)
 
 await db.write();
 
+return res.json({ success: true });
+
 })
 
 app.get("/api/userNames", (req, res) => {
