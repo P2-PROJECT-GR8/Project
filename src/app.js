@@ -317,6 +317,24 @@ app.post("/api/newTuple", async (req, res) => {
   res.status(201).send({ message: "Member added successfully" });
 });
 
+app.post("/api/deleteTuple", async (req, res)=>{
+const {objectId, subjectId} = req.body;
+
+await db.read();
+
+const idx = db.data.tupleStore.findIndex(
+  (tuple)=> tuple.objectId === objectId && tuple.subjectId === subjectId);
+
+if (idx<0){
+  return res.status(404).json({ message: "Relation not found" });
+}
+
+db.data.tupleStore.splice(idx, 1)
+
+await db.write();
+
+})
+
 app.get("/api/userNames", (req, res) => {
   db.read();
   const userNames = db.data.users.map((user) => {

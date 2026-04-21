@@ -92,6 +92,11 @@
       "subject": "user:frederik",
       "relation": "viewer",
       "object": "file:Earnings.pdf"
+    },
+    {
+      "subject": "user:alice",
+      "relation": "viewer",
+      "object": "file:Earnings.pdf"
     }
   ],
   "users": [

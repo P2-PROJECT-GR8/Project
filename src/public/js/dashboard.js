@@ -218,9 +218,23 @@ const renderMembers = async (fileId) => {
           user.style.fontWeight = 600;
           relation.style.fontWeight = 600;
         }
+        const deleteRel = document.createElement("a");
+        deleteRel.addEventlistener("click", async (event)=>{
+        const res = await fetch("/api/deleteTuple", {
+          method: "POST",
+          credentials: "include",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({
+            objectId: fileId,
+            subjectId: rel.subjectId,
+          })
+        });
+        });
+        
 
         member.appendChild(user);
         member.appendChild(relation);
+        member.appendChild(deleteRel);
         membersList.appendChild(member);
       });
     }
