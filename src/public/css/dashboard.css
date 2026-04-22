@@ -225,7 +225,7 @@ dialog::backdrop {
 
 .modal-body #modal-buttons {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto 1fr auto auto;
   gap: 1rem;
   margin: 1rem;
 }

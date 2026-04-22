@@ -97,3 +97,7 @@ body {
   --up: 0px;
   --shadow: 0px;
 }
+
+#leave{
+  background-color: red;
+}

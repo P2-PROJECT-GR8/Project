@@ -182,6 +182,24 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   console.log(files);
+
+  const leaveFile = document.getElementById("leave");
+  leaveFile.addEventListener("click", async (event)=>{
+
+  event.preventDefault();
+
+  const currentUser = await getCurrentUser();
+  const res = await fetch("/api/leaveFile", {
+    method: "POST",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ objectId: fileId }),
+  })
+  if (res.ok) {
+  }
+});
 });
 
 const renderMembers = async (fileId) => {
