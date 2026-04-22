@@ -49,11 +49,6 @@
       "object": "file:Project.pdf"
     },
     {
-      "subject": "user:magnus",
-      "relation": "viewer",
-      "object": "file:Earnings.pdf"
-    },
-    {
       "subject": "user:emil",
       "relation": "owner",
       "object": "file:Earnings.pdf"
@@ -89,7 +84,12 @@
       "object": "file:Project.pdf"
     },
     {
-      "subject": "user:frederik",
+      "subject": "user:magnus",
+      "relation": "viewer",
+      "object": "file:Earnings.pdf"
+    },
+    {
+      "subject": "user:connor",
       "relation": "viewer",
       "object": "file:Earnings.pdf"
     }
