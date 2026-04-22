@@ -156,6 +156,7 @@ dialog {
   border: 0px solid;
   border-radius: var(--radius-lg);
   padding: 2rem;
+  overflow: visible;
 }
 
 dialog::backdrop {
@@ -179,12 +180,14 @@ dialog::backdrop {
 .modal-body #members {
   max-height: 300px;
   overflow-y: auto;
+  overflow-x: visible;
 }
 
 .modal-body .member {
   display: grid;
-  grid-template-columns: 1fr auto;
-  margin: 0px;
+  grid-template-columns: 1fr auto auto;
+  margin: 5px;
+  gap: 0.5rem;
 }
 
 .modal-body input {
@@ -256,4 +259,30 @@ dialog::backdrop {
 
 .hidden {
   display: none !important;
+}
+
+#delete-btn{
+  color:crimson;
+  text-decoration: none;
+  font-weight: bolder;
+}
+
+#delete-btn:hover{
+  text-decoration: underline; 
+}
+
+.tooltip {
+  visibility: hidden;
+  width: 130px;
+  color: rgba(var(--primary-rgb),0.8);
+  text-align: center;
+  border-radius: 6px;
+  padding: 0 0;
+  position: absolute;
+  z-index: 0;
+}
+
+#delete-btn:hover .tooltip{
+  visibility:visible
+  
 }
