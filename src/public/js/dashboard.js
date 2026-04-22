@@ -199,6 +199,10 @@ const renderMembers = async (fileId) => {
     membersList.innerHTML = "";
     const { relatedUsers } = await res.json();
     if (relatedUsers && relatedUsers.length > 0) {
+
+      const ownFile= relatedUsers.some(
+        (rel) => rel.relations.includes("owner") && rel.subjectId === currentUser.id
+      );
       relatedUsers.forEach((rel) => {
         // Create a member element in the dialog for every related user
         // to provide an overview over users that have access
@@ -218,34 +222,39 @@ const renderMembers = async (fileId) => {
           user.style.fontWeight = 600;
           relation.style.fontWeight = 600;
         }
-        const deleteRel = document.createElement("a");
-        deleteRel.innerText = "Remove";
-        deleteRel.href = "#";
-        deleteRel.addEventListener("click", async (event) => {
-        event.preventDefault();
-        if (!confirm("Remove this user?")) return;
-        const res = await fetch("/api/deleteTuple", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          objectId: fileId,
-          subjectId: rel.subjectId,
-    }),
-  });
-
-  if (res.ok) {
-    renderMembers(fileId); // 🔥 refresh UI
-  } else {
-    console.log("Failed to delete");
-  }
-});
-        
 
         member.appendChild(user);
         member.appendChild(relation);
-        member.appendChild(deleteRel);
-        membersList.appendChild(member);
+
+        if (ownFile && rel.subjectId !== currentUser.id) {
+          const deleteRel = document.createElement("a");
+          deleteRel.innerText = "X";
+          deleteRel.href = "#";
+          deleteRel.id = "delete-btn";
+          deleteRel.addEventListener("click", async (event) => {
+            event.preventDefault();
+            if (!confirm("Remove this user?")) return;
+            const res = await fetch("/api/deleteTuple", {
+              method: "POST",
+              credentials: "include",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                objectId: fileId,
+                subjectId: rel.subjectId,
+              }),
+            });
+            if (res.ok) {
+              renderMembers(fileId);
+            }
+          
+      });
+      const helpDelete = document.createElement("span");
+          helpDelete.className="tooltip"
+          helpDelete.innerText="Remove Access";
+          deleteRel.appendChild(helpDelete)
+      member.appendChild(deleteRel);
+    }
+     membersList.appendChild(member);
       });
     }
   } else {

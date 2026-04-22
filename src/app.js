@@ -316,14 +316,26 @@ app.post("/api/newTuple", async (req, res) => {
 
   res.status(201).send({ message: "Member added successfully" });
 });
-
 app.post("/api/deleteTuple", async (req, res)=>{
 const {objectId, subjectId} = req.body;
+let currentUser;
+  try {
+    currentUser = getUser(req);
+  } catch (err) {
+    console.error(err);
+    return res.status(401).send({ message: "User not authenticated" });
+  }
+// Check if current user is athorized to delete relations
+const canDelete = await accessControl.can(currentUser.name, "delete", objectId)
+ if (!canDelete) {
+    return res
+      .status(403)
+      .send({ message: "User is not authorized to perform this action" });
+  }
 
 await db.read();
-
 const idx = db.data.tupleStore.findIndex(
-  (tuple)=> tuple.objectId === objectId && tuple.subjectId === subjectId);
+  (tuple)=> tuple.object === objectId && tuple.subject === subjectId);
 
 if (idx<0){
   return res.status(404).json({ message: "Relation not found" });
