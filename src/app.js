@@ -292,9 +292,21 @@ app.post("/api/newTuple", async (req, res) => {
   }
   await db.read();
   // check if the target user and object exist in the database
-  const userExists = db.data.users.some((user) => user.id === subjectId);
-  if (!userExists) {
-    return res.status(404).send({ message: "Invited user does not exist." });
+  if (subjectId.split(":")[0] === "user") {
+    const userExists = db.data.users.some((user) => user.id === subjectId);
+    if (!userExists) {
+      return res.status(404).send({ message: "Invited user does not exist." });
+    }
+    // check if the target folder and object exist in the same database
+  } else if (subjectId.split(":")[0] === "folder") {
+    const folderExists = db.data.tupleStore.some(
+      (t) => t.subject === subjectId || t.object === subjectId,
+    );
+    if (!folderExists) {
+      return res.status(404).send({ messeage: "Folder does not exxist" });
+    }
+  } else {
+    return res.status(404).send({ message: "invalid subjectID prefix" });
   }
 
   // check if the relation already exists
@@ -306,9 +318,7 @@ app.post("/api/newTuple", async (req, res) => {
   );
 
   if (relationExists) {
-    return res
-      .status(409)
-      .send({ message: "User already has this permission." });
+    return res.status(409).send({ message: "Relation already exists." });
   }
 
   db.data.tupleStore.push({ subject: subjectId, relation, object: objectId });
