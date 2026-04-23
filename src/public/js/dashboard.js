@@ -262,6 +262,37 @@ const renderMembers = async (fileId) => {
   }
 };
 
+// Create folder button
+  document.getElementById("create-folder-btn").addEventListener("click", async () => {
+    const folderName = prompt("Enter folder name:");
+    
+    if (!folderName) return;
+
+    const res = await fetch("/api/newFolder", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ folderName: folderName.toLowerCase() })
+    });
+
+    if (res.ok) {
+      alert(`Folder "${folderName}" created!`);
+      location.reload();
+    } else {
+      const data = await res.json();
+      alert(data.message);
+    }
+  });
+
+
+
+
+
+
+
+
+
+
 /*
 <div class="listitem">
   <i class="material-icons type">article</i>
