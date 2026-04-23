@@ -232,53 +232,86 @@ const renderMembers = async (fileId) => {
         (rel) =>
           rel.relations.includes("owner") && rel.subjectId === currentUser.id,
       );
+
+      let schema = window.schema;
+      if (!schema) {
+        const schemaRes = await fetch("/api/schema", {
+          credentials: "include",
+        });
+        schema = await schemaRes.json();
+        window.schema = schema;
+      }
+
       relatedUsers.forEach((rel) => {
         const member = document.createElement("div");
         member.className = "member";
         const user = document.createElement("p");
         const userName = rel.subjectId.split(":")[1];
         user.innerText = userName.charAt(0).toUpperCase() + userName.slice(1);
-        const relation = document.createElement("p");
-        const formattedRelations = rel.relations.map((str) => {
-          return str.charAt(0).toUpperCase() + str.slice(1);
+
+
+        // relation part of member made to be a dropdown that allows owners to change relation
+        const relation = document.createElement("select");
+        relation.className = "changeRelation";
+        const relationOptions = Object.keys(schema?.file?.relations || {});
+        
+        relationOptions.forEach((r) => {
+          const option = document.createElement("option");
+          option.value = r;
+          option.innerText = r.charAt(0).toUpperCase() + r.slice(1);
+
+          if (rel.relations.includes(r)) {
+            option.selected = true;
+          }
+          relation.appendChild(option);
         });
-        relation.innerText = formattedRelations.join(", ");
+
+        if (rel.subjectId === currentUser.id || !ownFile) {
+          relation.disabled = true;
+        }
 
         if (rel.subjectId === currentUser.id) {
           user.innerText += " (You)";
           user.style.fontWeight = 600;
           relation.style.fontWeight = 600;
         }
-
         member.appendChild(user);
-        member.appendChild(relation);
 
-        if (ownFile && rel.subjectId !== currentUser.id) {
-          const transferBtn = document.createElement("a");
-          transferBtn.innerText = "+";
-          transferBtn.href = "#";
-          transferBtn.id = "transfer-btn";
-          transferBtn.addEventListener("click", async (event) => {
-            event.preventDefault();
-            if (!confirm(`Transfer ownership to ${userName}?`)) return;
-            const res = await fetch("/api/transferOwnership", {
+        relation.addEventListener("change", async (e) => {
+          const assignedRel = e.target.value;
+          if (rel.relations.includes(assignedRel)) return;
+
+          const removeOld = await fetch("/api/deleteTuple", {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              objectId: fileId,
+              relations: rel.relations,
+              subjectId: rel.subjectId,
+            }),
+          });
+
+          if (removeOld.ok) {
+            const addNew = await fetch("/api/newTuple", {
               method: "POST",
               credentials: "include",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
                 objectId: fileId,
-                newOwnerId: rel.subjectId,
+                relation: assignedRel,
+                subjectId: rel.subjectId,
               }),
             });
-            if (res.ok) {
-              renderMembers(fileId);
-            } else {
-              const data = await res.json();
-              alert(data.message);
-            }
-          });
-          member.appendChild(transferBtn);
 
+            if (addNew.ok) {
+              renderMembers(fileId);
+            }
+          }
+        });
+
+        member.appendChild(relation);
+        if (ownFile && rel.subjectId !== currentUser.id) {
           const deleteRel = document.createElement("a");
           deleteRel.innerText = "X";
           deleteRel.href = "#";

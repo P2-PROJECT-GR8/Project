@@ -411,6 +411,10 @@ app.post("/api/leaveFile", async (req, res) => {
   return res.json({ success: true });
 });
 
+app.get("/api/schema", isAuthenticated, (req, res) => {
+  res.json(db.data.schema);
+});
+
 app.get("/api/userNames", (req, res) => {
   db.read();
   const userNames = db.data.users.map((user) => {
