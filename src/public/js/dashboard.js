@@ -199,9 +199,9 @@ const renderMembers = async (fileId) => {
     membersList.innerHTML = "";
     const { relatedUsers } = await res.json();
     if (relatedUsers && relatedUsers.length > 0) {
-
-      const ownFile= relatedUsers.some(
-        (rel) => rel.relations.includes("owner") && rel.subjectId === currentUser.id
+      const ownFile = relatedUsers.some(
+        (rel) =>
+          rel.relations.includes("owner") && rel.subjectId === currentUser.id,
       );
       relatedUsers.forEach((rel) => {
         // Create a member element in the dialog for every related user
@@ -212,10 +212,10 @@ const renderMembers = async (fileId) => {
         const userName = rel.subjectId.split(":")[1];
         user.innerText = userName.charAt(0).toUpperCase() + userName.slice(1);
         const relation = document.createElement("p");
-        rel.relations = rel.relations.map((str) => {
+        const formattedRelations = rel.relations.map((str) => {
           return str.charAt(0).toUpperCase() + str.slice(1);
         });
-        relation.innerText = rel.relations.join(", ");
+        relation.innerText = formattedRelations.join(", ");
 
         if (rel.subjectId === currentUser.id) {
           user.innerText += " (You)";
@@ -240,21 +240,21 @@ const renderMembers = async (fileId) => {
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
                 objectId: fileId,
+                relations: rel.relations,
                 subjectId: rel.subjectId,
               }),
             });
             if (res.ok) {
               renderMembers(fileId);
             }
-          
-      });
-      const helpDelete = document.createElement("span");
-          helpDelete.className="tooltip"
-          helpDelete.innerText="Remove Access";
-          deleteRel.appendChild(helpDelete)
-      member.appendChild(deleteRel);
-    }
-     membersList.appendChild(member);
+          });
+          const helpDelete = document.createElement("span");
+          helpDelete.className = "tooltip";
+          helpDelete.innerText = "Remove Access";
+          deleteRel.appendChild(helpDelete);
+          member.appendChild(deleteRel);
+        }
+        membersList.appendChild(member);
       });
     }
   } else {
