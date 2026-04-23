@@ -367,7 +367,6 @@ app.post("/api/leaveFile", async (req, res) => {
 
   await db.read();
 
-  // Check if current user is the owner
   const isOwner = db.data.tupleStore.byObject[objectId]?.some(
     (tuple) => tuple.subjectId === currentUser.id && tuple.relation === "owner"
   );
@@ -385,26 +384,17 @@ app.post("/api/leaveFile", async (req, res) => {
     }
   }
 
-  // Remove users relations from byObject
+  // Remove users relations from byObject and bySubject
   if (db.data.tupleStore.byObject[objectId]) {
     db.data.tupleStore.byObject[objectId] = db.data.tupleStore.byObject[objectId].filter(
-      (tuple) => tuple.subjectId !== currentUser.id
+      (tuple) => tuple.subjectId !== `user:${currentUser.id}`
     );
   }
 
-  if (db.data.tupleStore.byObject[objectId]?.length === 0) {
-    delete db.data.tupleStore.byObject[objectId];
-  }
-
-  // Remove users relations from bySubject
   if (db.data.tupleStore.bySubject[currentUser.id]) {
     db.data.tupleStore.bySubject[currentUser.id] = db.data.tupleStore.bySubject[currentUser.id].filter(
       (tuple) => tuple.objectId !== objectId
     );
-  }
-
-  if (db.data.tupleStore.bySubject[currentUser.id]?.length === 0) {
-    delete db.data.tupleStore.bySubject[currentUser.id];
   }
 
   await db.write();
