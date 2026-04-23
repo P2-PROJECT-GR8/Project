@@ -197,6 +197,57 @@ class AccessControl {
 
     return relatedUsers;
   }
+
+  addTuple(subjectId, relation, objectId) {
+    this.db.read();
+    const entryByObject = { subjectId, relation };
+    const entryBySubject = { relation, objectId };
+
+    // 1. Add tuple to the byObject index
+    if (!this.db.data.tupleStore.byObject[objectId])
+      this.db.data.tupleStore.byObject[objectId] = [];
+    this.db.data.tupleStore.byObject[objectId].push(entryByObject);
+
+    // 2. Add tuple to the bySubject index
+    if (!this.db.data.tupleStore.bySubject[subjectId])
+      this.db.data.tupleStore.bySubject[subjectId] = [];
+    this.db.data.tupleStore.bySubject[subjectId].push(entryBySubject);
+
+    this.db.write();
+  }
+
+  // This function is maybe a WIP, debating on whether the effeciency of .filter() is fine in this case
+  deleteTuple(subjectId, relation, objectId) {
+    this.db.read();
+
+    // 1. Remove from the byObject index
+    if (this.db.data.tupleStore.byObject[objectId]) {
+      this.db.data.tupleStore.byObject[objectId] =
+        this.db.data.tupleStore.byObject[objectId].filter(
+          (t) => !(t.subjectId === subjectId && t.relation === relation),
+        );
+
+      // Clean up empty keys to keep the db.json small
+      if (this.db.data.tupleStore.byObject[objectId].length === 0) {
+        delete this.db.data.tupleStore.byObject[objectId];
+      }
+    }
+
+    // 2. Remove from the bySubject index
+    if (this.db.data.tupleStore.bySubject[subjectId]) {
+      this.db.data.tupleStore.bySubject[subjectId] =
+        this.db.data.tupleStore.bySubject[subjectId].filter(
+          (t) => !(t.objectId === objectId && t.relation === relation),
+        );
+
+      // Clean up empty keys
+      if (this.db.data.tupleStore.bySubject[subjectId].length === 0) {
+        delete this.db.data.tupleStore.bySubject[subjectId];
+      }
+    }
+
+    this.db.write();
+  }
 }
 
 export { AccessControl };

@@ -37,63 +37,22 @@
       }
     }
   },
-  "tupleStore": [
-    {
-      "subject": "user:alice",
-      "relation": "editor",
-      "object": "file:1"
+  "tupleStore": {
+    "byObject" : {
+      "file:Project.pdf" : [
+        {"subjectId" : "user:magnus", "relation" : "owner"},
+        {"subjectId" : "user:emil", "relation" : "viewer"}
+      ]
     },
-    {
-      "subject": "user:magnus",
-      "relation": "owner",
-      "object": "file:Project.pdf"
-    },
-    {
-      "subject": "user:emil",
-      "relation": "owner",
-      "object": "file:Earnings.pdf"
-    },
-    {
-      "subject": "user:bob",
-      "relation": "viewer",
-      "object": "file:1"
-    },
-    {
-      "subject": "user:jeff",
-      "relation": "member",
-      "object": "group:marketing"
-    },
-    {
-      "subject": "group:marketing",
-      "relation": "owner",
-      "object": "file:1"
-    },
-    {
-      "subject": "folder:marketing_assets",
-      "relation": "parent",
-      "object": "file:1"
-    },
-    {
-      "subject": "user:jeff",
-      "relation": "viewer",
-      "object": "folder:marketing_assets"
-    },
-    {
-      "subject": "user:emil",
-      "relation": "viewer",
-      "object": "file:Project.pdf"
-    },
-    {
-      "subject": "user:magnus",
-      "relation": "viewer",
-      "object": "file:Earnings.pdf"
-    },
-    {
-      "subject": "user:connor",
-      "relation": "viewer",
-      "object": "file:Earnings.pdf"
-    }
-  ],
+    "bySubject" : {
+      "user:emil" : [
+        {"relation" : "viewer", "objectId" : "file:Project.pdf"}
+      ],
+      "user:magnus" : [
+        {"relation" : "owner", "objectId" : "file:Project.pdf"}
+      ]
+    }    
+},
   "users": [
     {
       "id": "user:alice",
