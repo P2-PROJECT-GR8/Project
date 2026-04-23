@@ -203,11 +203,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (res.ok) {
       fileDetailsModal.close();
-      location.reload(); // Reload to update the files list
+      location.reload();
     } else {
       const data = await res.json();
-      console.error(data.message);
+      const errorMessage = document.getElementById("modalErrorMessage");
+      errorMessage.innerText = data.message;
     }
+
   });
 });
 
@@ -231,8 +233,6 @@ const renderMembers = async (fileId) => {
           rel.relations.includes("owner") && rel.subjectId === currentUser.id,
       );
       relatedUsers.forEach((rel) => {
-        // Create a member element in the dialog for every related user
-        // to provide an overview over users that have access
         const member = document.createElement("div");
         member.className = "member";
         const user = document.createElement("p");
@@ -254,6 +254,31 @@ const renderMembers = async (fileId) => {
         member.appendChild(relation);
 
         if (ownFile && rel.subjectId !== currentUser.id) {
+          const transferBtn = document.createElement("a");
+          transferBtn.innerText = "+";
+          transferBtn.href = "#";
+          transferBtn.id = "transfer-btn";
+          transferBtn.addEventListener("click", async (event) => {
+            event.preventDefault();
+            if (!confirm(`Transfer ownership to ${userName}?`)) return;
+            const res = await fetch("/api/transferOwnership", {
+              method: "POST",
+              credentials: "include",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                objectId: fileId,
+                newOwnerId: rel.subjectId,
+              }),
+            });
+            if (res.ok) {
+              renderMembers(fileId);
+            } else {
+              const data = await res.json();
+              alert(data.message);
+            }
+          });
+          member.appendChild(transferBtn);
+
           const deleteRel = document.createElement("a");
           deleteRel.innerText = "X";
           deleteRel.href = "#";
@@ -275,20 +300,13 @@ const renderMembers = async (fileId) => {
               renderMembers(fileId);
             }
           });
-          const helpDelete = document.createElement("span");
-          helpDelete.className = "tooltip";
-          helpDelete.innerText = "Remove Access";
-          deleteRel.appendChild(helpDelete);
           member.appendChild(deleteRel);
         }
         membersList.appendChild(member);
       });
     }
-  } else {
-    // console.log(res.body);
   }
 };
-
 /*
 <div class="listitem">
   <i class="material-icons type">article</i>

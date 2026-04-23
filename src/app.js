@@ -355,6 +355,62 @@ app.post("/api/deleteTuple", async (req, res) => {
   return res.json({ success: true });
 });
 
+app.post("/api/leaveFile", async (req, res) => {
+  const { objectId } = req.body;
+  let currentUser;
+  try {
+    currentUser = getUser(req);
+  } catch (err) {
+    console.error(err);
+    return res.status(401).send({ message: "User not authenticated" });
+  }
+
+  await db.read();
+
+  // Check if current user is the owner
+  const isOwner = db.data.tupleStore.byObject[objectId]?.some(
+    (tuple) => tuple.subjectId === currentUser.id && tuple.relation === "owner"
+  );
+
+  if (isOwner) {
+    // Check if there are other owners(a new owner does not have to be assigned)
+    const otherOwners = db.data.tupleStore.byObject[objectId]?.some(
+      (tuple) => tuple.subjectId !== currentUser.id && tuple.relation === "owner"
+    );
+
+    if (!otherOwners) {
+      return res.status(403).json({
+        message: "You must transfer ownership to another user before leaving"
+      });
+    }
+  }
+
+  // Remove users relations from byObject
+  if (db.data.tupleStore.byObject[objectId]) {
+    db.data.tupleStore.byObject[objectId] = db.data.tupleStore.byObject[objectId].filter(
+      (tuple) => tuple.subjectId !== currentUser.id
+    );
+  }
+
+  if (db.data.tupleStore.byObject[objectId]?.length === 0) {
+    delete db.data.tupleStore.byObject[objectId];
+  }
+
+  // Remove users relations from bySubject
+  if (db.data.tupleStore.bySubject[currentUser.id]) {
+    db.data.tupleStore.bySubject[currentUser.id] = db.data.tupleStore.bySubject[currentUser.id].filter(
+      (tuple) => tuple.objectId !== objectId
+    );
+  }
+
+  if (db.data.tupleStore.bySubject[currentUser.id]?.length === 0) {
+    delete db.data.tupleStore.bySubject[currentUser.id];
+  }
+
+  await db.write();
+  return res.json({ success: true });
+});
+
 app.get("/api/userNames", (req, res) => {
   db.read();
   const userNames = db.data.users.map((user) => {

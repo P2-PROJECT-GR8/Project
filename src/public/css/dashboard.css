@@ -185,7 +185,7 @@ dialog::backdrop {
 
 .modal-body .member {
   display: grid;
-  grid-template-columns: 1fr auto auto;
+  grid-template-columns: 1fr auto auto auto;
   margin: 5px;
   gap: 0.5rem;
 }
