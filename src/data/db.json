@@ -79,11 +79,6 @@
       "object": "folder:marketing_assets"
     },
     {
-      "subject": "user:emil",
-      "relation": "viewer",
-      "object": "file:Project.pdf"
-    },
-    {
       "subject": "user:magnus",
       "relation": "viewer",
       "object": "file:Earnings.pdf"

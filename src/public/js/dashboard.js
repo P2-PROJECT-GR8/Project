@@ -185,21 +185,30 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const leaveFile = document.getElementById("leave");
   leaveFile.addEventListener("click", async (event)=>{
+    event.preventDefault();
 
-  event.preventDefault();
+    if (!selectedFile) {
+      console.error("No file selected");
+      return;
+    }
 
-  const currentUser = await getCurrentUser();
-  const res = await fetch("/api/leaveFile", {
-    method: "POST",
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ objectId: fileId }),
-  })
-  if (res.ok) {
-  }
-});
+    const res = await fetch("/api/leaveFile", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ objectId: selectedFile }),
+    });
+
+    if (res.ok) {
+      fileDetailsModal.close();
+      location.reload(); // Reload to update the files list
+    } else {
+      const data = await res.json();
+      console.error(data.message);
+    }
+  });
 });
 
 const renderMembers = async (fileId) => {

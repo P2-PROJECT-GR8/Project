@@ -360,7 +360,7 @@ return res.json({ success: true });
 })
 
 app.post("/api/leaveFile", async (req, res)=>{
-const {objectId, subjectId} = req.body;
+const {objectId} = req.body;
 let currentUser;
   try {
     currentUser = getUser(req);
@@ -371,8 +371,15 @@ let currentUser;
 
   await db.read();
   const idx = db.data.tupleStore.findIndex(
-    (tuple)=> tuple.object === objectId && tuple.subject === subjectId);
+  (tuple)=> tuple.object === objectId && tuple.subject === currentUser.id);
+  
+  if (idx < 0) {
+    return res.status(404).json({ message: "Relation not found" });
+  }
+  
   db.data.tupleStore.splice(idx, 1)
+
+
 await db.write();
 return res.json({ success: true });
 });
