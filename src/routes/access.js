@@ -14,8 +14,10 @@
 
 /**
  * @typedef {Object} DbData
- * @property {Schema} schema - The access control schema.
- * @property {Tuple[]} tupleStore - A list of all relationship tuples.
+ * @property {Schema} schema - The access control schema. The `definitions` property is not used in the current schema structure.
+ * @property {Object} tupleStore - The indexed relationship tuples.
+ * @property {Object.<string, Array<{ subjectId: string, relation: string }>>} tupleStore.byObject - Tuples indexed by objectId.
+ * @property {Object.<string, Array<{ relation: string, objectId: string }>>} tupleStore.bySubject - Tuples indexed by subjectId.
  */
 
 /**
@@ -74,7 +76,7 @@ class AccessControl {
   async expandUserRelations(userId, objectId) {
     // This is the main entry point for a check. We start by expanding access
     // for the user's own ID and ensure the results are unique.
-    const relations = await this._expand(userId, objectId, new Set());
+    const relations = await this._expand(userId, objectId);
     return [...new Set(relations)];
   }
 
@@ -90,49 +92,49 @@ class AccessControl {
    * @returns {Promise<string[]>} - An array of discovered relations.
    * @memberof AccessControl
    */
-  async _expand(subjectId, objectId, visited) {
-    const visitKey = `${subjectId}->${objectId}`;
-    if (visited.has(visitKey)) {
-      return [];
-    }
-    visited.add(visitKey);
+  async _expand(subjectId, objectId) {
+    this.db.read();
+    const { byObject, bySubject } = this.db.data.tupleStore;
 
-    let discoveredRelations = [];
+    const discoveredRelations = new Set();
+    const visited = new Set();
+    const queue = [objectId];
 
-    for (const tuple of this.db.data.tupleStore) {
-      // Case A: Direct relation found.
-      // e.g., { subject: 'user:alice', relation: 'editor', object: 'file:1' }
-      if (tuple.subject === subjectId && tuple.object === objectId) {
-        discoveredRelations.push(tuple.relation);
-      }
+    while (queue.length > 0) {
+      const currentTarget = queue.shift();
 
-      // Case B: Indirect relation (inheritance).
-      // e.g., { subject: 'group:marketing', relation: 'owner', object: 'file:1' }
-      // If we are checking for a user on 'file:1', this tuple's object matches.
-      // We now recursively check if the user has a relation to the tuple's subject ('group:marketing').
-      else if (tuple.object === objectId) {
-        const inheritedRelations = await this._expand(
-          subjectId,
-          tuple.subject,
-          visited,
-        );
+      if (visited.has(currentTarget)) continue;
+      visited.add(currentTarget);
 
-        if (inheritedRelations.length > 0) {
-          // The user has a relationship with the intermediate object (e.g., is a 'member' of a group).
-          if (tuple.relation === "parent") {
-            // If the intermediate object is a parent, the user inherits their existing relations to that parent.
-            // e.g., if user is 'viewer' of folder, they become 'viewer' of the file.
-            discoveredRelations.push(...inheritedRelations);
-          } else {
-            // If the intermediate object is a group, the user inherits the group's relation to the target object.
-            // e.g., if user is 'member' of group, and group is 'owner' of file, user gets 'owner' relation.
-            discoveredRelations.push(tuple.relation);
+      const tuples = byObject[currentTarget] || [];
+
+      for (const tuple of tuples) {
+        // Case A: Direct relation
+        if (tuple.subjectId === subjectId) {
+          discoveredRelations.add(tuple.relation);
+        }
+
+        // Case B: Indirect relation via Folder/Parent inheritance
+        else if (tuple.relation === "parent") {
+          queue.push(tuple.subjectId);
+        }
+
+        // Case C: Indirect relation via Group inheritance
+        else {
+          const userRelations = bySubject[subjectId] || [];
+          const isMember = userRelations.some(
+            (r) => r.objectId === tuple.subjectId && r.relation === "member",
+          );
+
+          if (isMember) {
+            discoveredRelations.add(tuple.relation);
           }
         }
       }
     }
-    // Filter out relations like 'parent' that are used for traversal but aren't permissions themselves.
-    return discoveredRelations.filter((rel) => rel !== "parent");
+
+    discoveredRelations.delete("parent");
+    return Array.from(discoveredRelations);
   }
 
   /**
@@ -145,8 +147,7 @@ class AccessControl {
   async getUserRelations(userId) {
     const accessibleObjects = [];
     // Create a set of all unique object IDs from the tuple store.
-    // We are interested in the "things" that can be accessed.
-    const allObjectIds = new Set(this.db.data.tupleStore.map((t) => t.object));
+    const allObjectIds = new Set(Object.keys(this.db.data.tupleStore.byObject));
 
     for (const objectId of allObjectIds) {
       // not their membership in groups, so we can skip group objects.
@@ -175,9 +176,8 @@ class AccessControl {
    */
   async getObjectRelations(objectId) {
     const relatedUsers = [];
-    // Create a set of all unique subject IDs from the tuple store.
     const allSubjectIds = new Set(
-      this.db.data.tupleStore.map((t) => t.subject),
+      Object.keys(this.db.data.tupleStore.bySubject),
     );
     for (const subjectId of allSubjectIds) {
       // We only care about users, not groups or other objects
@@ -196,6 +196,77 @@ class AccessControl {
     }
 
     return relatedUsers;
+  }
+
+  addTuple(subjectId, relation, objectId) {
+    this.db.read();
+    const entryByObject = { subjectId, relation };
+    const entryBySubject = { relation, objectId };
+
+    // 1. Add tuple to the byObject index IF it doesn't already exist
+    // Check if key is in the db
+    if (!this.db.data.tupleStore.byObject[objectId])
+      this.db.data.tupleStore.byObject[objectId] = [];
+    // Only add if the tuple doesnt exits already
+    if (
+      !this.db.data.tupleStore.byObject[objectId].some(
+        (t) => t.subjectId === subjectId && t.relation === relation,
+      )
+    ) {
+      this.db.data.tupleStore.byObject[objectId].push(entryByObject);
+    } else
+      console.error(
+        "Tried to add a tupple to the byObject database that already exists",
+      );
+
+    // 2. Add tuple to the bySubject index, same method as step 1
+    if (!this.db.data.tupleStore.bySubject[subjectId])
+      this.db.data.tupleStore.bySubject[subjectId] = [];
+    if (
+      !this.db.data.tupleStore.bySubject[subjectId].some(
+        (t) => t.relation === relation && t.objectId === objectId,
+      )
+    ) {
+      this.db.data.tupleStore.bySubject[subjectId].push(entryBySubject);
+    } else
+      console.error(
+        "Tried to add a tupple to the bySubject database that already exists",
+      );
+
+    this.db.write();
+  }
+
+  // This function is maybe a WIP, debating on whether the effeciency of .filter() is fine in this case
+  deleteTuple(subjectId, relation, objectId) {
+    this.db.read();
+
+    // 1. Remove from the byObject index
+    if (this.db.data.tupleStore.byObject[objectId]) {
+      this.db.data.tupleStore.byObject[objectId] =
+        this.db.data.tupleStore.byObject[objectId].filter(
+          (t) => !(t.subjectId === subjectId && t.relation === relation),
+        );
+
+      // Clean up empty keys to keep the db.json small
+      if (this.db.data.tupleStore.byObject[objectId].length === 0) {
+        delete this.db.data.tupleStore.byObject[objectId];
+      }
+    }
+
+    // 2. Remove from the bySubject index
+    if (this.db.data.tupleStore.bySubject[subjectId]) {
+      this.db.data.tupleStore.bySubject[subjectId] =
+        this.db.data.tupleStore.bySubject[subjectId].filter(
+          (t) => !(t.objectId === objectId && t.relation === relation),
+        );
+
+      // Clean up empty keys
+      if (this.db.data.tupleStore.bySubject[subjectId].length === 0) {
+        delete this.db.data.tupleStore.bySubject[subjectId];
+      }
+    }
+
+    this.db.write();
   }
 }
 

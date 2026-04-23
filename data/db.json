@@ -1,0 +1,114 @@
+{
+  "schema": {
+    "file": {
+      "relations": {
+        "owner": [
+          "view",
+          "edit",
+          "delete",
+          "share",
+          "comment"
+        ],
+        "editor": [
+          "view",
+          "edit",
+          "comment"
+        ],
+        "viewer": [
+          "view",
+          "comment"
+        ],
+        "commenter": [
+          "view",
+          "comment"
+        ]
+      }
+    },
+    "folder": {
+      "relations": {
+        "owner": [
+          "view",
+          "create_child",
+          "delete_folder"
+        ],
+        "viewer": [
+          "view"
+        ]
+      }
+    }
+  },
+  "tupleStore": {
+    "byObject": {
+      "file:Project.pdf": [
+        {
+          "subjectId": "user:magnus",
+          "relation": "owner"
+        },
+        {
+          "subjectId": "user:emil",
+          "relation": "viewer"
+        }
+      ],
+      "file:1": [
+        {
+          "subjectId": "user:jeff",
+          "relation": "owner"
+        },
+        {
+          "subjectId": "user:jeff",
+          "relation": "veiwer"
+        }
+      ]
+    },
+    "bySubject": {
+      "user:magnus": [
+        {
+          "relation": "owner",
+          "objectId": "file:Project.pdf"
+        }
+      ],
+      "user:jeff": [
+        {
+          "relation": "owner",
+          "objectId": "file:1"
+        },
+        {
+          "relation": "veiwer",
+          "objectId": "file:1"
+        }
+      ],
+      "user:emil": [
+        {
+          "relation": "viewer",
+          "objectId": "file:Project.pdf"
+        }
+      ]
+    }
+  },
+  "users": [
+    {
+      "id": "user:alice",
+      "name": "alice"
+    },
+    {
+      "id": "user:admin",
+      "name": "admin"
+    },
+    {
+      "id": "user:emil",
+      "name": "emil"
+    },
+    {
+      "id": "user:magnus",
+      "name": "magnus"
+    },
+    {
+      "id": "user:jeff",
+      "name": "jeff"
+    },
+    {
+      "id": "user:bob",
+      "name": "bob"
+    }
+  ]
+}

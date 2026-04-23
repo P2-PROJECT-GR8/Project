@@ -3,7 +3,6 @@ import jwt from "jsonwebtoken";
 import cookieParser from "cookie-parser";
 import path from "path";
 import { fileURLToPath } from "url";
-import { validUserName } from "./routes/users.js";
 import { JSONFilePreset } from "lowdb/node";
 import { AccessControl } from "./routes/access.js";
 
@@ -12,15 +11,12 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
-const db = await JSONFilePreset(path.join(__dirname, "data", "db.json"), {
+const db = await JSONFilePreset(path.join(__dirname, "..", "data", "db.json"), {
   users: [{ id: "", name: "" }],
-  tupleStore: [
-    {
-      subject: "",
-      relation: "",
-      object: "",
-    },
-  ],
+  tupleStore: {
+    byObject: {},
+    bySubject: {},
+  },
   schema: { definitions: {} },
 });
 
@@ -135,27 +131,48 @@ app.get("/api/me", (req, res) => {
   res.json(user);
 });
 
-app.post("/register", (req, res) => {
-  const { userName } = req.body;
+app.post("/register", async (req, res) => {
+  const { userName, login } = req.body;
+  const normalizedUserName = userName?.toLowerCase().trim();
 
-  db.read();
+  if (!normalizedUserName) {
+    return res.status(400).json({ message: "Username is required." });
+  }
 
-  if (db.data.users.some((u) => u.name === userName)) {
-    console.log(`User ${userName} already exists in the database`);
-    res.json({ message: "Username already exists, please choose another one" });
-  } else if (!validUserName(userName)) {
-    console.log(`Invalid username attempted: ${userName}`);
-    res.json({
+  if (normalizedUserName.length < 2 || normalizedUserName.length > 10) {
+    return res.status(400).json({
       message:
         "Invalid username. Usernames must be between 2 and 10 characters long.",
     });
-  } else {
-    console.log(`Adding ${userName} to the database`);
-    db.update(({ users }) => {
-      users.push({ id: `user:${userName}`, name: userName });
-    });
-    res.json({ message: "User registered successfully!" });
   }
+
+  await db.read();
+
+  if (db.data.users.some((u) => u.name === normalizedUserName)) {
+    return res
+      .status(409)
+      .json({ message: "Username already exists, please choose another one" });
+  }
+
+  await db.update(({ users }) => {
+    users.push({ id: `user:${normalizedUserName}`, name: normalizedUserName });
+  });
+
+  if (login) {
+    const token = jwt.sign(
+      { userId: `user:${normalizedUserName}` },
+      SECRET_KEY,
+      {
+        expiresIn: "1h",
+      },
+    );
+    res.cookie("sessionToken", token, { httpOnly: true });
+    return res.json({
+      message: `Registered and logged in as ${normalizedUserName}`,
+    });
+  }
+
+  return res.status(201).json({ message: "User registered successfully!" });
 });
 
 app.post("/relatedUsers", async (req, res) => {
@@ -191,30 +208,6 @@ app.post("/login", (req, res) => {
 
   const token = jwt.sign({ userId: `user:${userName}` }, SECRET_KEY, {
     expiresIn: "1h",
-  });
-
-  console.log(`Created a session for ${userName} with Id : user:${userName}`);
-  res.cookie("sessionToken", token, { httpOnly: true });
-  res.send({ message: `Logged in as ${userName}` });
-});
-
-app.post("/register", (req, res) => {
-  const userName = req.body.userName.toLowerCase();
-
-  // Check if a user is in the users db (JSON file) and return an error if not.
-  if (db.data.users.some((user) => user.name === userName)) {
-    return res.status(401).send({ message: "Username already exists" });
-  }
-
-  if (!userName)
-    return res.status(400).send({ message: "Username is missing" });
-
-  const token = jwt.sign({ userId: `user:${userName}` }, SECRET_KEY, {
-    expiresIn: "1h",
-  });
-
-  db.update(({ users }) => {
-    users.push({ id: `user:${userName}`, name: userName });
   });
 
   console.log(`Created a session for ${userName} with Id : user:${userName}`);
@@ -292,96 +285,74 @@ app.post("/api/newTuple", async (req, res) => {
   }
   await db.read();
   // check if the target user and object exist in the database
-  if (subjectId.split(":")[0] === "user") {
+  const subjectType = subjectId.split(":")[0];
+  if (subjectType === "user") {
     const userExists = db.data.users.some((user) => user.id === subjectId);
     if (!userExists) {
       return res.status(404).send({ message: "Invited user does not exist." });
     }
-    // check if the target folder and object exist in the same database
-  } else if (subjectId.split(":")[0] === "folder") {
-    const folderExists = db.data.tupleStore.some(
-      (t) => t.subject === subjectId || t.object === subjectId,
-    );
+  } else if (subjectType === "folder" || subjectType === "file") {
+    // Check if the folder/file exists as a subject or object in any tuple
+    const folderExists =
+      Object.prototype.hasOwnProperty.call(
+        db.data.tupleStore.bySubject,
+        subjectId,
+      ) ||
+      Object.prototype.hasOwnProperty.call(
+        db.data.tupleStore.byObject,
+        subjectId,
+      );
+
     if (!folderExists) {
-      return res.status(404).send({ messeage: "Folder does not exxist" });
+      return res.status(404).send({ message: `${subjectType} does not exist` });
     }
   } else {
     return res.status(404).send({ message: "invalid subjectID prefix" });
   }
 
-  // check if the relation already exists
-  const relationExists = db.data.tupleStore.some(
-    (tuple) =>
-      tuple.subject === subjectId &&
-      tuple.relation === relation &&
-      tuple.object === objectId,
-  );
-
-  if (relationExists) {
-    return res.status(409).send({ message: "Relation already exists." });
+  try {
+    accessControl.addTuple(subjectId, relation, objectId);
+  } catch (error) {
+    await db.read(); // Ensure we have the latest state
+    const tupleExistsAfterAttempt = db.data.tupleStore.byObject[objectId]?.some(
+      (t) => t.subjectId === subjectId && t.relation === relation,
+    );
+    if (tupleExistsAfterAttempt) {
+      return res.status(409).send({ message: "Relation already exists." });
+    }
+    return res
+      .status(500)
+      .send({ message: "Failed to add relation due to an unexpected error." });
   }
-
-  db.data.tupleStore.push({ subject: subjectId, relation, object: objectId });
-  await db.write();
 
   res.status(201).send({ message: "Member added successfully" });
 });
-app.post("/api/deleteTuple", async (req, res)=>{
-const {objectId, subjectId} = req.body;
-let currentUser;
+app.post("/api/deleteTuple", async (req, res) => {
+  const { objectId, relations, subjectId } = req.body;
+  let currentUser;
   try {
     currentUser = getUser(req);
   } catch (err) {
     console.error(err);
     return res.status(401).send({ message: "User not authenticated" });
   }
-// Check if current user is authorized to delete relations
-const canDelete = await accessControl.can(currentUser.name, "delete", objectId)
- if (!canDelete) {
+  // Check if current user is athorized to delete relations
+  const canDelete = await accessControl.can(
+    currentUser.name,
+    "delete",
+    objectId,
+  );
+  if (!canDelete) {
     return res
       .status(403)
       .send({ message: "User is not authorized to perform this action" });
   }
 
-await db.read();
-const idx = db.data.tupleStore.findIndex(
-  (tuple)=> tuple.object === objectId && tuple.subject === subjectId);
-
-if (idx<0){
-  return res.status(404).json({ message: "Relation not found" });
-}
-
-db.data.tupleStore.splice(idx, 1)
-
-await db.write();
-
-return res.json({ success: true });
-
-})
-
-app.post("/api/leaveFile", async (req, res)=>{
-const {objectId} = req.body;
-let currentUser;
-  try {
-    currentUser = getUser(req);
-  } catch (err) {
-    console.error(err);
-    return res.status(401).send({ message: "User not authenticated" });
+  for (const rel of relations) {
+    accessControl.deleteTuple(subjectId, rel, objectId);
   }
 
-  await db.read();
-  const idx = db.data.tupleStore.findIndex(
-  (tuple)=> tuple.object === objectId && tuple.subject === currentUser.id);
-  
-  if (idx < 0) {
-    return res.status(404).json({ message: "Relation not found" });
-  }
-  
-  db.data.tupleStore.splice(idx, 1)
-
-
-await db.write();
-return res.json({ success: true });
+  return res.json({ success: true });
 });
 
 app.get("/api/userNames", (req, res) => {
@@ -396,6 +367,10 @@ app.listen(3000, () => {
   console.log("Server running at http://localhost:3000");
 });
 
+// accessControl.addTuple("user:jeff", "owner", "file:1");
+// accessControl.addTuple("user:alice", "editor", "file:1");
+// accessControl.addTuple("user:jeff", "veiwer", "file:1");
+
 // console.log(
 //   "Jeff's relations to file:1:",
 //   await accessControl.expandUserRelations("user:jeff", "file:1"),
@@ -407,4 +382,12 @@ app.listen(3000, () => {
 // console.log(
 //   "Can Bob delete file:1?",
 //   await accessControl.can("bob", "delete", "file:1"),
+// );
+
+// console.log("Attempting tuple deletion");
+// accessControl.deleteTuple("user:alice", "editor", "file:1");
+
+// console.log(
+//   "Can Alice edit file:1 now?",
+//   await accessControl.can("alice", "edit", "file:1"),
 // );
