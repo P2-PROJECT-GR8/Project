@@ -372,17 +372,17 @@ app.get("/api/adminFiles", async (req, res) => {
   try {
     const decoded = jwt.verify(token, SECRET_KEY);
     // only allow admin to to utilize this endpoint.
-    if(!token.userId==="admin"){
-      res.status(403).send({messeage: "request denied"})
+    if(decoded.userId!=="user:admin"){
+      return res.status(403).send({messeage: "request denied"})
     }
-    const targetUser = req.userID
+    const targetUser = req.query.userId
 
-    const userRelations = await accessControl.getUserRelations(userId);
+    const userRelations = await accessControl.getUserRelations(targetUser);
     // console.log(userRelations);
 
     res.json({ files: userRelations });
   } catch (error) {
-    res.status(401).send({ message: "Invalid session" });
+    return res.status(401).send({ message: "Invalid session" });
   }
 });
 

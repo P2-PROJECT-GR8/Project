@@ -35,6 +35,7 @@ const getCurrentUser = async () => {
 document.addEventListener("DOMContentLoaded", async () => {
   const currentUser = await getCurrentUser();
   console.log("Current User: ", currentUser);
+  const isadmin = currentUser.id === "user:admin";
   // Set the initial active page
   showPage("#files"); // Set "All Files" as the default active page
 
@@ -54,13 +55,62 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     });
   });
+  
+  if (isadmin){
+    const header = document.getElementById("allFilesHeader");
+    header.innerText="All users";
+    const headerdescription = document.getElementById("allFIlesHeaderText");
+    headerdescription.innerText="here you will find an ovewrview of all users and their relations"
+    renderAdminUSerList();
+  } else {
+    renderFileListForUSer(currentUser.id);
+  }
 
-  const res = await fetch("/files", {
+  // default renderer
+  async function renderFileListForUSer(userId) {
+    const res = await fetch("/files", {
     credentials: "include",
   });
   const { files } = await res.json();
+  renderFiles(files);
+  }
+  // renderer if admin
+  async function renderAdminUSerList() {
+    const res = await fetch("/api/userNames", { credentials: "include", });
+    const {userNames} = await res.json();
 
-  const filesList = document.getElementById("filesList");
+    const fileList = document.getElementById("filesList");
+    fileList.innerHTML = "";
+
+    userNames.forEach((userName) => {
+      if(userName === "Admin"){
+        return;
+      }
+      const item = document.createElement("div");
+      item.className = "listitem admin-user";
+      item.dataset.userId = `user:${userName.toLowerCase()}`;
+
+      item.innerText = userName;
+      item.addEventListener("click", () => {
+        renderAdminFilesForUser(item.dataset.userId);
+      });
+
+      fileList.appendChild(item);
+    });
+  }
+
+  async function renderAdminFilesForUser(userId) {
+    const res = await fetch(`/api/adminFiles?userId=${userId}`,{ credentials: "include"});
+    const {files} = await res.json();
+
+    renderFiles(files);
+  }
+
+
+  // renders received filelist to dahsboard 
+  function renderFiles(files) {
+    const filesList = document.getElementById("filesList");
+    filesList.innerHTML = "";
 
   if (files.length > 0) {
     files.forEach((file) => {
@@ -104,6 +154,16 @@ document.addEventListener("DOMContentLoaded", async () => {
       filesList.appendChild(listItem);
     });
   }
+  }
+  
+  // old version
+
+  //const res = await fetch("/files", {
+  //  credentials: "include",
+  //});
+  //const { files } = await res.json();
+
+  
 
   let selectedFile;
 
@@ -261,6 +321,7 @@ const renderMembers = async (fileId) => {
     // console.log(res.body);
   }
 };
+
 
 /*
 <div class="listitem">
