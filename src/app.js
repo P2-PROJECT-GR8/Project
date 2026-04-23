@@ -363,6 +363,29 @@ app.get("/api/userNames", (req, res) => {
   res.send({ userNames: userNames });
 });
 
+app.get("/api/adminFiles", async (req, res) => {
+  const token = req.cookies.sessionToken;
+  if (!token) {
+    return res.status(401).send({ message: "Unauthorized" });
+  }
+
+  try {
+    const decoded = jwt.verify(token, SECRET_KEY);
+    // only allow admin to to utilize this endpoint.
+    if(!token.userId==="admin"){
+      res.status(403).send({messeage: "request denied"})
+    }
+    const targetUser = req.userID
+
+    const userRelations = await accessControl.getUserRelations(userId);
+    // console.log(userRelations);
+
+    res.json({ files: userRelations });
+  } catch (error) {
+    res.status(401).send({ message: "Invalid session" });
+  }
+});
+
 app.listen(3000, () => {
   console.log("Server running at http://localhost:3000");
 });
