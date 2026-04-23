@@ -261,10 +261,27 @@ dialog::backdrop {
   display: none !important;
 }
 
-#delete-btn{
-  color:crimson;
+#delete-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 32px;
+  height: 32px;
+
+  border-radius: var(--radius-lg);
+  background-color: #ecf0f1;
+
+  color: crimson;
   text-decoration: none;
-  font-weight: bolder;
+  font-weight: 700;
+
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.member #delete-btn {
+  justify-self: end;
 }
 
 #delete-btn:hover{
@@ -272,17 +289,58 @@ dialog::backdrop {
 }
 
 .tooltip {
-  visibility: hidden;
-  width: 130px;
-  color: rgba(var(--primary-rgb),0.8);
-  text-align: center;
-  border-radius: 6px;
-  padding: 0 0;
   position: absolute;
-  z-index: 0;
+  bottom: 120%; /* place above button */
+  left: 50%;
+  transform: translateX(-50%) translateY(5px);
+
+  background-color: var(--primary);
+  color: white;
+
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+
+  opacity: 0;
+  visibility: hidden;
+
+  transition: all 0.2s ease;
+  pointer-events: none; /* prevents flicker */
+  z-index: 10;
 }
 
-#delete-btn:hover .tooltip{
-  visibility:visible
-  
+#delete-btn:hover .tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+.changeRelation {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: var(--radius-lg);
+  background-color: #ecf0f1;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--on-surface-variant);
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.changeRelation:hover {
+  background-color: var(--secondary-container);
+}
+
+.changeRelation:focus {
+  box-shadow: 0 0 0 2px var(--primary);
+  background-color: white;
+}
+
+.changeRelation:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }

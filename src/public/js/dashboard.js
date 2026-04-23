@@ -333,6 +333,10 @@ const renderMembers = async (fileId) => {
               renderMembers(fileId);
             }
           });
+          const helpDelete = document.createElement("span");
+          helpDelete.className = "tooltip";
+          helpDelete.innerText = "Remove Access";
+          deleteRel.appendChild(helpDelete);
           member.appendChild(deleteRel);
         }
         membersList.appendChild(member);

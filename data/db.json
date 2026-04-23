@@ -61,15 +61,11 @@
       ],
       "file:Earnings.pdf": [
         {
-          "subjectId": "user:magnus",
-          "relation": "viewer"
-        },
-        {
           "subjectId": "user:jeff",
           "relation": "viewer"
         },
         {
-          "subjectId": "user:magnus",
+          "subjectId": "user:emil",
           "relation": "owner"
         }
       ]
@@ -79,14 +75,6 @@
         {
           "relation": "owner",
           "objectId": "file:Project.pdf"
-        },
-        {
-          "relation": "viewer",
-          "objectId": "file:Earnings.pdf"
-        },
-        {
-          "relation": "owner",
-          "objectId": "file:Earnings.pdf"
         }
       ],
       "user:jeff": [
@@ -107,6 +95,10 @@
         {
           "relation": "viewer",
           "objectId": "file:Project.pdf"
+        },
+        {
+          "relation": "owner",
+          "objectId": "file:Earnings.pdf"
         }
       ]
     }
