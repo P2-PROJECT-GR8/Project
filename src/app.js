@@ -335,7 +335,7 @@ let currentUser;
     console.error(err);
     return res.status(401).send({ message: "User not authenticated" });
   }
-// Check if current user is athorized to delete relations
+// Check if current user is authorized to delete relations
 const canDelete = await accessControl.can(currentUser.name, "delete", objectId)
  if (!canDelete) {
     return res
@@ -358,6 +358,24 @@ await db.write();
 return res.json({ success: true });
 
 })
+
+app.post("/api/leaveFile", async (req, res)=>{
+const {objectId, subjectId} = req.body;
+let currentUser;
+  try {
+    currentUser = getUser(req);
+  } catch (err) {
+    console.error(err);
+    return res.status(401).send({ message: "User not authenticated" });
+  }
+
+  await db.read();
+  const idx = db.data.tupleStore.findIndex(
+    (tuple)=> tuple.object === objectId && tuple.subject === subjectId);
+  db.data.tupleStore.splice(idx, 1)
+await db.write();
+return res.json({ success: true });
+});
 
 app.get("/api/userNames", (req, res) => {
   db.read();
