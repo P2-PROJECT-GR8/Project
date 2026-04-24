@@ -373,7 +373,7 @@ app.get("/api/adminFiles", async (req, res) => {
   try {
     const decoded = jwt.verify(token, SECRET_KEY);
     // only allow admin to to utilize this endpoint.
-    if (decoded.userId !== "user:admin") {
+    if (getUser(req).id !== "user:admin") {
       return res.status(403).send({ messeage: "request denied" });
     }
     const targetUser = req.query.userId;
@@ -385,6 +385,18 @@ app.get("/api/adminFiles", async (req, res) => {
   } catch (error) {
     return res.status(401).send({ message: "Invalid session" });
   }
+});
+
+app.get("/api/isAdmin", async (req, res) => {
+  const token = req.cookies.sessionToken;
+  if (!token) {
+    return res.status(401).send({ message: "Unauthorized" });
+  }
+
+  if (getUser(req).id !== "user:admin") {
+    return res.status(403).send({ messeage: "not admin" });
+  }
+  res.json({ status: true });
 });
 
 app.listen(3000, () => {

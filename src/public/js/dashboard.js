@@ -35,7 +35,10 @@ const getCurrentUser = async () => {
 document.addEventListener("DOMContentLoaded", async () => {
   const currentUser = await getCurrentUser();
   console.log("Current User: ", currentUser);
-  const isadmin = currentUser.id === "user:admin";
+
+  const adminResponse = await fetch("/api/isAdmin", { credentials: "include" });
+  const isadmin = await adminResponse.json();
+
   // Set the initial active page
   showPage("#files"); // Set "All Files" as the default active page
 
@@ -57,7 +60,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   // loads either defualt dashboard or admin dashboard
-  if (isadmin) {
+  if (isadmin.status) {
     // any HTML changes needed for admin should be done here
     const header = document.getElementById("allFilesHeader");
     header.innerText = "All users";
