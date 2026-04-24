@@ -62,11 +62,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   // loads either defualt dashboard or admin dashboard
   if (isadmin.status) {
     // any HTML changes needed for admin should be done here
-    const header = document.getElementById("allFilesHeader");
-    header.innerText = "All users";
-    const headerdescription = document.getElementById("allFIlesHeaderText");
-    headerdescription.innerText =
-      "here you will find an ovewrview of all users and their relations";
     renderAdminUSerList();
   } else {
     renderFileListForUSer(currentUser.id);
@@ -83,6 +78,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // renders an overview of all users within the system
   async function renderAdminUSerList() {
+    //Qol
+    const header = document.getElementById("allFilesHeader");
+    header.innerText = "All users";
+    const headerdescription = document.getElementById("allFIlesHeaderText");
+    headerdescription.innerText =
+      "here you will find an ovewrview of all users and their relations";
+
     const res = await fetch("/api/userNames", { credentials: "include" });
     const { userNames } = await res.json();
 
@@ -108,6 +110,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // aquires list of files to be rendered for the provided userId
   async function renderAdminFilesForUser(userId) {
+    //Qol
+    const header = document.getElementById("allFilesHeader");
+    header.innerText = `${userId.split(":")[1]}'s files`;
+    const headerdescription = document.getElementById("allFIlesHeaderText");
+    headerdescription.innerText = `here you will find an overview of ${userId.split(":")[1]}'s relations`;
+
     const res = await fetch(`/api/adminFiles?userId=${userId}`, {
       credentials: "include",
     });
