@@ -56,7 +56,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   });
 
+  // loads either defualt dashboard or admin dashboard
   if (isadmin) {
+    // any HTML changes needed for admin should be done here
     const header = document.getElementById("allFilesHeader");
     header.innerText = "All users";
     const headerdescription = document.getElementById("allFIlesHeaderText");
@@ -67,7 +69,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     renderFileListForUSer(currentUser.id);
   }
 
-  // default renderer
+  // renders all of a users files
   async function renderFileListForUSer(userId) {
     const res = await fetch("/files", {
       credentials: "include",
@@ -75,7 +77,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     const { files } = await res.json();
     renderFiles(files);
   }
-  // renderer if admin
+
+  // renders an overview of all users within the system
   async function renderAdminUSerList() {
     const res = await fetch("/api/userNames", { credentials: "include" });
     const { userNames } = await res.json();
@@ -100,6 +103,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
+  // aquires list of files to be rendered for the provided userId
   async function renderAdminFilesForUser(userId) {
     const res = await fetch(`/api/adminFiles?userId=${userId}`, {
       credentials: "include",

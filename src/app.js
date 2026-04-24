@@ -363,6 +363,7 @@ app.get("/api/userNames", (req, res) => {
   res.send({ userNames: userNames });
 });
 
+// return the list of files for the provided userId if user is admin
 app.get("/api/adminFiles", async (req, res) => {
   const token = req.cookies.sessionToken;
   if (!token) {
@@ -372,10 +373,10 @@ app.get("/api/adminFiles", async (req, res) => {
   try {
     const decoded = jwt.verify(token, SECRET_KEY);
     // only allow admin to to utilize this endpoint.
-    if(decoded.userId!=="user:admin"){
-      return res.status(403).send({messeage: "request denied"})
+    if (decoded.userId !== "user:admin") {
+      return res.status(403).send({ messeage: "request denied" });
     }
-    const targetUser = req.query.userId
+    const targetUser = req.query.userId;
 
     const userRelations = await accessControl.getUserRelations(targetUser);
     // console.log(userRelations);
