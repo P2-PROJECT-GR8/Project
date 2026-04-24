@@ -55,12 +55,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     });
   });
-  
-  if (isadmin){
+
+  if (isadmin) {
     const header = document.getElementById("allFilesHeader");
-    header.innerText="All users";
+    header.innerText = "All users";
     const headerdescription = document.getElementById("allFIlesHeaderText");
-    headerdescription.innerText="here you will find an ovewrview of all users and their relations"
+    headerdescription.innerText =
+      "here you will find an ovewrview of all users and their relations";
     renderAdminUSerList();
   } else {
     renderFileListForUSer(currentUser.id);
@@ -69,21 +70,21 @@ document.addEventListener("DOMContentLoaded", async () => {
   // default renderer
   async function renderFileListForUSer(userId) {
     const res = await fetch("/files", {
-    credentials: "include",
-  });
-  const { files } = await res.json();
-  renderFiles(files);
+      credentials: "include",
+    });
+    const { files } = await res.json();
+    renderFiles(files);
   }
   // renderer if admin
   async function renderAdminUSerList() {
-    const res = await fetch("/api/userNames", { credentials: "include", });
-    const {userNames} = await res.json();
+    const res = await fetch("/api/userNames", { credentials: "include" });
+    const { userNames } = await res.json();
 
     const fileList = document.getElementById("filesList");
     fileList.innerHTML = "";
 
     userNames.forEach((userName) => {
-      if(userName === "Admin"){
+      if (userName === "Admin") {
         return;
       }
       const item = document.createElement("div");
@@ -100,70 +101,75 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   async function renderAdminFilesForUser(userId) {
-    const res = await fetch(`/api/adminFiles?userId=${userId}`,{ credentials: "include"});
-    const {files} = await res.json();
+    const res = await fetch(`/api/adminFiles?userId=${userId}`, {
+      credentials: "include",
+    });
+    const { files } = await res.json();
+
+    const rButton = document.getElementById("UploadNewbtn");
+    rButton.innerText = "back";
+    rButton.addEventListener("click", () => {
+      renderAdminUSerList();
+    });
 
     renderFiles(files);
   }
 
-
-  // renders received filelist to dahsboard 
+  // renders received filelist to dahsboard
   function renderFiles(files) {
     const filesList = document.getElementById("filesList");
     filesList.innerHTML = "";
 
-  if (files.length > 0) {
-    files.forEach((file) => {
-      const listItem = document.createElement("div");
-      listItem.className = "listitem";
-      listItem.dataset.fileId = file.objectId;
-      listItem.dataset.relations = file.relations;
+    if (files.length > 0) {
+      files.forEach((file) => {
+        const listItem = document.createElement("div");
+        listItem.className = "listitem";
+        listItem.dataset.fileId = file.objectId;
+        listItem.dataset.relations = file.relations;
 
-      const icon = document.createElement("i");
-      icon.className = "material-icons type";
-      icon.innerText = "article";
+        const icon = document.createElement("i");
+        icon.className = "material-icons type";
+        icon.innerText = "article";
 
-      const itemTitle = document.createElement("div");
-      itemTitle.className = "item-title";
+        const itemTitle = document.createElement("div");
+        itemTitle.className = "item-title";
 
-      const h3 = document.createElement("h3");
-      h3.innerText = file.objectId.split(":")[1];
+        const h3 = document.createElement("h3");
+        h3.innerText = file.objectId.split(":")[1];
 
-      const p = document.createElement("p");
-      p.innerText = "Updated by User - 2 Hours ago";
+        const p = document.createElement("p");
+        p.innerText = "Updated by User - 2 Hours ago";
 
-      itemTitle.appendChild(h3);
-      itemTitle.appendChild(p);
+        itemTitle.appendChild(h3);
+        itemTitle.appendChild(p);
 
-      const relation = document.createElement("div");
-      relation.className = "relation";
-      relation.innerText = file.relations.join(", ").toUpperCase();
+        const relation = document.createElement("div");
+        relation.className = "relation";
+        relation.innerText = file.relations.join(", ").toUpperCase();
 
-      const moreLink = document.createElement("a");
-      moreLink.href = "#";
-      const moreIcon = document.createElement("i");
-      moreIcon.className = "material-icons more-btn";
-      moreIcon.innerText = "more_vert";
-      moreLink.appendChild(moreIcon);
+        const moreLink = document.createElement("a");
+        moreLink.href = "#";
+        const moreIcon = document.createElement("i");
+        moreIcon.className = "material-icons more-btn";
+        moreIcon.innerText = "more_vert";
+        moreLink.appendChild(moreIcon);
 
-      listItem.appendChild(icon);
-      listItem.appendChild(itemTitle);
-      listItem.appendChild(relation);
-      listItem.appendChild(moreLink);
+        listItem.appendChild(icon);
+        listItem.appendChild(itemTitle);
+        listItem.appendChild(relation);
+        listItem.appendChild(moreLink);
 
-      filesList.appendChild(listItem);
-    });
+        filesList.appendChild(listItem);
+      });
+    }
   }
-  }
-  
+
   // old version
 
   //const res = await fetch("/files", {
   //  credentials: "include",
   //});
   //const { files } = await res.json();
-
-  
 
   let selectedFile;
 
@@ -321,7 +327,6 @@ const renderMembers = async (fileId) => {
     // console.log(res.body);
   }
 };
-
 
 /*
 <div class="listitem">
