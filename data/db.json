@@ -61,12 +61,20 @@
       ],
       "file:Earnings.pdf": [
         {
+          "subjectId": "user:emil",
+          "relation": "owner"
+        },
+        {
           "subjectId": "user:jeff",
+          "relation": "editor"
+        },
+        {
+          "subjectId": "user:alice",
           "relation": "viewer"
         },
         {
-          "subjectId": "user:emil",
-          "relation": "owner"
+          "subjectId": "user:magnus",
+          "relation": "viewer"
         }
       ]
     },
@@ -75,6 +83,10 @@
         {
           "relation": "owner",
           "objectId": "file:Project.pdf"
+        },
+        {
+          "relation": "viewer",
+          "objectId": "file:Earnings.pdf"
         }
       ],
       "user:jeff": [
@@ -87,7 +99,7 @@
           "objectId": "file:1"
         },
         {
-          "relation": "viewer",
+          "relation": "editor",
           "objectId": "file:Earnings.pdf"
         }
       ],
@@ -98,6 +110,12 @@
         },
         {
           "relation": "owner",
+          "objectId": "file:Earnings.pdf"
+        }
+      ],
+      "user:alice": [
+        {
+          "relation": "viewer",
           "objectId": "file:Earnings.pdf"
         }
       ]

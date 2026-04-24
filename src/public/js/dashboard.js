@@ -211,7 +211,32 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
   });
+  const saveChanges = document.getElementById("save-changes");
+      saveChanges.addEventListener("click", async (e) => {
+          const changes = Array.from(changedRelation.entries()).map(([subjectId,{ oldRel, newRel }]) => 
+            ({ subjectId, oldRel, newRel }));
+          if (changes.length === 0) return;
+
+          const res = await fetch("/api/updateTuple", {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              objectId: selectedFile,
+              changes
+            }),
+          });
+
+          if (res.ok) {
+            renderMembers(selectedFile);
+          } else {
+            const data = await res.json();
+            alert(data.message);
+          }
+        });
 });
+
+const changedRelation = new Map();
 
 const renderMembers = async (fileId) => {
   const membersList = document.getElementById("members");
@@ -251,9 +276,10 @@ const renderMembers = async (fileId) => {
 
 
         // relation part of member made to be a dropdown that allows owners to change relation
-        const relation = document.createElement("select");
-        relation.className = "changeRelation";
+        const relationSel = document.createElement("select");
+        relationSel.className = "changeRelation";
         const relationOptions = Object.keys(schema?.file?.relations || {});
+
         
         relationOptions.forEach((r) => {
           const option = document.createElement("option");
@@ -263,54 +289,32 @@ const renderMembers = async (fileId) => {
           if (rel.relations.includes(r)) {
             option.selected = true;
           }
-          relation.appendChild(option);
+          relationSel.appendChild(option);
         });
 
         if (rel.subjectId === currentUser.id || !ownFile) {
-          relation.disabled = true;
+          relationSel.disabled = true;
         }
 
         if (rel.subjectId === currentUser.id) {
           user.innerText += " (You)";
           user.style.fontWeight = 600;
-          relation.style.fontWeight = 600;
+          relationSel.style.fontWeight = 600;
         }
-        member.appendChild(user);
 
-        relation.addEventListener("change", async (e) => {
+        relationSel.addEventListener("change", async (e) => {
           const assignedRel = e.target.value;
           if (rel.relations.includes(assignedRel)) return;
 
-          const removeOld = await fetch("/api/deleteTuple", {
-            method: "POST",
-            credentials: "include",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              objectId: fileId,
-              relations: rel.relations,
-              subjectId: rel.subjectId,
-            }),
-          });
-
-          if (removeOld.ok) {
-            const addNew = await fetch("/api/newTuple", {
-              method: "POST",
-              credentials: "include",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                objectId: fileId,
-                relation: assignedRel,
-                subjectId: rel.subjectId,
-              }),
-            });
-
-            if (addNew.ok) {
-              renderMembers(fileId);
-            }
-          }
+        changedRelation.set(rel.subjectId, {
+          oldRel: rel.relations,
+          newRel: assignedRel
         });
+        });
+        member.appendChild(user);
+        
 
-        member.appendChild(relation);
+        member.appendChild(relationSel);
         if (ownFile && rel.subjectId !== currentUser.id) {
           const deleteRel = document.createElement("a");
           deleteRel.innerText = "X";

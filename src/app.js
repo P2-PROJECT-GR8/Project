@@ -355,6 +355,37 @@ app.post("/api/deleteTuple", async (req, res) => {
   return res.json({ success: true });
 });
 
+app.post("/api/updateTuple", async (req, res) => {
+  const { objectId, changes } = req.body;
+
+  let currentUser;
+  try {
+    currentUser = getUser(req);
+  } catch {
+    return res.status(401).send({ message: "User not authenticated" });
+  }
+
+  const isOwner = db.data.tupleStore.byObject[objectId]?.some(
+    (tuple) => tuple.subjectId === currentUser.id && tuple.relation === "owner"
+  );
+
+  if (!isOwner) {
+    return res.status(403).send({ message: "User is not an owner" });
+  }
+  
+  for (const change of changes) {
+    const { subjectId, oldRel, newRel } = change;
+
+    for (const rel of oldRel) {
+      accessControl.deleteTuple(subjectId, rel, objectId);
+    }
+    accessControl.addTuple(subjectId, newRel, objectId);
+  }
+
+  return res.json({ success: true });
+});
+
+
 app.post("/api/leaveFile", async (req, res) => {
   const { objectId } = req.body;
   let currentUser;
@@ -384,17 +415,11 @@ app.post("/api/leaveFile", async (req, res) => {
     }
   }
 
-  // Remove users relations from byObject and bySubject
-  if (db.data.tupleStore.byObject[objectId]) {
-    db.data.tupleStore.byObject[objectId] = db.data.tupleStore.byObject[objectId].filter(
-      (tuple) => tuple.subjectId !== `user:${currentUser.id}`
-    );
-  }
+  // Remove currentUsers relations from byObject and bySubject
 
-  if (db.data.tupleStore.bySubject[currentUser.id]) {
-    db.data.tupleStore.bySubject[currentUser.id] = db.data.tupleStore.bySubject[currentUser.id].filter(
-      (tuple) => tuple.objectId !== objectId
-    );
+
+  if (db.data.tupleStore.byObject[objectId] || db.data.tupleStore.bySubject[currentUser.id]) {
+    accessControl.deleteTuple(currentUser.id, tuple.relation, objectId);
   }
 
   await db.write();
