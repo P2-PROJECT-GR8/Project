@@ -65,9 +65,24 @@
             <button class="btn-lift">
               <i class="material-icons">add</i>Upload New
             </button>
-            <button class="btn-lift" id="create-folder-btn">
-              <i class="material-icons">create_new_folder</i>Create Folder
-            </button>
+
+            <button id="create-option">Create Folder</button>
+          </div>
+          <div class="modal-container" id="modal_container">
+            <div class="modal2">
+              <h1>Create Folder</h1>
+              <input
+                type="text"
+                id="folder-name-input"
+                placeholder="Folder name..."
+              />
+              <p id="folder-error" style="color: red"></p>
+
+              <div>
+                <button id="confirm-create-folder">Create</button>
+                <button id="close12">Close</button>
+              </div>
+            </div>
           </div>
           <div id="filesList">
             <!-- <div class="listitem">

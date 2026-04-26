@@ -59,12 +59,7 @@
           "relation": "veiwer"
         }
       ],
-      "folder:maketing": [
-        {
-          "subjectId": "user:admin",
-          "relation": "owner"
-        }
-      ],
+    
       "folder:admin": [
         {
           "subjectId": "user:magnus",
@@ -77,13 +72,8 @@
           "relation": "owner"
         }
       ],
-      "folder:ad": [
-        {
-          "subjectId": "user:admin",
-          "relation": "owner"
-        }
-      ],
-      "folder:98": [
+  
+      "folder:tester": [
         {
           "subjectId": "user:admin",
           "relation": "owner"
@@ -122,17 +112,11 @@
         }
       ],
       "user:admin": [
+
+  
         {
           "relation": "owner",
-          "objectId": "folder:maketing"
-        },
-        {
-          "relation": "owner",
-          "objectId": "folder:ad"
-        },
-        {
-          "relation": "owner",
-          "objectId": "folder:98"
+          "objectId": "folder:tester"
         }
       ]
     }
