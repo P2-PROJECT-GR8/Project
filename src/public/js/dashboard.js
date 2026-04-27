@@ -35,6 +35,10 @@ const getCurrentUser = async () => {
 document.addEventListener("DOMContentLoaded", async () => {
   const currentUser = await getCurrentUser();
   console.log("Current User: ", currentUser);
+
+  const adminResponse = await fetch("/api/isAdmin", { credentials: "include" });
+  const isadmin = await adminResponse.json();
+
   // Set the initial active page
   showPage("#files"); // Set "All Files" as the default active page
 
@@ -55,55 +59,132 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   });
 
-  const res = await fetch("/files", {
-    credentials: "include",
-  });
-  const { files } = await res.json();
+  // loads either defualt dashboard or admin dashboard
+  if (isadmin.status) {
+    // any HTML changes needed for admin should be done here
+    renderAdminUSerList();
+  } else {
+    renderFileListForUSer(currentUser.id);
+  }
 
-  const filesList = document.getElementById("filesList");
+  // renders all of a users files
+  async function renderFileListForUSer(userId) {
+    const res = await fetch("/files", {
+      credentials: "include",
+    });
+    const { files } = await res.json();
+    renderFiles(files);
+  }
 
-  if (files.length > 0) {
-    files.forEach((file) => {
-      const listItem = document.createElement("div");
-      listItem.className = "listitem";
-      listItem.dataset.fileId = file.objectId;
-      listItem.dataset.relations = file.relations;
+  // renders an overview of all users within the system
+  async function renderAdminUSerList() {
+    //Qol
+    const header = document.getElementById("allFilesHeader");
+    header.innerText = "All users";
+    const headerdescription = document.getElementById("allFIlesHeaderText");
+    headerdescription.innerText =
+      "here you will find an ovewrview of all users and their relations";
 
-      const icon = document.createElement("i");
-      icon.className = "material-icons type";
-      icon.innerText = "article";
+    const res = await fetch("/api/userNames", { credentials: "include" });
+    const { userNames } = await res.json();
 
-      const itemTitle = document.createElement("div");
-      itemTitle.className = "item-title";
+    const fileList = document.getElementById("filesList");
+    fileList.innerHTML = "";
 
-      const h3 = document.createElement("h3");
-      h3.innerText = file.objectId.split(":")[1];
+    userNames.forEach((userName) => {
+      if (userName === "Admin") {
+        return;
+      }
+      const item = document.createElement("div");
+      item.className = "listitem admin-user";
+      item.dataset.userId = `user:${userName.toLowerCase()}`;
 
-      const p = document.createElement("p");
-      p.innerText = "Updated by User - 2 Hours ago";
+      item.innerText = userName;
+      item.addEventListener("click", () => {
+        renderAdminFilesForUser(item.dataset.userId);
+      });
 
-      itemTitle.appendChild(h3);
-      itemTitle.appendChild(p);
-
-      const relation = document.createElement("div");
-      relation.className = "relation";
-      relation.innerText = file.relations.join(", ").toUpperCase();
-
-      const moreLink = document.createElement("a");
-      moreLink.href = "#";
-      const moreIcon = document.createElement("i");
-      moreIcon.className = "material-icons more-btn";
-      moreIcon.innerText = "more_vert";
-      moreLink.appendChild(moreIcon);
-
-      listItem.appendChild(icon);
-      listItem.appendChild(itemTitle);
-      listItem.appendChild(relation);
-      listItem.appendChild(moreLink);
-
-      filesList.appendChild(listItem);
+      fileList.appendChild(item);
     });
   }
+
+  // aquires list of files to be rendered for the provided userId
+  async function renderAdminFilesForUser(userId) {
+    //Qol
+    const header = document.getElementById("allFilesHeader");
+    header.innerText = `${userId.split(":")[1]}'s files`;
+    const headerdescription = document.getElementById("allFIlesHeaderText");
+    headerdescription.innerText = `here you will find an overview of ${userId.split(":")[1]}'s relations`;
+
+    const res = await fetch(`/api/adminFiles?userId=${userId}`, {
+      credentials: "include",
+    });
+    const { files } = await res.json();
+
+    const rButton = document.getElementById("UploadNewbtn");
+    rButton.innerText = "back";
+    rButton.addEventListener("click", () => {
+      renderAdminUSerList();
+    });
+
+    renderFiles(files);
+  }
+
+  // renders received filelist to dahsboard
+  function renderFiles(files) {
+    const filesList = document.getElementById("filesList");
+    filesList.innerHTML = "";
+
+    if (files.length > 0) {
+      files.forEach((file) => {
+        const listItem = document.createElement("div");
+        listItem.className = "listitem";
+        listItem.dataset.fileId = file.objectId;
+        listItem.dataset.relations = file.relations;
+
+        const icon = document.createElement("i");
+        icon.className = "material-icons type";
+        icon.innerText = "article";
+
+        const itemTitle = document.createElement("div");
+        itemTitle.className = "item-title";
+
+        const h3 = document.createElement("h3");
+        h3.innerText = file.objectId.split(":")[1];
+
+        const p = document.createElement("p");
+        p.innerText = "Updated by User - 2 Hours ago";
+
+        itemTitle.appendChild(h3);
+        itemTitle.appendChild(p);
+
+        const relation = document.createElement("div");
+        relation.className = "relation";
+        relation.innerText = file.relations.join(", ").toUpperCase();
+
+        const moreLink = document.createElement("a");
+        moreLink.href = "#";
+        const moreIcon = document.createElement("i");
+        moreIcon.className = "material-icons more-btn";
+        moreIcon.innerText = "more_vert";
+        moreLink.appendChild(moreIcon);
+
+        listItem.appendChild(icon);
+        listItem.appendChild(itemTitle);
+        listItem.appendChild(relation);
+        listItem.appendChild(moreLink);
+
+        filesList.appendChild(listItem);
+      });
+    }
+  }
+
+  // old version
+
+  //const res = await fetch("/files", {
+  //  credentials: "include",
+  //});
+  //const { files } = await res.json();
 
   let selectedFile;
 
