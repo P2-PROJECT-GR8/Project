@@ -363,6 +363,26 @@ app.get("/api/userNames", (req, res) => {
   res.send({ userNames: userNames });
 });
 
+// Create a new folder
+app.post("/api/newFolder", async (req, res) => {
+  let currentUser;
+  try {
+    currentUser = getUser(req);
+  } catch (err) {
+    return res.status(401).send({ message: "User not authenticated" });
+  }
+
+  const { folderName } = req.body;
+
+  if (!folderName) {
+    return res.status(400).send({ message: "Folder name is required" });
+  }
+
+  accessControl.addTuple(currentUser.id, "owner", `folder:${folderName}`);
+
+  res.status(201).send({ message: "Folder created successfully" });
+});
+
 // return the list of files for the provided userId if user is admin
 app.get("/api/adminFiles", async (req, res) => {
   const token = req.cookies.sessionToken;
