@@ -269,24 +269,24 @@ class AccessControl {
     this.db.write();
   }
 
-  locatePaths(userId, objectId, maxdepth = 5) {
+  locatePaths(userId, objectId, maxDepth = 5) {
     const paths = [];
     this.db.read();
-    const { bysubject } = this.db.data.tupleStore;
+    const { bySubject } = this.db.data.tupleStore;
 
     function DFS(currentNode, path, visited, depth) {
       // if depth exceeded return
-      if (depth > maxdepth) {
+      if (depth > maxDepth) {
         return;
       }
       // base case: target hit return path
       if (currentNode === objectId) {
-        paths.push([path]);
+        paths.push([...path]);
         return;
       }
 
       // intilize edges for current node
-      const edges = bysubject[currentNode] || [];
+      const edges = bySubject[currentNode] || [];
 
       // run through all edges at this node
       for (const edge of edges) {
@@ -310,11 +310,10 @@ class AccessControl {
         path.pop();
         visited.delete(nextNode);
       }
-
-      DFS(userId, [], new Set([userId]), 0);
-      return paths;
     }
 
+    DFS(userId, [], new Set([userId]), 0);
+    return paths;
     // DFS algortihm
   }
 }

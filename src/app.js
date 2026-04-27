@@ -363,8 +363,8 @@ app.get("/api/userNames", (req, res) => {
   res.send({ userNames: userNames });
 });
 
-// return the list of files for the provided userId if user is admin
-app.get("/api/adminFiles", async (req, res) => {
+// return the list of paths from given user to given object
+app.get("/api/adminRelations", async (req, res) => {
   const token = req.cookies.sessionToken;
   if (!token) {
     return res.status(401).send({ message: "Unauthorized" });
@@ -376,12 +376,16 @@ app.get("/api/adminFiles", async (req, res) => {
     if (getUser(req).id !== "user:admin") {
       return res.status(403).send({ messeage: "request denied" });
     }
-    const targetUser = req.query.userId;
 
-    const userRelations = await accessControl.getUserRelations(targetUser);
+    // changes to be made
+
+    const userId = req.query.userId;
+    const objectId = req.query.objectId;
+
+    const paths = accessControl.locatePaths(userId, objectId);
     // console.log(userRelations);
 
-    res.json({ files: userRelations });
+    res.json({ paths: paths });
   } catch (error) {
     return res.status(401).send({ message: "Invalid session" });
   }
