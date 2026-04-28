@@ -416,11 +416,13 @@ app.post("/api/leaveFile", async (req, res) => {
   }
 
   // Remove currentUsers relations from byObject and bySubject
+const userRelationsForObject = objectTuples.filter(
+    (t) => t.subjectId === currentUser.id
+  );
 
-
-  if (db.data.tupleStore.byObject[objectId] || db.data.tupleStore.bySubject[currentUser.id]) {
+  userRelationsForObject.forEach((tuple) => {
     accessControl.deleteTuple(currentUser.id, tuple.relation, objectId);
-  }
+  });
 
   await db.write();
   return res.json({ success: true });

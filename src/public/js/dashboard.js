@@ -41,9 +41,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   const fileDetailsModal = document.getElementById("file-details");
   document
     .getElementById("cancel-modal")
-    .addEventListener("click", () => fileDetailsModal.close());
+    .addEventListener("click", () => {
+      fileDetailsModal.close();
+    });
   // fileDetailsModal.showModal();
-
   // Attach click listeners to all sidebar links
   document.querySelectorAll(".sidebar li a").forEach((link) => {
     link.addEventListener("click", function (event) {
@@ -114,34 +115,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Check the length of the input value, not the value itself.
     if (inviteInput.value.length >= 2 && inviteInput.value.length <= 10) {
       const newMember = inviteInput.value.toLowerCase();
-      try {
         if (!selectedFile) throw new Error("No selected file");
-        const res = await fetch("/api/newTuple", {
-          method: "POST",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
 
-          body: JSON.stringify({
-            objectId: selectedFile,
-            relation: "viewer",
-            subjectId: `user:${newMember}`,
-          }),
-        });
-        if (res.ok) {
-          errorMessage.innerText = "";
-          inviteInput.value = "";
-          renderMembers(selectedFile);
-        } else {
-          const data = await res.json();
-          errorMessage.innerText = data.message;
-        }
-      } catch (err) {
-        console.log(err);
+        tempMembers.push({ subjectId: `user:${newMember}`, relations: "viewer", objectId: selectedFile });
+        tempModified = true;
       }
-    } else {
-      errorMessage.innerText = "Username must be between 2 and 10 characters.";
-    }
-  });
+      renderMembers(selectedFile);
+      inviteInput.value = "";
+      console.log(tempMembers);
+    });
 
   filesList.addEventListener("click", async (event) => {
     const btn = event.target.closest(".more-btn");
@@ -168,7 +150,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     const { fileId, relations } = item.dataset;
     selectedFile = item.dataset.fileId;
 
-    const relationsArray = relations ? relations.split(",") : [];
+    tempMembers = [];
+    originalTempMembers = [];
+    deletedUsers = [];
+    changedRelation.clear();
+    tempModified = false;
+
+    const relationsArray = normalizeRelations(relations);
+
     const inviteContainer = document.getElementById("invite-container");
     console.log(relationsArray);
 
@@ -213,47 +202,145 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
   const saveChanges = document.getElementById("save-changes");
       saveChanges.addEventListener("click", async (e) => {
-          const changes = Array.from(changedRelation.entries()).map(([subjectId,{ oldRel, newRel }]) => 
-            ({ subjectId, oldRel, newRel }));
-          if (changes.length === 0) return;
+      const changes = Array.from(changedRelation.entries()).map(
+    ([subjectId, { oldRel, newRel }]) => ({
+      subjectId,
+      oldRel,
+      newRel
+    })
+  );
 
-          const res = await fetch("/api/updateTuple", {
-            method: "POST",
-            credentials: "include",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              objectId: selectedFile,
-              changes
-            }),
-          });
+  const relatedToFile = [...originalTempMembers];
 
-          if (res.ok) {
-            renderMembers(selectedFile);
-          } else {
-            const data = await res.json();
-            alert(data.message);
-          }
-        });
+  const newUsers = tempMembers.filter(
+  rel => !relatedToFile.some(r => r.subjectId === rel.subjectId)
+);
+// send updates for changed relations
+  const res = await fetch("/api/updateTuple", {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      objectId: selectedFile,
+      changes
+    }),
+  });
+
+  if (!res.ok) {
+    const data = await res.json();
+    alert("Update error: " + data.message);
+    return;
+  }
+
+  console.log(newUsers);
+
+  const newUserResponses = await Promise.all(
+    newUsers.map((rel) =>
+      fetch("/api/newTuple", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+        objectId: selectedFile,
+        relation: rel.relations,
+        subjectId: rel.subjectId,
+        }),
+      })
+    )
+  );
+
+  const deleteResponses = await Promise.all(
+  deletedUsers.map(({ subjectId, relations }) =>
+    fetch("/api/deleteTuple", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        objectId: selectedFile,
+        relations: Array.isArray(relations) ? relations : [relations],
+        subjectId,
+      }),
+    })
+  )
+);
+
+  for (const r of newUserResponses) {
+    if (!r.ok) {
+      const data = await r.json();
+      alert("New user error: " + data.message);
+      return;
+    }
+  }
+
+  tempMembers = tempMembers.filter(
+    u => !deletedUsers.some(d => d.subjectId === u.subjectId)
+  );
+
+  for (const [subjectId, { newRel }] of changedRelation.entries()) {
+    const user = tempMembers.find(u => u.subjectId === subjectId);
+    if (user) user.relations = [newRel];
+  }
+
+changedRelation.clear();
+tempModified = false;
+
+renderMembers(selectedFile);
+fileDetailsModal.close();
+
 });
-
+});
 const changedRelation = new Map();
+/*
+const renderTempMembers = async (fileId) => {
+  const membersList = document.getElementById("members");
+  membersList.innerHTML = "";
+  members.forEach((rel) => {
+    const member = document.createElement("div");
+    member.className = "member";
+    const user = document.createElement("p");
+    const userName = rel.subjectId.split(":")[1];
+    user.innerText = userName.charAt(0).toUpperCase() + userName.slice(1);
+    member.appendChild(user);
+    member.appendChild(relation);
+    membersList.appendChild(member);
+  });
+};
+*/
+let tempMembers=[];
+let originalTempMembers = [];
+let deletedUsers = [];
+let tempModified = false;
+function normalizeRelations(rel) {
+  if (!rel) return [];
+  if (Array.isArray(rel)) return rel;
+  if (typeof rel === "string") return rel.split(",").map(r => r.trim());
+  return [];
+}
+
 
 const renderMembers = async (fileId) => {
   const membersList = document.getElementById("members");
   const currentUser = await getCurrentUser();
+  membersList.innerHTML = "";
+if (!tempModified && tempMembers.length === 0) {
   const res = await fetch("/relatedUsers", {
     method: "POST",
     credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ objectId: fileId }),
   });
+
   if (res.ok) {
-    membersList.innerHTML = "";
     const { relatedUsers } = await res.json();
-    if (relatedUsers && relatedUsers.length > 0) {
-      const ownFile = relatedUsers.some(
+    tempMembers = relatedUsers.map(u => ({...u, relation: normalizeRelations(u.relations)
+}));
+
+    originalTempMembers = relatedUsers.map(u => ({...u, relation: normalizeRelations(u.relations)
+}));
+  }
+}
+    if (tempMembers && tempMembers.length > 0) {
+      const ownFile = tempMembers.some(
         (rel) =>
           rel.relations.includes("owner") && rel.subjectId === currentUser.id,
       );
@@ -267,7 +354,7 @@ const renderMembers = async (fileId) => {
         window.schema = schema;
       }
 
-      relatedUsers.forEach((rel) => {
+      tempMembers.forEach((rel) => {
         const member = document.createElement("div");
         member.className = "member";
         const user = document.createElement("p");
@@ -310,6 +397,7 @@ const renderMembers = async (fileId) => {
           oldRel: rel.relations,
           newRel: assignedRel
         });
+        rel.relations = [assignedRel];
         });
         member.appendChild(user);
         
@@ -323,19 +411,17 @@ const renderMembers = async (fileId) => {
           deleteRel.addEventListener("click", async (event) => {
             event.preventDefault();
             if (!confirm("Remove this user?")) return;
-            const res = await fetch("/api/deleteTuple", {
-              method: "POST",
-              credentials: "include",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                objectId: fileId,
-                relations: rel.relations,
-                subjectId: rel.subjectId,
-              }),
+          
+            tempMembers = tempMembers.filter(u => u.subjectId !== rel.subjectId);
+
+            deletedUsers.push({
+            subjectId: rel.subjectId,
+            relations: [...rel.relations],
+            objectId: fileId
             });
-            if (res.ok) {
-              renderMembers(fileId);
-            }
+
+            renderMembers(fileId);
+          
           });
           const helpDelete = document.createElement("span");
           helpDelete.className = "tooltip";
@@ -346,8 +432,7 @@ const renderMembers = async (fileId) => {
         membersList.appendChild(member);
       });
     }
-  }
-};
+  };
 /*
 <div class="listitem">
   <i class="material-icons type">article</i>

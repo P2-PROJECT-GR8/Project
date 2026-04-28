@@ -217,6 +217,7 @@ class AccessControl {
     } else
       console.error(
         "Tried to add a tupple to the byObject database that already exists",
+        { subjectId, relation, objectId }
       );
 
     // 2. Add tuple to the bySubject index, same method as step 1

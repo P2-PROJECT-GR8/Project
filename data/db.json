@@ -69,11 +69,15 @@
           "relation": "editor"
         },
         {
+          "subjectId": "user:magnus",
+          "relation": "viewer"
+        },
+        {
           "subjectId": "user:alice",
           "relation": "viewer"
         },
         {
-          "subjectId": "user:magnus",
+          "subjectId": "user:bob",
           "relation": "viewer"
         }
       ]
@@ -114,6 +118,12 @@
         }
       ],
       "user:alice": [
+        {
+          "relation": "viewer",
+          "objectId": "file:Earnings.pdf"
+        }
+      ],
+      "user:bob": [
         {
           "relation": "viewer",
           "objectId": "file:Earnings.pdf"
