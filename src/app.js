@@ -414,6 +414,7 @@ app.post("/api/leaveFile", async (req, res) => {
       });
     }
   }
+const objectTuples = db.data.tupleStore.byObject[objectId] || [];
 
   // Remove currentUsers relations from byObject and bySubject
 const userRelationsForObject = objectTuples.filter(

@@ -43,10 +43,6 @@
         {
           "subjectId": "user:magnus",
           "relation": "owner"
-        },
-        {
-          "subjectId": "user:emil",
-          "relation": "viewer"
         }
       ],
       "file:1": [
@@ -108,10 +104,6 @@
         }
       ],
       "user:emil": [
-        {
-          "relation": "viewer",
-          "objectId": "file:Project.pdf"
-        },
         {
           "relation": "owner",
           "objectId": "file:Earnings.pdf"
