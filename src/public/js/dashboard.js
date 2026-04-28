@@ -500,7 +500,7 @@ if (!tempModified && tempMembers.length === 0) {
           oldRel: rel.relations,
           newRel: assignedRel
         });
-        rel.relations = [assignedRel];
+        rel.relations = assignedRel;
         });
         member.appendChild(user);
         

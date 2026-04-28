@@ -43,6 +43,10 @@
         {
           "subjectId": "user:magnus",
           "relation": "owner"
+        },
+        {
+          "subjectId": "user:emil",
+          "relation": "editor"
         }
       ],
       "file:1": [
@@ -55,7 +59,6 @@
           "relation": "veiwer"
         }
       ],
-    
       "folder:admin": [
         {
           "subjectId": "user:magnus",
@@ -68,7 +71,6 @@
           "relation": "owner"
         }
       ],
-  
       "folder:tester": [
         {
           "subjectId": "user:admin",
@@ -109,6 +111,10 @@
         {
           "relation": "owner",
           "objectId": "file:Earnings.pdf"
+        },
+        {
+          "relation": "editor",
+          "objectId": "file:Project.pdf"
         }
       ],
       "user:alice": [
@@ -124,8 +130,6 @@
         }
       ],
       "user:admin": [
-
-  
         {
           "relation": "owner",
           "objectId": "folder:tester"

@@ -291,7 +291,7 @@ dialog::backdrop {
 
 .tooltip {
   position: absolute;
-  bottom: 120%; /* place above button */
+  bottom: 120%;
   left: 50%;
   transform: translateX(-50%) translateY(5px);
 
@@ -344,4 +344,8 @@ dialog::backdrop {
 .changeRelation:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.modal2 {
+  visibility: hidden;
 }
