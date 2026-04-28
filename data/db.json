@@ -52,29 +52,27 @@
         },
         {
           "subjectId": "user:jeff",
-          "relation": "viewer"
+          "relation": "veiwer"
         }
       ],
-      "file:Earnings.pdf": [
-        {
-          "subjectId": "user:emil",
-          "relation": "owner"
-        },
-        {
-          "subjectId": "user:jeff",
-          "relation": "editor"
-        },
+    
+      "folder:admin": [
         {
           "subjectId": "user:magnus",
-          "relation": "viewer"
-        },
+          "relation": "owner"
+        }
+      ],
+      "folder:sdsf": [
         {
-          "subjectId": "user:alice",
-          "relation": "viewer"
-        },
+          "subjectId": "user:magnus",
+          "relation": "owner"
+        }
+      ],
+  
+      "folder:tester": [
         {
-          "subjectId": "user:bob",
-          "relation": "viewer"
+          "subjectId": "user:admin",
+          "relation": "owner"
         }
       ]
     },
@@ -85,8 +83,12 @@
           "objectId": "file:Project.pdf"
         },
         {
-          "relation": "viewer",
-          "objectId": "file:Earnings.pdf"
+          "relation": "owner",
+          "objectId": "folder:admin"
+        },
+        {
+          "relation": "owner",
+          "objectId": "folder:sdsf"
         }
       ],
       "user:jeff": [
@@ -118,7 +120,15 @@
       "user:bob": [
         {
           "relation": "viewer",
-          "objectId": "file:Earnings.pdf"
+          "objectId": "file:Project.pdf"
+        }
+      ],
+      "user:admin": [
+
+  
+        {
+          "relation": "owner",
+          "objectId": "folder:tester"
         }
       ]
     }

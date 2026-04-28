@@ -441,6 +441,62 @@ app.get("/api/userNames", (req, res) => {
   res.send({ userNames: userNames });
 });
 
+// Create a new folder
+app.post("/api/newFolder", async (req, res) => {
+  let currentUser;
+  try {
+    currentUser = getUser(req);
+  } catch (err) {
+    return res.status(401).send({ message: "User not authenticated" });
+  }
+
+  const { folderName } = req.body;
+
+  if (!folderName) {
+    return res.status(400).send({ message: "Folder name is required" });
+  }
+
+  accessControl.addTuple(currentUser.id, "owner", `folder:${folderName}`);
+
+  res.status(201).send({ message: "Folder created successfully" });
+});
+
+// return the list of files for the provided userId if user is admin
+app.get("/api/adminFiles", async (req, res) => {
+  const token = req.cookies.sessionToken;
+  if (!token) {
+    return res.status(401).send({ message: "Unauthorized" });
+  }
+
+  try {
+    const decoded = jwt.verify(token, SECRET_KEY);
+    // only allow admin to to utilize this endpoint.
+    if (getUser(req).id !== "user:admin") {
+      return res.status(403).send({ messeage: "request denied" });
+    }
+    const targetUser = req.query.userId;
+
+    const userRelations = await accessControl.getUserRelations(targetUser);
+    // console.log(userRelations);
+
+    res.json({ files: userRelations });
+  } catch (error) {
+    return res.status(401).send({ message: "Invalid session" });
+  }
+});
+
+app.get("/api/isAdmin", async (req, res) => {
+  const token = req.cookies.sessionToken;
+  if (!token) {
+    return res.status(401).send({ message: "Unauthorized" });
+  }
+
+  if (getUser(req).id !== "user:admin") {
+    return res.status(403).send({ messeage: "not admin" });
+  }
+  res.json({ status: true });
+});
+
 app.listen(3000, () => {
   console.log("Server running at http://localhost:3000");
 });

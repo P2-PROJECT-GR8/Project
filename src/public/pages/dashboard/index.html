@@ -59,12 +59,30 @@
       </div>
       <main class="content">
         <div id="files" class="page">
-          <h1>All Files</h1>
+          <h1 id="allFilesHeader">All Files</h1>
           <div class="pageHeader">
-            <p>Here you will find an overview of all your files</p>
-            <button class="btn-lift">
+            <p id="allFIlesHeaderText">Here you will find an overview of all your files</p>
+            <button class="btn-lift" id="UploadNewbtn">
               <i class="material-icons">add</i>Upload New
             </button>
+
+            <button id="create-option">Create Folder</button>
+          </div>
+          <div class="modal-container" id="modal_container">
+            <div class="modal2">
+              <h1>Create Folder</h1>
+              <input
+                type="text"
+                id="folder-name-input"
+                placeholder="Folder name..."
+              />
+              <p id="folder-error" style="color: red"></p>
+
+              <div>
+                <button id="confirm-create-folder">Create</button>
+                <button id="close12">Close</button>
+              </div>
+            </div>
           </div>
           <div id="filesList">
             <!-- <div class="listitem">

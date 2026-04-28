@@ -285,8 +285,8 @@ dialog::backdrop {
   justify-self: end;
 }
 
-#delete-btn:hover{
-  text-decoration: underline; 
+#delete-btn:hover {
+  text-decoration: underline;
 }
 
 .tooltip {
