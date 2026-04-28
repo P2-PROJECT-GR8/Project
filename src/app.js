@@ -79,8 +79,9 @@ const redirectIfLoggedIn = (req, res, next) => {
   try {
     const decoded = jwt.verify(token, SECRET_KEY);
     db.read();
-
-    if (db.data.users.some((user) => user.id === decoded.userId)) {
+    if (decoded.userId === "user:admin") {
+      return res.redirect("/pages/admin/admin.html");
+    } else if (db.data.users.some((user) => user.id === decoded.userId)) {
       return res.redirect("/pages/dashboard");
     }
     next();
@@ -393,7 +394,6 @@ app.get("/api/adminRelations", async (req, res) => {
 
 // return the list of files for the provided userId if user is admin
 app.get("/api/adminFiles", async (req, res) => {
-  console.log("i made it top here yayyyyy");
   const token = req.cookies.sessionToken;
   if (!token) {
     return res.status(401).send({ message: "Unauthorized" });
