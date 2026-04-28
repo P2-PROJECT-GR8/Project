@@ -534,11 +534,9 @@ if (!tempModified && tempMembers.length === 0) {
         }
         membersList.appendChild(member);
       });
-    }
-  } else {
-    // console.log(res.body);
-  }
-};
+    } else {
+    console.log(res.body);
+  };
 
 
 
@@ -573,7 +571,7 @@ location.reload();
       alert(data.message);
     }
   });
-
+}
 
 
 
