@@ -58,6 +58,26 @@
           "subjectId": "user:jeff",
           "relation": "veiwer"
         }
+      ],
+    
+      "folder:admin": [
+        {
+          "subjectId": "user:magnus",
+          "relation": "owner"
+        }
+      ],
+      "folder:sdsf": [
+        {
+          "subjectId": "user:magnus",
+          "relation": "owner"
+        }
+      ],
+  
+      "folder:tester": [
+        {
+          "subjectId": "user:admin",
+          "relation": "owner"
+        }
       ]
     },
     "bySubject": {
@@ -65,6 +85,14 @@
         {
           "relation": "owner",
           "objectId": "file:Project.pdf"
+        },
+        {
+          "relation": "owner",
+          "objectId": "folder:admin"
+        },
+        {
+          "relation": "owner",
+          "objectId": "folder:sdsf"
         }
       ],
       "user:jeff": [
@@ -81,6 +109,14 @@
         {
           "relation": "viewer",
           "objectId": "file:Project.pdf"
+        }
+      ],
+      "user:admin": [
+
+  
+        {
+          "relation": "owner",
+          "objectId": "folder:tester"
         }
       ]
     }

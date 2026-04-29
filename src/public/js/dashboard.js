@@ -200,6 +200,28 @@ document.addEventListener("DOMContentLoaded", async () => {
     fileDetailsModal.showModal();
   });
 
+const createOption = document.getElementById("create-option");
+const modal_container = document.getElementById("modal_container");
+const close12 = document.getElementById("close12");
+ 
+createOption.addEventListener('click', () => {
+  modal_container.classList.add("show");
+
+});
+
+
+close12.addEventListener('click', () => {
+  modal_container.classList.remove("show");
+
+});
+
+
+
+
+
+
+
+
   console.log(files);
 });
 
@@ -280,6 +302,49 @@ const renderMembers = async (fileId) => {
     // console.log(res.body);
   }
 };
+
+
+
+
+
+
+
+// Create folder button
+  document.getElementById("confirm-create-folder").addEventListener("click", async () => {
+    const folderName = document.getElementById("folder-name-input").value;
+    const folderError = document.getElementById("folder-error");
+    
+    if (!folderName) {
+  folderError.innerText = "Please enter a folder name.";
+  return;
+}
+
+    const res = await fetch("/api/newFolder", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ folderName: folderName.toLowerCase() })
+    });
+
+    if (res.ok) {
+    modal_container.classList.remove("show");
+document.getElementById("folder-name-input").value = "";
+folderError.innerText = "";
+location.reload();
+    } else {
+      const data = await res.json();
+      alert(data.message);
+    }
+  });
+
+
+
+
+
+
+
+
+
 
 /*
 <div class="listitem">
