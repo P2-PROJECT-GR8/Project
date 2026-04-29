@@ -68,38 +68,49 @@ document.addEventListener("DOMContentLoaded", async () => {
     display.appendChild(Header);
 
     if (!paths || paths.length === 0) {
-      relationDisplay.innerHTML = "";
       Header.innerText = `no paths found to ${object}`;
       return;
     }
 
     paths.forEach((path, index) => {
-      console.log(path);
       const pathcontainer = document.createElement("div");
       pathcontainer.className = "path";
+
       // button to allow deletion of path
       const pathDelete = document.createElement("button");
       pathDelete.id = `delete${index}`;
       pathDelete.innerText = `delete path ${index + 1}`;
-      pathDelete.className = "deleteBtn";
+      pathDelete.className = "btn-lift";
+      pathDelete.classList.add("btn-lift:hover");
+      pathDelete.classList.add("btn-lift:active");
+      pathDelete.classList.add("btn-style");
+
+      //title
       const title = document.createElement("h3");
+      title.className = "path-title"
       title.textContent = `path ${index + 1}`;
 
-      const list = document.createElement("ul");
-      const styleWrap = document.createElement("div");
-      styleWrap.className = "path-content";
-      styleWrap.appendChild(title);
-      styleWrap.appendChild(list);
-      pathcontainer.appendChild(styleWrap);
+      // container for the relation path
+      const relationContent = document.createElement("div");
+      relationContent.className = "path-relation"
 
+      const list = document.createElement("ul");
       path.forEach((step) => {
         const item = document.createElement("li");
         item.textContent = `${step.from} → (${step.relation}) → ${step.to}`;
         list.appendChild(item);
       });
+      relationContent.appendChild(list);
 
+      // container for delete button
+      const pathAction = document.createElement("div");
+      pathAction.className = "path-actions";
+      pathAction.appendChild(pathDelete);
+
+      // assemble
+      pathcontainer.append(title, relationContent, pathAction);
       display.appendChild(pathcontainer);
-      pathcontainer.appendChild(pathDelete);
+
       // upon delete button press delete path
       pathDelete.addEventListener("click", async () => {
         const del = await fetch("/api/adminDeleteTuple", {
