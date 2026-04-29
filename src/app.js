@@ -268,6 +268,37 @@ app.get("/files", async (req, res) => {
   }
 });
 
+app.post("/api/createNew", async (req, res) => {
+  let currentUser;
+  try {
+    currentUser = getUser(req);
+  } catch (err) {
+    console.error(err);
+    return res.status(401).send({ message: "User not authenticated" });
+  }
+
+  const { objectId } = req.body;
+  const objectType = objectId.split(":")[0];
+
+  if (
+    objectType === "folder" ||
+    objectType === "file" ||
+    objectType === "group"
+  ) {
+    await db.read();
+    if (Object.hasOwn(db.data.tupleStore.byObject, objectId)) {
+      return res
+        .status(409)
+        .send({ message: "An object with this ID already exists." });
+    } else {
+      await accessControl.addTuple(currentUser.id, "owner", objectId);
+      return res.status(201).send({ message: "Object created successfully!" });
+    }
+  } else {
+    return res.status(400).send({ message: "Not a valid object type" });
+  }
+});
+
 app.post("/api/newTuple", async (req, res) => {
   let currentUser;
   try {
@@ -311,7 +342,7 @@ app.post("/api/newTuple", async (req, res) => {
   }
 
   try {
-    accessControl.addTuple(subjectId, relation, objectId);
+    await accessControl.addTuple(subjectId, relation, objectId);
   } catch (error) {
     await db.read(); // Ensure we have the latest state
     const tupleExistsAfterAttempt = db.data.tupleStore.byObject[objectId]?.some(
@@ -350,7 +381,7 @@ app.post("/api/deleteTuple", async (req, res) => {
   }
 
   for (const rel of relations) {
-    accessControl.deleteTuple(subjectId, rel, objectId);
+    await accessControl.deleteTuple(subjectId, rel, objectId);
   }
 
   return res.json({ success: true });
@@ -478,26 +509,6 @@ app.get("/api/userNames", (req, res) => {
     return user.name.charAt(0).toUpperCase() + user.name.slice(1);
   });
   res.send({ userNames: userNames });
-});
-
-// Create a new folder
-app.post("/api/newFolder", async (req, res) => {
-  let currentUser;
-  try {
-    currentUser = getUser(req);
-  } catch (err) {
-    return res.status(401).send({ message: "User not authenticated" });
-  }
-
-  const { folderName } = req.body;
-
-  if (!folderName) {
-    return res.status(400).send({ message: "Folder name is required" });
-  }
-
-  accessControl.addTuple(currentUser.id, "owner", `folder:${folderName}`);
-
-  res.status(201).send({ message: "Folder created successfully" });
 });
 
 // return the list of files for the provided userId if user is admin

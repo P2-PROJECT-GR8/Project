@@ -85,15 +85,15 @@
           "relation": "owner"
         }
       ],
-      "folder:sdsf": [
-        {
-          "subjectId": "user:magnus",
-          "relation": "owner"
-        }
-      ],
       "folder:tester": [
         {
           "subjectId": "user:admin",
+          "relation": "owner"
+        }
+      ],
+      "file:test": [
+        {
+          "subjectId": "user:magnus",
           "relation": "owner"
         }
       ]
@@ -110,7 +110,7 @@
         },
         {
           "relation": "owner",
-          "objectId": "folder:sdsf"
+          "objectId": "file:test"
         }
       ],
       "user:jeff": [

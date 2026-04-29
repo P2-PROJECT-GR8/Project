@@ -1,4 +1,5 @@
 import { renderHeader } from "./navRenderer.js";
+import { validateString } from "./utils.js";
 
 renderHeader();
 
@@ -37,6 +38,50 @@ let selectedFile;
 document.addEventListener("DOMContentLoaded", async () => {
   const currentUser = await getCurrentUser();
   console.log("Current User: ", currentUser);
+
+  const createNewModal = document.getElementById("create-new");
+  const createNewForm = document.getElementById("create-new-form");
+  const createNewErrorMsg = document.getElementById("create-new-error");
+  const uploadNewBtn = document.getElementById("UploadNewbtn");
+  uploadNewBtn.addEventListener("click", () => {
+    createNewErrorMsg.innerText = "";
+    createNewModal.showModal();
+  });
+
+  const createNewCancelBtn = document.getElementById("create-new-cancel");
+  createNewCancelBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    createNewModal.close();
+    createNewForm.reset();
+  });
+
+  const createNewButton = document.getElementById("create-new-button");
+  createNewButton.addEventListener("click", async (e) => {
+    e.preventDefault();
+    const data = new FormData(createNewForm);
+    const formObject = Object.fromEntries(data);
+    if (validateString(formObject.name)) {
+      const res = await fetch("/api/createNew", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          objectId: `${formObject.type}:${formObject.name}`,
+        }),
+      });
+      const resData = await res.json();
+      if (!res.ok) {
+        createNewErrorMsg.innerText = resData.message;
+      } else {
+        createNewForm.reset();
+        createNewModal.close();
+        await renderFileListForUSer(currentUser.id);
+      }
+    } else {
+      createNewErrorMsg.innerText =
+        'Please only use letters, numbers and symbols like: ".-_"';
+    }
+  });
 
   const adminResponse = await fetch("/api/isAdmin", { credentials: "include" });
   const isadmin = await adminResponse.json();
@@ -124,12 +169,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
     const { files } = await res.json();
 
-    const rButton = document.getElementById("UploadNewbtn");
-    rButton.innerText = "back";
-    rButton.addEventListener("click", () => {
-      renderAdminUSerList();
-    });
-
     renderFiles(files);
   }
 
@@ -145,9 +184,20 @@ document.addEventListener("DOMContentLoaded", async () => {
         listItem.dataset.fileId = file.objectId;
         listItem.dataset.relations = file.relations;
 
+        const fileType = file.objectId.split(":")[0];
         const icon = document.createElement("i");
         icon.className = "material-icons type";
-        icon.innerText = "article";
+        switch (fileType) {
+          case "folder":
+            icon.innerText = "folder";
+            break;
+          case "file":
+            icon.innerText = "article";
+            break;
+          default:
+            icon.innerText = "question_mark";
+            break;
+        }
 
         const itemTitle = document.createElement("div");
         itemTitle.className = "item-title";
@@ -253,27 +303,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     fileDetailsModal.showModal();
   });
 
-const createOption = document.getElementById("create-option");
-const modal_container = document.getElementById("modal_container");
-const close12 = document.getElementById("close12");
- 
-createOption.addEventListener('click', () => {
-  modal_container.classList.add("show");
+  const createOption = document.getElementById("create-option");
+  const modal_container = document.getElementById("modal_container");
+  const close12 = document.getElementById("close12");
 
-});
+  createOption.addEventListener("click", () => {
+    modal_container.classList.add("show");
+  });
 
-
-close12.addEventListener('click', () => {
-  modal_container.classList.remove("show");
-
-});
-
-
-
-
-
-
-
+  close12.addEventListener("click", () => {
+    modal_container.classList.remove("show");
+  });
 
   console.log(files);
 
@@ -504,21 +544,23 @@ if (!tempModified && tempMembers.length === 0) {
 
 
 // Create folder button
-  document.getElementById("confirm-create-folder").addEventListener("click", async () => {
-    const folderName = document.getElementById("folder-name-input").value;
-    const folderError = document.getElementById("folder-error");
-    
-    if (!folderName) {
-  folderError.innerText = "Please enter a folder name.";
-  return;
-}
+// document
+//   .getElementById("confirm-create-folder")
+//   .addEventListener("click", async () => {
+//     const folderName = document.getElementById("folder-name-input").value;
+//     const folderError = document.getElementById("folder-error");
 
-    const res = await fetch("/api/newFolder", {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ folderName: folderName.toLowerCase() })
-    });
+//     if (!folderName) {
+//       folderError.innerText = "Please enter a folder name.";
+//       return;
+//     }
+
+//     const res = await fetch("/api/newFolder", {
+//       method: "POST",
+//       credentials: "include",
+//       headers: { "Content-Type": "application/json" },
+//       body: JSON.stringify({ folderName: folderName.toLowerCase() }),
+//     });
 
     if (res.ok) {
     modal_container.classList.remove("show");
