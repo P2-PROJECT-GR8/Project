@@ -569,11 +569,14 @@ privilegeOptions.forEach((p) => {
   privilegeList.appendChild(privLabel);
   customRelForm.appendChild(privilegeList);
 });
-const createRelSubmit = document.createElement("input")
-createRelSubmit.type="submit"
+const createRelSubmit = document.createElement("button")
+createRelSubmit.id="submit-new-rel"
+createRelSubmit.className="btn-lift";
+createRelSubmit.textContent= "Create Relation"
 
 const createRelCancel = document.createElement("button")
 createRelCancel.textContent="cancel"
+createRelCancel.className="btn-lift"
 createRelCancel.addEventListener("click", (e)=>{
   e.preventDefault();
   customRelation.close();
@@ -583,11 +586,37 @@ customRelation.appendChild(createRelCancel);
 customRelation.appendChild(createRelSubmit);
 document.body.appendChild(customRelation);
 await customRelation.showModal();
+
+createRelSubmit.addEventListener("click", (e) => {
+  e.preventDefault();
+
+  const data = new FormData(customRelForm);
+  
+  const relationName = data.get("relation-name");
+
+  // Find checked relations and push them to the "selectedPrivileges" array
+  const selectedPrivileges = [];
+  customRelForm.querySelectorAll('input[type="checkbox"]:checked').forEach((checkbox) => {
+    selectedPrivileges.push(checkbox.name);
+  });
+
+  const newRelation = {
+    name: relationName,
+    privileges: selectedPrivileges
+  };
+
+  console.log(newRelation);
+  const res = fetch("/api/newRelationType", {
+    method: "POST",
+    credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newRelation)
+  })
+
+  customRelation.close();
+  });
+
 });
-
-
-
-
 /*
 <div class="listitem">
   <i class="material-icons type">article</i>

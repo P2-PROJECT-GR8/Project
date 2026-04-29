@@ -403,6 +403,27 @@ app.post("/api/saveAllChanges", async (req, res) => {
   }
 });
 
+app.post("/api/newRelationType", async (req, res)=>{
+  let currentUser;
+  try {
+    currentUser = getUser(req);
+  } catch {
+    return res.status(401).send({ message: "User not authenticated" });
+  }
+
+  const {name, privileges} = req.body;
+  try{
+  db.data.schema.file.relations[name] = privileges;
+
+  await db.write();
+
+  res.status(200).json({ message: "Custom relation created!", id: name});
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Did not create new relation" })
+  }
+});
+
 
 app.post("/api/leaveFile", async (req, res) => {
   const { objectId } = req.body;

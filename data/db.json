@@ -21,6 +21,10 @@
         "commenter": [
           "view",
           "comment"
+        ],
+        "test1": [
+          "view",
+          "share"
         ]
       }
     },
@@ -51,6 +55,10 @@
         {
           "subjectId": "user:jeff",
           "relation": "viewer"
+        },
+        {
+          "subjectId": "user:jeff",
+          "relation": "editor"
         }
       ],
       "file:1": [
@@ -112,6 +120,10 @@
         },
         {
           "relation": "viewer",
+          "objectId": "file:Project.pdf"
+        },
+        {
+          "relation": "editor",
           "objectId": "file:Project.pdf"
         }
       ],
