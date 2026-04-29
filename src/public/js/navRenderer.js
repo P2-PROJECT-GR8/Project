@@ -74,7 +74,9 @@ export function renderHeader(state = "none") {
   settingsIcon.innerText = "settings";
   settingsLink.appendChild(settingsIcon);
 
-  // Account icon
+  // Account icon + dropdown
+  const accountContainer = document.createElement("div");
+  accountContainer.className = "account-container";
   const accountLink = document.createElement("a");
   accountLink.href = "#";
   const accountIcon = document.createElement("i");
@@ -87,6 +89,15 @@ export function renderHeader(state = "none") {
     });
   });
   accountLink.appendChild(accountIcon);
+  accountContainer.appendChild(accountLink);
+
+  const dropdown = document.createElement("div");
+  dropdown.className = "account-dropdown";
+  const deleteButton = document.createElement("button");
+  deleteButton.innerText = "Delete User";
+
+  dropdown.appendChild(deleteButton);
+  accountContainer.appendChild(dropdown);
 
   // Logout icon
   const logoutLink = document.createElement("a");
@@ -109,7 +120,8 @@ export function renderHeader(state = "none") {
   logoutLink.appendChild(logoutIcon);
 
   settingsDiv.appendChild(settingsLink);
-  settingsDiv.appendChild(accountLink);
+
+  settingsDiv.appendChild(accountContainer);
   settingsDiv.appendChild(logoutLink);
   header.appendChild(settingsDiv);
 

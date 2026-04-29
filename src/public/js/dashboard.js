@@ -1,3 +1,4 @@
+import { application, json } from "express";
 import { renderHeader } from "./navRenderer.js";
 
 renderHeader();
@@ -273,3 +274,32 @@ const renderMembers = async (fileId) => {
   <a href="#"><i class="material-icons">more_vert</i></a>
 </div>
 */
+
+// A event listner for pressing delete user button
+deleteButton.addEventListener("click", async () => {
+  const confirmed =
+    confirm();
+    // To make sure that you have to confirm before it deletes the relations
+
+  if (!confirmed) {
+    return;
+  }
+
+  const response = await fetch("/users/remove-relations", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({
+      userId: "user:current",
+    }),
+  });
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    alert(result.error || "Something went wrong, try again");
+    return;
+  }
+
+  alert("User access removed");
+});

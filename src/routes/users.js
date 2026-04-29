@@ -35,4 +35,22 @@ function validUserName(userName) {
   return userObject;
 }
 
+// receive the button press for deleting a users relations
+Router.post("/remove-relations", async(req, res) => {
+  try {
+    const { userId } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({error: "userId is required" });
+    }
+  }
+
+  removeUserRelations(userId);
+
+  res.json({succes:true});
+  } catch (err) {
+  res.status(500).json({error:err.message});
+}
+});
+
 export { validUserName };
