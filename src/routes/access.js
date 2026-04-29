@@ -93,7 +93,7 @@ class AccessControl {
    * @memberof AccessControl
    */
   async _expand(subjectId, objectId) {
-    this.db.read();
+    await this.db.read();
     const { byObject, bySubject } = this.db.data.tupleStore;
 
     const discoveredRelations = new Set();
@@ -198,8 +198,8 @@ class AccessControl {
     return relatedUsers;
   }
 
-  addTuple(subjectId, relation, objectId) {
-    this.db.read();
+  async addTuple(subjectId, relation, objectId) {
+    await this.db.read();
     const entryByObject = { subjectId, relation };
     const entryBySubject = { relation, objectId };
 
@@ -230,15 +230,15 @@ class AccessControl {
       this.db.data.tupleStore.bySubject[subjectId].push(entryBySubject);
     } else
       console.error(
-        "Tried to add a tupple to the bySubject database that already exists",
+        "Tried to add a tuple to the bySubject database that already exists",
       );
 
-    this.db.write();
+    await this.db.write();
   }
 
   // This function is maybe a WIP, debating on whether the effeciency of .filter() is fine in this case
-  deleteTuple(subjectId, relation, objectId) {
-    this.db.read();
+  async deleteTuple(subjectId, relation, objectId) {
+    await this.db.read();
 
     // 1. Remove from the byObject index
     if (this.db.data.tupleStore.byObject[objectId]) {
@@ -266,7 +266,7 @@ class AccessControl {
       }
     }
 
-    this.db.write();
+    await this.db.write();
   }
 
   locatePaths(userId, objectId, maxDepth = 5) {
