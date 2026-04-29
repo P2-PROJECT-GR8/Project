@@ -269,6 +269,13 @@ class AccessControl {
 
     this.db.write();
   }
+
+  addRelationType(CreateForm, relationName) {
+    this.db.read();
+      if(this.db.data.file.relations[relationName]){
+        console.error("A relation with this name already exists")
+      }
+  }
 }
 
 export { AccessControl };
