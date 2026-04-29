@@ -40,6 +40,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const createNewModal = document.getElementById("create-new");
   const createNewForm = document.getElementById("create-new-form");
   const createNewErrorMsg = document.getElementById("create-new-error");
+  const filesList = document.getElementById("filesList");
   const uploadNewBtn = document.getElementById("UploadNewbtn");
   uploadNewBtn.addEventListener("click", () => {
     createNewErrorMsg.innerText = "";
@@ -115,7 +116,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // renders received filelist to dahsboard
   function renderFiles(files) {
-    const filesList = document.getElementById("filesList");
     filesList.innerHTML = "";
 
     if (files.length > 0) {
@@ -261,7 +261,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     modal_container.classList.remove("show");
   });
 
-  console.log(files);
 });
 
 const renderMembers = async (fileId) => {
