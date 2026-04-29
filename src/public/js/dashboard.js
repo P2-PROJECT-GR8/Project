@@ -538,6 +538,7 @@ customBtn.addEventListener("click", async (event)=>{
 
 const customRelation = document.createElement("dialog");
   customRelation.id= "custom-modal";
+  customRelation.className="modal-body"
 const customHeader = document.createElement("h2");
 customHeader.className="custom-header";
   customHeader.textContent="Create Custom Relation";
@@ -612,7 +613,13 @@ createRelSubmit.addEventListener("click", (e) => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(newRelation)
   })
-
+  if (window.schema && window.schema.file && window.schema.file.relations) {
+      window.schema.file.relations[relationName] = selectedPrivileges;
+    }
+    
+    if (selectedFile) {
+      renderMembers(selectedFile);
+    }
   customRelation.close();
   });
 

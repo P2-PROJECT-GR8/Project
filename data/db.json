@@ -25,6 +25,14 @@
         "test1": [
           "view",
           "share"
+        ],
+        "test2": [
+          "edit",
+          "delete"
+        ],
+        "test3": [
+          "view",
+          "delete"
         ]
       }
     },
