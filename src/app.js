@@ -432,6 +432,26 @@ app.listen(3000, () => {
   console.log("Server running at http://localhost:3000");
 });
 
+app.post("/api/adminDeleteTuple", async (req, res) => {
+  const token = req.cookies.sessionToken;
+  if (!token) {
+    return res.status(401).send({ message: "Unauthorized" });
+  }
+  // if not admin deny request
+  if (getUser(req).id !== "user:admin") {
+    return res.status(403).send({ messeage: "request denied" });
+  }
+  const { path, index } = req.body;
+
+  path.forEach((tuple) => {
+    const userId = tuple.from;
+    const relation = tuple.relation;
+    const objectId = tuple.to;
+    accessControl.deleteTuple(userId, relation, objectId);
+  });
+  return res.status(200).json({ success: true });
+});
+
 // accessControl.addTuple("user:jeff", "owner", "file:1");
 // accessControl.addTuple("user:alice", "editor", "file:1");
 // accessControl.addTuple("user:jeff", "veiwer", "file:1");

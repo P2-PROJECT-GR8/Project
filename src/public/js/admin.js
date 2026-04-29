@@ -1,16 +1,11 @@
 import { renderHeader } from "./navRenderer.js";
 
-// fix the new html page so admin dash actually exists
-
-//
-
 // wait for DOM load before doing anything
 document.addEventListener("DOMContentLoaded", async () => {
   renderHeader();
   const userSelect = document.getElementById("user-Select");
   const objectSelect = document.getElementById("object-Select");
   const display = document.getElementById("main-Display");
-  const relationDisplay = document.getElementById("relation-Overview-Header");
 
   const users = await fetch("/api/userNames", { credentials: "include" });
   const { userNames } = await users.json();
@@ -27,7 +22,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     userSelect.appendChild(element);
   });
 
-  // when admin inputs a new name change the  object sleect to contain that users files
+  // when admin inputs a new name change the  file selector to contain that users files
   userSelect.addEventListener("change", async () => {
     const filelist = await fetch(
       `/api/adminFiles?userId=user:${userSelect.value.toLowerCase()}`,
@@ -63,33 +58,39 @@ document.addEventListener("DOMContentLoaded", async () => {
       objectSelect.appendChild(element);
     });
   }
-  function renderRelationOverview(user, object) {
-    relationDisplay.innerText = "";
-    relationDisplay.innerText = `${user}'s acces paths to ${object}`;
-  }
 
   // render paths
   function renderPathToObject(paths, user, object) {
-    relationDisplay.innerHTML = "";
-    const Header = document.getElementById("relation-Overview-Header");
-    Header.innerText = "";
+    display.innerHTML = "";
+    const Header = document.createElement("h1");
+    Header.id = "relation-Overview-Header";
     Header.innerText = `${user}'s relation paths to ${object}`;
+    display.appendChild(Header);
 
     if (!paths || paths.length === 0) {
-      relationDisplay.innerHTML =
-        Header.innerText = `no paths found to ${object}`;
+      relationDisplay.innerHTML = "";
+      Header.innerText = `no paths found to ${object}`;
       return;
     }
 
     paths.forEach((path, index) => {
+      console.log(path);
       const pathcontainer = document.createElement("div");
       pathcontainer.className = "path";
-
+      // button to allow deletion of path
+      const pathDelete = document.createElement("button");
+      pathDelete.id = `delete${index}`;
+      pathDelete.innerText = `delete path ${index + 1}`;
+      pathDelete.className = "deleteBtn";
       const title = document.createElement("h3");
       title.textContent = `path ${index + 1}`;
-      pathcontainer.appendChild(title);
 
       const list = document.createElement("ul");
+      const styleWrap = document.createElement("div");
+      styleWrap.className = "path-content";
+      styleWrap.appendChild(title);
+      styleWrap.appendChild(list);
+      pathcontainer.appendChild(styleWrap);
 
       path.forEach((step) => {
         const item = document.createElement("li");
@@ -97,8 +98,26 @@ document.addEventListener("DOMContentLoaded", async () => {
         list.appendChild(item);
       });
 
-      pathcontainer.appendChild(list);
       display.appendChild(pathcontainer);
+      pathcontainer.appendChild(pathDelete);
+      // upon delete button press delete path
+      pathDelete.addEventListener("click", async () => {
+        const del = await fetch("/api/adminDeleteTuple", {
+          credentials: "include",
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            path: path,
+            index: index,
+          }),
+        });
+        if (!del.ok) {
+          console.log("failed to delete");
+        }
+        if (del.ok) {
+          console.log("deleted succesfully");
+        }
+      });
     });
   }
 });
