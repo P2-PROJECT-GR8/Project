@@ -81,6 +81,15 @@ document.addEventListener("DOMContentLoaded", async () => {
       createNewErrorMsg.innerText =
         'Please only use letters, numbers and symbols like: ".-_"';
     }
+    if (res.ok) {
+    modal_container.classList.remove("show");
+    document.getElementById("folder-name-input").value = "";
+    folderError.innerText = "";
+    location.reload();
+    } else {
+      const data = await res.json();
+      alert(data.message);
+    }
   });
 
   const adminResponse = await fetch("/api/isAdmin", { credentials: "include" });
@@ -540,39 +549,10 @@ if (!tempModified && tempMembers.length === 0) {
       });
     } else {
     console.log(res.body);
+    }
+
   };
 
-
-// Create folder button
-// document
-//   .getElementById("confirm-create-folder")
-//   .addEventListener("click", async () => {
-//     const folderName = document.getElementById("folder-name-input").value;
-//     const folderError = document.getElementById("folder-error");
-
-//     if (!folderName) {
-//       folderError.innerText = "Please enter a folder name.";
-//       return;
-//     }
-
-//     const res = await fetch("/api/newFolder", {
-//       method: "POST",
-//       credentials: "include",
-//       headers: { "Content-Type": "application/json" },
-//       body: JSON.stringify({ folderName: folderName.toLowerCase() }),
-//     });
-
-    if (res.ok) {
-    modal_container.classList.remove("show");
-document.getElementById("folder-name-input").value = "";
-folderError.innerText = "";
-location.reload();
-    } else {
-      const data = await res.json();
-      alert(data.message);
-    }
-  });
-}
 
 const customBtn = document.getElementById("custom-btn")
 customBtn.addEventListener("click", async (event)=>{
