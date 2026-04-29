@@ -31,6 +31,8 @@ const getCurrentUser = async () => {
   return await me.json();
 };
 
+let selectedFile;
+
 // When the DOM is fully loaded, set up initial state and event listeners
 document.addEventListener("DOMContentLoaded", async () => {
   const currentUser = await getCurrentUser();
@@ -187,7 +189,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   //});
   //const { files } = await res.json();
 
-  let selectedFile;
+
 
   const inviteInput = document.getElementById("invite-field");
   const inviteBtn = document.getElementById("invite-member");
@@ -319,61 +321,23 @@ close12.addEventListener('click', () => {
   rel => !relatedToFile.some(r => r.subjectId === rel.subjectId)
 );
 // send updates for changed relations
-  const res = await fetch("/api/updateTuple", {
-    method: "POST",
-    credentials: "include",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      objectId: selectedFile,
-      changes
-    }),
-  });
+ const res = await fetch("/api/saveAllChanges", {
+  method: "POST",
+  credentials: "include",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    objectId: selectedFile,
+    addRel: newUsers,
+    deleteRel: deletedUsers,
+    updateRel: changes
+  }),
+});
 
-  if (!res.ok) {
-    const data = await res.json();
-    alert("Update error: " + data.message);
-    return;
-  }
-
-  console.log(newUsers);
-
-  const newUserResponses = await Promise.all(
-    newUsers.map((rel) =>
-      fetch("/api/newTuple", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-        objectId: selectedFile,
-        relation: rel.relations,
-        subjectId: rel.subjectId,
-        }),
-      })
-    )
-  );
-
-  const deleteResponses = await Promise.all(
-  deletedUsers.map(({ subjectId, relations }) =>
-    fetch("/api/deleteTuple", {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        objectId: selectedFile,
-        relations: Array.isArray(relations) ? relations : [relations],
-        subjectId,
-      }),
-    })
-  )
-);
-
-  for (const r of newUserResponses) {
-    if (!r.ok) {
-      const data = await r.json();
-      alert("New user error: " + data.message);
-      return;
-    }
-  }
+if (!res.ok) {
+  const data = await res.json();
+  alert("Error: " + data.message);
+  return;
+}
 
   tempMembers = tempMembers.filter(
     u => !deletedUsers.some(d => d.subjectId === u.subjectId)
@@ -539,11 +503,6 @@ if (!tempModified && tempMembers.length === 0) {
   };
 
 
-
-
-
-
-
 // Create folder button
   document.getElementById("confirm-create-folder").addEventListener("click", async () => {
     const folderName = document.getElementById("folder-name-input").value;
@@ -573,10 +532,58 @@ location.reload();
   });
 }
 
+const customBtn = document.getElementById("custom-btn")
+customBtn.addEventListener("click", async (event)=>{
+  event.preventDefault();
 
+const customRelation = document.createElement("dialog");
+  customRelation.id= "custom-modal";
+const customHeader = document.createElement("h2");
+customHeader.className="custom-header";
+  customHeader.textContent="Create Custom Relation";
+  customRelation.appendChild(customHeader);
+const customRelForm = document.createElement("form");
+  customRelForm.id= "custom-form";
+const inputTitle = document.createElement("p");
+  inputTitle.className = "input-title";
+  inputTitle.textContent= "Name the Custom Relation:";
+const customRelationName = document.createElement("input");
+  customRelationName.type="text";
+  customRelationName.id="relation-name";
+  customRelationName.name="relation-name";
+  customRelationName.placeholder="Type Relation Name"
+customRelForm.appendChild(inputTitle);
+customRelForm.appendChild(customRelationName);
 
+const privilegeOptions = window.schema?.file?.relations?.owner || [];
+privilegeOptions.forEach((p) => {
+  const privilegeList = document.createElement("div");
+  const privilege = document.createElement("input");
+  privilege.type="checkbox";
+  privilege.id=`privilege-${p}`;
+  privilege.name=p;
+  const privLabel = document.createElement("label");
+  privLabel.setAttribute("for", privilege.id);
+  privLabel.textContent = p.charAt(0).toUpperCase() + p.slice(1);
+  privilegeList.appendChild(privilege);
+  privilegeList.appendChild(privLabel);
+  customRelForm.appendChild(privilegeList);
+});
+const createRelSubmit = document.createElement("input")
+createRelSubmit.type="submit"
 
-
+const createRelCancel = document.createElement("button")
+createRelCancel.textContent="cancel"
+createRelCancel.addEventListener("click", (e)=>{
+  e.preventDefault();
+  customRelation.close();
+})
+customRelation.appendChild(customRelForm);
+customRelation.appendChild(createRelCancel);
+customRelation.appendChild(createRelSubmit);
+document.body.appendChild(customRelation);
+await customRelation.showModal();
+});
 
 
 

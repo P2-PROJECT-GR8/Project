@@ -46,7 +46,11 @@
         },
         {
           "subjectId": "user:emil",
-          "relation": "editor"
+          "relation": "viewer"
+        },
+        {
+          "subjectId": "user:jeff",
+          "relation": "viewer"
         }
       ],
       "file:1": [
@@ -105,6 +109,10 @@
         {
           "relation": "editor",
           "objectId": "file:Earnings.pdf"
+        },
+        {
+          "relation": "viewer",
+          "objectId": "file:Project.pdf"
         }
       ],
       "user:emil": [
@@ -113,7 +121,7 @@
           "objectId": "file:Earnings.pdf"
         },
         {
-          "relation": "editor",
+          "relation": "viewer",
           "objectId": "file:Project.pdf"
         }
       ],

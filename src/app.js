@@ -327,6 +327,7 @@ app.post("/api/newTuple", async (req, res) => {
 
   res.status(201).send({ message: "Member added successfully" });
 });
+
 app.post("/api/deleteTuple", async (req, res) => {
   const { objectId, relations, subjectId } = req.body;
   let currentUser;
@@ -355,8 +356,8 @@ app.post("/api/deleteTuple", async (req, res) => {
   return res.json({ success: true });
 });
 
-app.post("/api/updateTuple", async (req, res) => {
-  const { objectId, changes } = req.body;
+app.post("/api/saveAllChanges", async (req, res) => {
+  const { objectId, addRel = [], deleteRel = [], updateRel = [] } = req.body;
 
   let currentUser;
   try {
@@ -365,24 +366,41 @@ app.post("/api/updateTuple", async (req, res) => {
     return res.status(401).send({ message: "User not authenticated" });
   }
 
-  const isOwner = db.data.tupleStore.byObject[objectId]?.some(
-    (tuple) => tuple.subjectId === currentUser.id && tuple.relation === "owner"
-  );
+  try {
+    const canEdit = await accessControl.can(
+      currentUser.name,
+      "delete",
+      objectId
+    );
 
-  if (!isOwner) {
-    return res.status(403).send({ message: "User is not an owner" });
-  }
-  
-  for (const change of changes) {
-    const { subjectId, oldRel, newRel } = change;
-
-    for (const rel of oldRel) {
-      accessControl.deleteTuple(subjectId, rel, objectId);
+    if (!canEdit) {
+      return res.status(403).send({ message: "Not authorized" });
     }
-    accessControl.addTuple(subjectId, newRel, objectId);
-  }
+    //delete users
+    for (const { subjectId, relations } of deleteRel) {
+      for (const rel of relations) {
+        accessControl.deleteTuple(subjectId, rel, objectId);
+      }
+    }
 
-  return res.json({ success: true });
+     // add invited users
+    for (const { subjectId, relations } of addRel) {
+      accessControl.addTuple(subjectId, relations, objectId);
+    }
+
+    // update tuples for changed relations
+    for (const { subjectId, oldRel, newRel } of updateRel) {
+      for (const rel of oldRel) {
+        accessControl.deleteTuple(subjectId, rel, objectId);
+      }
+      accessControl.addTuple(subjectId, newRel, objectId);
+    }
+
+    return res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).send({ message: "Update failed" });
+  }
 });
 
 
