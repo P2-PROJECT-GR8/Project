@@ -230,15 +230,8 @@ dialog::backdrop {
   margin: 1rem;
 }
 
-.modal-body button {
+button {
   cursor: pointer;
-}
-
-.modal-body #cancel-modal {
-  background-color: transparent;
-  color: var(--on-surface-variant);
-  border: 0px;
-  text-decoration: underline;
 }
 
 .invite-container {
@@ -299,6 +292,7 @@ dialog::backdrop {
   width: 100vw;
   pointer-events: none;
 }
+
 .modal-container.show {
   pointer-events: auto;
   opacity: 1;
@@ -313,6 +307,7 @@ dialog::backdrop {
   max-width: 100%;
   text-align: center;
 }
+
 #folder-name-input {
   background-color: rgb(255, 255, 255);
   border-radius: 5px;
@@ -324,4 +319,56 @@ dialog::backdrop {
   display: flex;
   justify-content: space-between;
   margin-top: 20px;
+}
+
+.create-new-modal {
+  display: grid;
+  gap: 1rem;
+  width: 40vw;
+}
+
+.create-new-modal h2 {
+  font-size: 2rem;
+  color: var(--primary-container);
+}
+
+#create-new-form {
+  display: grid;
+  gap: 1rem;
+  grid-template-areas:
+    "input-cn input-cn input-cn select-cn"
+    "buttons-cn buttons-cn buttons-cn buttons-cn";
+}
+
+#create-new-form select {
+  grid-area: select-cn;
+  border-radius: var(--radius-lg);
+  background-color: #ecf0f1;
+  border: 0px solid;
+  text-align: center;
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+#create-new-form input {
+  padding: 1rem;
+  border: 0px solid;
+  background-color: #ecf0f1;
+  border-radius: 8px;
+  grid-area: input-cn;
+  font-size: 1rem;
+}
+
+.create-new-buttons {
+  margin-top: 2rem;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-area: buttons-cn;
+}
+
+.cancel-modal {
+  background-color: transparent !important;
+  color: var(--on-surface-variant) !important;
+  border: 0px;
+  text-decoration: underline;
 }
