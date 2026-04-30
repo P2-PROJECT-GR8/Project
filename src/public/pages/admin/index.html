@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../../css/main.css" />
+    <link rel="stylesheet" href="../../css/header.css" />
+    <link rel="stylesheet" href="../../css/adminDash.css" />
+    <title>Document</title>
+</head>
+    <body>
+        <div class="admin-Container">
+            <div class="admin-Options">
+                <h1>Welcome to admin overview</h1>
+                <div id="input-Display"> 
+                    <div class="field">
+                        <label for="user-Select">select a user:</label>
+                        <select id="user-Select">
+                        
+                        </select>
+                    </div> 
+                    <div class="field">
+                    <!-- maybe split these up so that only objects related to selected user gets shown-->
+                        <label for="object-Select">select a file or folder:</label>
+                        <select id="object-Select">
+                            <option value="please select a user first"></option>
+                        </select>
+                    </div> 
+                    <button id="submit" type="button">locate paths</button>
+                </div>
+                <div id="main-Display">
+                    <h1 id="relation-Overview-Header"></h1>
+                    
+                </div>
+            </div>
+        </div>
+    </body>
+    <script src="../../js/admin.js" type="module"></script>
+</html>

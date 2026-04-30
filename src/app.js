@@ -79,8 +79,9 @@ const redirectIfLoggedIn = (req, res, next) => {
   try {
     const decoded = jwt.verify(token, SECRET_KEY);
     db.read();
-
-    if (db.data.users.some((user) => user.id === decoded.userId)) {
+    if (decoded.userId === "user:admin") {
+      return res.redirect("/pages/admin");
+    } else if (db.data.users.some((user) => user.id === decoded.userId)) {
       return res.redirect("/pages/dashboard");
     }
     next();
@@ -394,6 +395,53 @@ app.get("/api/userNames", (req, res) => {
   res.send({ userNames: userNames });
 });
 
+// return the list of paths from given user to given object
+app.get("/api/adminRelations", async (req, res) => {
+  const token = req.cookies.sessionToken;
+  if (!token) {
+    return res.status(401).send({ message: "Unauthorized" });
+  }
+
+  try {
+    const decoded = jwt.verify(token, SECRET_KEY);
+    // only allow admin to to utilize this endpoint.
+    if (getUser(req).id !== "user:admin") {
+      return res.status(403).send({ messeage: "request denied" });
+    }
+
+    // changes to be made
+
+    const userId = req.query.userId;
+    const objectId = req.query.objectId;
+
+    const paths = accessControl.locatePaths(userId, objectId);
+    // console.log(userRelations);
+
+    res.json({ paths: paths });
+  } catch (error) {
+    return res.status(401).send({ message: "Invalid session" });
+  }
+}); 
+// Create a new folder
+app.post("/api/newFolder", async (req, res) => {
+  let currentUser;
+  try {
+    currentUser = getUser(req);
+  } catch (err) {
+    return res.status(401).send({ message: "User not authenticated" });
+  }
+
+  const { folderName } = req.body;
+
+  if (!folderName) {
+    return res.status(400).send({ message: "Folder name is required" });
+  }
+
+  accessControl.addTuple(currentUser.id, "owner", `folder:${folderName}`);
+
+  res.status(201).send({ message: "Folder created successfully" });
+});
+
 // return the list of files for the provided userId if user is admin
 app.get("/api/adminFiles", async (req, res) => {
   const token = req.cookies.sessionToken;
@@ -410,7 +458,7 @@ app.get("/api/adminFiles", async (req, res) => {
     const targetUser = req.query.userId;
 
     const userRelations = await accessControl.getUserRelations(targetUser);
-    // console.log(userRelations);
+    console.log(userRelations);
 
     res.json({ files: userRelations });
   } catch (error) {
@@ -432,6 +480,26 @@ app.get("/api/isAdmin", async (req, res) => {
 
 app.listen(3000, () => {
   console.log("Server running at http://localhost:3000");
+});
+
+app.post("/api/adminDeleteTuple", async (req, res) => {
+  const token = req.cookies.sessionToken;
+  if (!token) {
+    return res.status(401).send({ message: "Unauthorized" });
+  }
+  // if not admin deny request
+  if (getUser(req).id !== "user:admin") {
+    return res.status(403).send({ messeage: "request denied" });
+  }
+  const { path, index } = req.body;
+
+  path.forEach((tuple) => {
+    const userId = tuple.from;
+    const relation = tuple.relation;
+    const objectId = tuple.to;
+    accessControl.deleteTuple(userId, relation, objectId);
+  });
+  return res.status(200).json({ success: true });
 });
 
 // accessControl.addTuple("user:jeff", "owner", "file:1");
