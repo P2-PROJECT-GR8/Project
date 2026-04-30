@@ -248,19 +248,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     renderMembers(selectedFile);
     fileDetailsModal.showModal();
   });
-
-  const createOption = document.getElementById("create-option");
-  const modal_container = document.getElementById("modal_container");
-  const close12 = document.getElementById("close12");
-
-  createOption.addEventListener("click", () => {
-    modal_container.classList.add("show");
-  });
-
-  close12.addEventListener("click", () => {
-    modal_container.classList.remove("show");
-  });
-
 });
 
 const renderMembers = async (fileId) => {
