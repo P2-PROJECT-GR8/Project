@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const data = await res.json();
 
-    if (res.ok) window.location.href = "/pages/dashboard";
+    if (res.ok) window.location.href = "/";
     else {
       errorMsg.textContent = data.message ?? "";
     }
@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const data = await res.json();
 
-    if (res.ok) window.location.href = "/pages/dashboard";
+    if (res.ok) window.location.href = "/";
     else {
       errorMsg.textContent = data.message ?? "";
     }

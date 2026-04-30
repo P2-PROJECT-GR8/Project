@@ -270,6 +270,54 @@ class AccessControl {
     await this.db.write();
   }
 
+  locatePaths(userId, objectId, maxDepth = 5) {
+    const paths = [];
+    this.db.read();
+    const { bySubject } = this.db.data.tupleStore;
+
+    function DFS(currentNode, path, visited, depth) {
+      // if depth exceeded return
+      if (depth > maxDepth) {
+        return;
+      }
+      // base case: target hit return path
+      if (currentNode === objectId) {
+        paths.push([...path]);
+        return;
+      }
+
+      // intilize edges for current node
+      const edges = bySubject[currentNode] || [];
+
+      // run through all edges at this node
+      for (const edge of edges) {
+        const nextNode = edge.objectId;
+
+        // prevent cycles
+        if (visited.has(nextNode)) continue;
+
+        // log nodes already visisted
+        visited.add(nextNode);
+        path.push({
+          from: currentNode,
+          relation: edge.relation,
+          to: nextNode,
+        });
+
+        // recursive call
+        DFS(nextNode, path, visited, depth + 1);
+
+        //backtracking
+        path.pop();
+        visited.delete(nextNode);
+      }
+    }
+
+    DFS(userId, [], new Set([userId]), 0);
+    return paths;
+    // DFS algortihm
+  }
+
   async deleteFile(objectId){
     await this.db.read();
 

@@ -42,6 +42,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const createNewModal = document.getElementById("create-new");
   const createNewForm = document.getElementById("create-new-form");
   const createNewErrorMsg = document.getElementById("create-new-error");
+  const filesList = document.getElementById("filesList");
   const uploadNewBtn = document.getElementById("UploadNewbtn");
   uploadNewBtn.addEventListener("click", () => {
     createNewErrorMsg.innerText = "";
@@ -92,9 +93,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
-  const adminResponse = await fetch("/api/isAdmin", { credentials: "include" });
-  const isadmin = await adminResponse.json();
-
   // Set the initial active page
   showPage("#files"); // Set "All Files" as the default active page
 
@@ -116,13 +114,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   });
 
-  // loads either defualt dashboard or admin dashboard
-  if (isadmin.status) {
-    // any HTML changes needed for admin should be done here
-    renderAdminUSerList();
-  } else {
-    renderFileListForUSer(currentUser.id);
-  }
+  // load dahsboard
+  renderFileListForUSer(currentUser.id);
 
   // renders all of a users files
   async function renderFileListForUSer(userId) {
@@ -133,57 +126,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     renderFiles(files);
   }
 
-  // renders an overview of all users within the system
-  async function renderAdminUSerList() {
-    //Qol
-    const header = document.getElementById("allFilesHeader");
-    header.innerText = "All users";
-    const headerdescription = document.getElementById("allFIlesHeaderText");
-    headerdescription.innerText =
-      "here you will find an ovewrview of all users and their relations";
-
-    const res = await fetch("/api/userNames", { credentials: "include" });
-    const { userNames } = await res.json();
-
-    const fileList = document.getElementById("filesList");
-    fileList.innerHTML = "";
-
-    userNames.forEach((userName) => {
-      if (userName === "Admin") {
-        return;
-      }
-      const item = document.createElement("div");
-      item.className = "listitem admin-user";
-      item.dataset.userId = `user:${userName.toLowerCase()}`;
-
-      item.innerText = userName;
-      item.addEventListener("click", () => {
-        renderAdminFilesForUser(item.dataset.userId);
-      });
-
-      fileList.appendChild(item);
-    });
-  }
-
-  // aquires list of files to be rendered for the provided userId
-  async function renderAdminFilesForUser(userId) {
-    //Qol
-    const header = document.getElementById("allFilesHeader");
-    header.innerText = `${userId.split(":")[1]}'s files`;
-    const headerdescription = document.getElementById("allFIlesHeaderText");
-    headerdescription.innerText = `here you will find an overview of ${userId.split(":")[1]}'s relations`;
-
-    const res = await fetch(`/api/adminFiles?userId=${userId}`, {
-      credentials: "include",
-    });
-    const { files } = await res.json();
-
-    renderFiles(files);
-  }
-
   // renders received filelist to dahsboard
   function renderFiles(files) {
-    const filesList = document.getElementById("filesList");
     filesList.innerHTML = "";
 
     if (files.length > 0) {
@@ -391,6 +335,7 @@ function normalizeRelations(rel) {
   return [];
 }
 
+});
 
 const renderMembers = async (fileId) => {
   const membersList = document.getElementById("members");
