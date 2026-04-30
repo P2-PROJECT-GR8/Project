@@ -312,20 +312,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     fileDetailsModal.showModal();
   });
 
-  const createOption = document.getElementById("create-option");
-  const modal_container = document.getElementById("modal_container");
-  const close12 = document.getElementById("close12");
-
-  createOption.addEventListener("click", () => {
-    modal_container.classList.add("show");
-  });
-
-  close12.addEventListener("click", () => {
-    modal_container.classList.remove("show");
-  });
-
-  console.log(files);
-
   const leaveFile = document.getElementById("leave");
   leaveFile.addEventListener("click", async (event)=>{
     event.preventDefault();
@@ -482,7 +468,6 @@ if (!tempModified && tempMembers.length === 0) {
         const relationSel = document.createElement("select");
         relationSel.className = "changeRelation";
         const relationOptions = Object.keys(schema?.file?.relations || {});
-
         
         relationOptions.forEach((r) => {
           const option = document.createElement("option");
@@ -616,6 +601,7 @@ createRelSubmit.addEventListener("click", (e) => {
   const data = new FormData(customRelForm);
   
   const relationName = data.get("relation-name");
+  
 
   // Find checked relations and push them to the "selectedPrivileges" array
   const selectedPrivileges = [];

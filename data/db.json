@@ -21,18 +21,6 @@
         "commenter": [
           "view",
           "comment"
-        ],
-        "test1": [
-          "view",
-          "share"
-        ],
-        "test2": [
-          "edit",
-          "delete"
-        ],
-        "test3": [
-          "view",
-          "delete"
         ]
       }
     },
@@ -57,16 +45,20 @@
           "relation": "owner"
         },
         {
-          "subjectId": "user:emil",
-          "relation": "viewer"
-        },
-        {
           "subjectId": "user:jeff",
           "relation": "viewer"
         },
         {
           "subjectId": "user:jeff",
           "relation": "editor"
+        },
+        {
+          "subjectId": "user:emil",
+          "relation": "viewer"
+        },
+        {
+          "subjectId": "user:bob",
+          "relation": "viewer"
         }
       ],
       "file:1": [
