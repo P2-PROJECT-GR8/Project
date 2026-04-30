@@ -455,6 +455,34 @@ app.post("/api/newRelationType", async (req, res)=>{
   }
 });
 
+app.post("/api/deleteFile", async (req, res) =>{
+  const {objectId} = req.body;
+  let currentUser;
+  try {
+    currentUser = getUser(req);
+  } catch (err) {
+    console.error(err);
+    return res.status(401).send({ message: "User not authenticated" });
+  }
+  try{
+  await db.read();
+
+  const isOwner = db.data.tupleStore.byObject[objectId]?.some(
+    (tuple) => tuple.subjectId === currentUser.id && tuple.relation === "owner"
+  );
+
+  if(!isOwner){
+    res.status(403).send({message: "only owners can delete files"});
+  }
+
+  await accessControl.deleteFile(objectId)
+  await db.write();
+  res.status(200).send({message: "file deleted"});
+} catch(err){
+    console.error("Delete Error:", err);
+    return res.status(500).send({ message: "Internal server error" });
+  }
+});
 
 app.post("/api/leaveFile", async (req, res) => {
   const { objectId } = req.body;

@@ -270,12 +270,21 @@ class AccessControl {
     await this.db.write();
   }
 
-  addRelationType(CreateForm, relationName) {
-    this.db.read();
-      if(this.db.data.file.relations[relationName]){
-        console.error("A relation with this name already exists")
+  async deleteFile(objectId){
+    await this.db.read();
+
+    // Remove all relations to the file
+    // The deleteTuple function delete when there are no more relations
+    const tuples = this.db.data.tupleStore.byObject[objectId]
+
+    if(tuples){
+      for (const tuple of [...tuples]){
+        await this.deleteTuple(tuple.subjectId, tuple.relation, objectId)
       }
+    }
+
   }
+
 }
 
 export { AccessControl };

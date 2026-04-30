@@ -312,33 +312,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     fileDetailsModal.showModal();
   });
 
-  const leaveFile = document.getElementById("leave");
-  leaveFile.addEventListener("click", async (event)=>{
-    event.preventDefault();
-
-    if (!selectedFile) {
-      console.error("No file selected");
-      return;
-    }
-
-    const res = await fetch("/api/leaveFile", {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ objectId: selectedFile }),
-    });
-
-    if (res.ok) {
-      fileDetailsModal.close();
-      location.reload();
-    } else {
-      const data = await res.json();
-      const errorMessage = document.getElementById("modalErrorMessage");
-      errorMessage.innerText = data.message;
-    }
-
   });
   const saveChanges = document.getElementById("save-changes");
       saveChanges.addEventListener("click", async (e) => {
@@ -387,10 +360,9 @@ changedRelation.clear();
 tempModified = false;
 
 renderMembers(selectedFile);
-fileDetailsModal.close();
+document.getElementById("file-details").close();
 
-});
-});
+})
 const changedRelation = new Map();
 /*
 const renderTempMembers = async (fileId) => {
@@ -529,7 +501,44 @@ if (!tempModified && tempMembers.length === 0) {
           helpDelete.innerText = "Remove Access";
           deleteRel.appendChild(helpDelete);
           member.appendChild(deleteRel);
+        } else {
+          const leaveSelectedFile = document.createElement("a")
+          leaveSelectedFile.innerText = "Leave";
+          leaveSelectedFile.href = "#";
+          leaveSelectedFile.id="leave-file";
+          const helpLeave = document.createElement("span");
+          helpLeave.className = "tooltip";
+          helpLeave.innerText = "Revoke own access";
+
+          leaveSelectedFile.addEventListener("click", async (event)=>{
+          event.preventDefault();
+
+          if (!selectedFile) {
+          console.error("No file selected");
+          return;
+          }
+
+        const res = await fetch("/api/leaveFile", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ objectId: selectedFile }),
+        });
+
+        if (res.ok) {
+        fileDetailsModal.close();
+        location.reload();
+        } else {
+        const data = await res.json();
+        const errorMessage = document.getElementById("modalErrorMessage");
+        errorMessage.innerText = data.message;
         }
+          });
+          leaveSelectedFile.appendChild(helpLeave)
+          member.appendChild(leaveSelectedFile)
+      }
         membersList.appendChild(member);
       });
     } else {
@@ -595,7 +604,7 @@ customRelation.appendChild(createRelSubmit);
 document.body.appendChild(customRelation);
 await customRelation.showModal();
 
-createRelSubmit.addEventListener("click", (e) => {
+createRelSubmit.addEventListener("click", async (e) => {
   e.preventDefault();
 
   const data = new FormData(customRelForm);
@@ -615,7 +624,7 @@ createRelSubmit.addEventListener("click", (e) => {
   };
 
   console.log(newRelation);
-  const res = fetch("/api/newRelationType", {
+  const res = await fetch("/api/newRelationType", {
     method: "POST",
     credentials: "include",
       headers: { "Content-Type": "application/json" },
@@ -632,6 +641,30 @@ createRelSubmit.addEventListener("click", (e) => {
   });
 
 });
+
+const deleteFileBtn = document.getElementById("delete-file");
+deleteFileBtn.addEventListener("click", async (event) =>{
+  event.preventDefault();
+
+  if (!selectedFile) {
+    alert("No file selected to delete");
+    return;
+  }
+  const res = await fetch("/api/deleteFile", {
+    method: "POST",
+    credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ objectId: selectedFile })
+  })
+  
+  if (res.ok) {
+    alert("File deleted");
+    location.reload();
+  } else {
+    const data = await res.json();
+    alert("Error: " + data.message);
+  }
+})
 /*
 <div class="listitem">
   <i class="material-icons type">article</i>
