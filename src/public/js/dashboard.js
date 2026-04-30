@@ -335,8 +335,6 @@ function normalizeRelations(rel) {
   return [];
 }
 
-});
-
 const renderMembers = async (fileId) => {
   const membersList = document.getElementById("members");
   const currentUser = await getCurrentUser();
@@ -446,7 +444,7 @@ if (!tempModified && tempMembers.length === 0) {
           helpDelete.innerText = "Remove Access";
           deleteRel.appendChild(helpDelete);
           member.appendChild(deleteRel);
-        } else {
+        } else if ((ownFile && rel.subjectId === currentUser.id) || (!ownFile && rel.subjectId === currentUser.id)){
           const leaveSelectedFile = document.createElement("a")
           leaveSelectedFile.innerText = "Leave";
           leaveSelectedFile.href = "#";
@@ -513,9 +511,15 @@ const customRelationName = document.createElement("input");
   customRelationName.type="text";
   customRelationName.id="relation-name";
   customRelationName.name="relation-name";
-  customRelationName.placeholder="Type Relation Name"
+  customRelationName.placeholder="Type Relation Name";
+const message = document.createElement("div");
+let messageText = document.createElement("p");
+messageText.textContent="";
+messageText.className="error-message"
+message.appendChild(messageText);
 customRelForm.appendChild(inputTitle);
 customRelForm.appendChild(customRelationName);
+customRelForm.appendChild(message);
 
 const privilegeOptions = window.schema?.file?.relations?.owner || [];
 privilegeOptions.forEach((p) => {
@@ -555,7 +559,31 @@ createRelSubmit.addEventListener("click", async (e) => {
   const data = new FormData(customRelForm);
   
   const relationName = data.get("relation-name");
-  
+
+  if (!relationName){
+    messageText.textContent="please enter username"
+    console.log("igen navn")
+    return
+  }
+
+  const existingRelations = Object.keys(window.schema?.file?.relations || {});
+  const existingEntries = Object.Entries(window.schema?.file?.relations || {});
+  if (existingRelations.includes(relationName.toLowerCase())) {
+    messageText.textContent=`A relation named "${relationName}" already exists!`;
+    console.log("existerende relation navn")
+    return;
+  }
+
+  const existingRelation = existingEntries.find(([name, privileges]) => {
+  if (privileges.length !== selectedPrivileges.length) return false
+  if (selectedPrivileges.every(p => privileges.includes(p))) return true
+  });
+
+  if(exisitngRelation){
+    const duplicateName = existingRelation[0];
+    messageText.textContent = `A relation with these exact privileges already exists as "${duplicateName}".`;
+    return;
+  }
 
   // Find checked relations and push them to the "selectedPrivileges" array
   const selectedPrivileges = [];
@@ -563,8 +591,13 @@ createRelSubmit.addEventListener("click", async (e) => {
     selectedPrivileges.push(checkbox.name);
   });
 
+  if (selectedPrivileges.length === 0) {
+    messageText.textContent = "Cannot create relaion with no privileges";
+    return;
+  }
+
   const newRelation = {
-    name: relationName,
+    name: relationName.toLowerCase(),
     privileges: selectedPrivileges
   };
 
@@ -576,19 +609,23 @@ createRelSubmit.addEventListener("click", async (e) => {
       body: JSON.stringify(newRelation)
   })
   if (window.schema && window.schema.file && window.schema.file.relations) {
-      window.schema.file.relations[relationName] = selectedPrivileges;
+      window.schema.file.relations[relationName.toLowerCase()] = selectedPrivileges;
     }
     
     if (selectedFile) {
       renderMembers(selectedFile);
     }
   customRelation.close();
+  customRelation.remove();
   });
 
 });
 
 const deleteFileBtn = document.getElementById("delete-file");
 deleteFileBtn.addEventListener("click", async (event) =>{
+  if (!confirm){
+    return
+  }
   event.preventDefault();
 
   if (!selectedFile) {

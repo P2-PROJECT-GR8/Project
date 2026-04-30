@@ -21,6 +21,13 @@
         "commenter": [
           "view",
           "comment"
+        ],
+        "undefined": [
+          "view"
+        ],
+        "harer": [
+          "view",
+          "comment"
         ]
       }
     },
