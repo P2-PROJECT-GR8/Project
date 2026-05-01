@@ -76,6 +76,30 @@
           "subjectId": "user:magnus",
           "relation": "owner"
         }
+      ],
+      "folder:nest1": [
+        {
+          "subjectId": "folder:admin",
+          "relation": "parent"
+        }
+      ],
+      "file:nestedfile": [
+        {
+          "subjectId": "folder:nest1",
+          "relation": "parent"
+        }
+      ],
+      "file:test123": [
+        {
+          "subjectId": "folder:admin",
+          "relation": "parent"
+        }
+      ],
+      "folder:deep_nest": [
+        {
+          "subjectId": "folder:nest1",
+          "relation": "parent"
+        }
       ]
     },
     "bySubject": {
@@ -113,6 +137,26 @@
         {
           "relation": "owner",
           "objectId": "folder:tester"
+        }
+      ],
+      "folder:admin": [
+        {
+          "relation": "parent",
+          "objectId": "folder:nest1"
+        },
+        {
+          "relation": "parent",
+          "objectId": "file:test123"
+        }
+      ],
+      "folder:nest1": [
+        {
+          "relation": "parent",
+          "objectId": "file:nestedfile"
+        },
+        {
+          "relation": "parent",
+          "objectId": "folder:deep_nest"
         }
       ]
     }
