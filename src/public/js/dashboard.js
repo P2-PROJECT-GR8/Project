@@ -362,14 +362,9 @@ if (!tempModified && tempMembers.length === 0) {
           rel.relations.includes("owner") && rel.subjectId === currentUser.id,
       );
 
-      let schema = window.schema;
-      if (!schema) {
-        const schemaRes = await fetch("/api/schema", {
-          credentials: "include",
-        });
-        schema = await schemaRes.json();
-        window.schema = schema;
-      }
+      const schemaRes = await fetch("/api/schema", { credentials: "include" });
+      const schema = await schemaRes.json();
+      window.schema = schema;
 
       tempMembers.forEach((rel) => {
         const member = document.createElement("div");
@@ -560,6 +555,8 @@ createRelSubmit.addEventListener("click", async (e) => {
   
   const relationName = data.get("relation-name");
 
+  const selectedPrivileges = [];
+
   if (!relationName){
     messageText.textContent="please enter username"
     console.log("igen navn")
@@ -587,6 +584,7 @@ createRelSubmit.addEventListener("click", async (e) => {
 
   // Find checked relations and push them to the "selectedPrivileges" array
   const selectedPrivileges = [];
+   // Find checked relations and push them to the "selectedPrivileges" array
   customRelForm.querySelectorAll('input[type="checkbox"]:checked').forEach((checkbox) => {
     selectedPrivileges.push(checkbox.name);
   });

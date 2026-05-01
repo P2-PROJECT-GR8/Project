@@ -28,6 +28,29 @@
         "harer": [
           "view",
           "comment"
+        ],
+        "bobby": [
+          "view"
+        ],
+        "hej1": [
+          "view",
+          "edit",
+          "share"
+        ],
+        "hej2": [
+          "view",
+          "share"
+        ],
+        "hej3": [
+          "view",
+          "delete"
+        ],
+        "hej4": [
+          "edit",
+          "share"
+        ],
+        "hej5": [
+          "share"
         ]
       }
     },
@@ -189,5 +212,13 @@
       "id": "user:bob",
       "name": "bob"
     }
-  ]
+  ],
+  "file": {
+    "relations": {
+      "6": [
+        "delete",
+        "comment"
+      ]
+    }
+  }
 }
