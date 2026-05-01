@@ -254,7 +254,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   // loads either defualt dashboard or admin dashboard
-  if (isadmin.status) {
+  const adminRes = await fetch("/api/isAdmin");
+  if (adminRes.ok) {
     // any HTML changes needed for admin should be done here
     await renderAdminUSerList();
   } else {

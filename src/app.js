@@ -5,6 +5,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { JSONFilePreset } from "lowdb/node";
 import { AccessControl } from "./routes/access.js";
+import { send } from "process";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -490,7 +491,7 @@ app.get("/api/adminRelations", async (req, res) => {
   } catch (error) {
     return res.status(401).send({ message: "Invalid session" });
   }
-}); 
+});
 // Create a new folder
 app.post("/api/newFolder", async (req, res) => {
   let currentUser;
@@ -542,9 +543,10 @@ app.get("/api/isAdmin", async (req, res) => {
   }
 
   if (getUser(req).id !== "user:admin") {
-    return res.status(403).send({ messeage: "not admin" });
+    return res.status(403).send({ message: "not admin" });
+  } else {
+    return (res.status(200), send());
   }
-  res.json({ status: true });
 });
 
 app.listen(3000, () => {
