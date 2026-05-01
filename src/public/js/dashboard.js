@@ -185,6 +185,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const createNewModal = document.getElementById("create-new");
   const createNewForm = document.getElementById("create-new-form");
   const createNewErrorMsg = document.getElementById("create-new-error");
+  const filesList = document.getElementById("filesList");
   const uploadNewBtn = document.getElementById("UploadNewbtn");
   uploadNewBtn.addEventListener("click", () => {
     createNewErrorMsg.innerText = "";
@@ -231,9 +232,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         'Please only use letters, numbers and symbols like: ".-_"';
     }
   });
-
-  const adminResponse = await fetch("/api/isAdmin", { credentials: "include" });
-  const isadmin = await adminResponse.json();
 
   // Set the initial active page
   showPage("#files"); // Set "All Files" as the default active page
@@ -337,18 +335,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     renderMembers(selectedFile);
     fileDetailsModal.showModal();
-  });
-
-  const createOption = document.getElementById("create-option");
-  const modal_container = document.getElementById("modal_container");
-  const close12 = document.getElementById("close12");
-
-  createOption.addEventListener("click", () => {
-    modal_container.classList.add("show");
-  });
-
-  close12.addEventListener("click", () => {
-    modal_container.classList.remove("show");
   });
 });
 
