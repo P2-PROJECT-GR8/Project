@@ -396,7 +396,6 @@ app.post("/api/saveAllChanges", async (req, res) => {
   } catch {
     return res.status(401).send({ message: "User not authenticated" });
   }
-
   try {
     const isOwner = db.data.tupleStore.byObject[objectId]?.some(
     (tuple) => tuple.subjectId === currentUser.id && tuple.relation === "owner"
@@ -430,6 +429,33 @@ app.post("/api/saveAllChanges", async (req, res) => {
     return res.status(500).send({ message: "Update failed" });
   }
 });
+
+app.get("/api/adminRelations", async (req, res) => {
+  const token = req.cookies.sessionToken;
+  if (!token) {
+    return res.status(401).send({ message: "Unauthorized" });
+  }
+
+  try {
+    const decoded = jwt.verify(token, SECRET_KEY);
+    // only allow admin to to utilize this endpoint.
+    if (getUser(req).id !== "user:admin") {
+      return res.status(403).send({ messeage: "request denied" });
+    }
+
+    // changes to be made
+
+    const userId = req.query.userId;
+    const objectId = req.query.objectId;
+
+    const paths = accessControl.locatePaths(userId, objectId);
+    // console.log(userRelations);
+
+    res.json({ paths: paths });
+  } catch (error) {
+    return res.status(401).send({ message: "Invalid session" });
+  }
+}); 
 
 app.post("/api/newRelationType", async (req, res)=>{
   let currentUser;
