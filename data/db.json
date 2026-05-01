@@ -21,36 +21,6 @@
         "commenter": [
           "view",
           "comment"
-        ],
-        "undefined": [
-          "view"
-        ],
-        "harer": [
-          "view",
-          "comment"
-        ],
-        "bobby": [
-          "view"
-        ],
-        "hej1": [
-          "view",
-          "edit",
-          "share"
-        ],
-        "hej2": [
-          "view",
-          "share"
-        ],
-        "hej3": [
-          "view",
-          "delete"
-        ],
-        "hej4": [
-          "edit",
-          "share"
-        ],
-        "hej5": [
-          "share"
         ]
       }
     },
@@ -81,10 +51,6 @@
         {
           "subjectId": "user:jeff",
           "relation": "editor"
-        },
-        {
-          "subjectId": "user:emil",
-          "relation": "viewer"
         },
         {
           "subjectId": "user:bob",
@@ -161,10 +127,6 @@
         {
           "relation": "owner",
           "objectId": "file:Earnings.pdf"
-        },
-        {
-          "relation": "viewer",
-          "objectId": "file:Project.pdf"
         }
       ],
       "user:alice": [

@@ -442,7 +442,7 @@ app.post("/api/newRelationType", async (req, res)=>{
     return res.status(401).send({ message: "User not authenticated" });
   }
 
-  const {name, rivileges} = req.body;
+  const {name, privileges} = req.body;
   try{
   db.data.schema.file.relations[name] = privileges;
 

@@ -466,7 +466,7 @@ if (!tempModified && tempMembers.length === 0) {
         });
 
         if (res.ok) {
-        fileDetailsModal.close();
+        document.getElementById("file-details").close();
         location.reload();
         } else {
         const data = await res.json();
@@ -564,7 +564,7 @@ createRelSubmit.addEventListener("click", async (e) => {
   }
 
   const existingRelations = Object.keys(window.schema?.file?.relations || {});
-  const existingEntries = Object.Entries(window.schema?.file?.relations || {});
+  const existingEntries = Object.entries(window.schema?.file?.relations || {});
   if (existingRelations.includes(relationName.toLowerCase())) {
     messageText.textContent=`A relation named "${relationName}" already exists!`;
     console.log("existerende relation navn")
@@ -573,24 +573,24 @@ createRelSubmit.addEventListener("click", async (e) => {
 
   const existingRelation = existingEntries.find(([name, privileges]) => {
   if (privileges.length !== selectedPrivileges.length) return false
-  if (selectedPrivileges.every(p => privileges.includes(p))) return true
+  if (selectedPrivileges.every(p => privileges.includes(p))){
+    console.log(privileges.length)
+    return true
+  };
   });
 
-  if(exisitngRelation){
+  if(existingRelation){
     const duplicateName = existingRelation[0];
     messageText.textContent = `A relation with these exact privileges already exists as "${duplicateName}".`;
     return;
   }
-
-  // Find checked relations and push them to the "selectedPrivileges" array
-  const selectedPrivileges = [];
    // Find checked relations and push them to the "selectedPrivileges" array
   customRelForm.querySelectorAll('input[type="checkbox"]:checked').forEach((checkbox) => {
     selectedPrivileges.push(checkbox.name);
   });
 
   if (selectedPrivileges.length === 0) {
-    messageText.textContent = "Cannot create relaion with no privileges";
+    messageText.textContent = "Cannot create relation with no privileges";
     return;
   }
 
