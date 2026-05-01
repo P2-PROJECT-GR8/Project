@@ -398,13 +398,10 @@ app.post("/api/saveAllChanges", async (req, res) => {
   }
 
   try {
-    const canEdit = await accessControl.can(
-      currentUser.name,
-      "delete",
-      objectId
-    );
-
-    if (!canEdit) {
+    const isOwner = db.data.tupleStore.byObject[objectId]?.some(
+    (tuple) => tuple.subjectId === currentUser.id && tuple.relation === "owner"
+  );
+    if (!isOwner) {
       return res.status(403).send({ message: "Not authorized" });
     }
     //delete users
@@ -443,6 +440,9 @@ app.post("/api/newRelationType", async (req, res)=>{
   }
 
   const {name, privileges} = req.body;
+
+  // specify that the relation name and privilege array must 
+  // be stored in relations, and write it to the database
   try{
   db.data.schema.file.relations[name] = privileges;
 
@@ -474,7 +474,7 @@ app.post("/api/deleteFile", async (req, res) =>{
   if(!isOwner){
     res.status(403).send({message: "only owners can delete files"})
   }
-
+  // call the deletefile function for this objectId
   await accessControl.deleteFile(objectId)
   await db.write();
   res.status(200).send({message: "file deleted"});

@@ -21,6 +21,10 @@
         "commenter": [
           "view",
           "comment"
+        ],
+        "lastviewer": [
+          "view",
+          "delete"
         ]
       }
     },
@@ -55,6 +59,10 @@
         {
           "subjectId": "user:bob",
           "relation": "viewer"
+        },
+        {
+          "subjectId": "user:jeff",
+          "relation": "lastviewer"
         }
       ],
       "file:1": [
@@ -120,6 +128,10 @@
         },
         {
           "relation": "editor",
+          "objectId": "file:Project.pdf"
+        },
+        {
+          "relation": "lastviewer",
           "objectId": "file:Project.pdf"
         }
       ],

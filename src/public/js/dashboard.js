@@ -257,6 +257,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   });
+  // fetch the server when saving all changes
   const saveChanges = document.getElementById("save-changes");
       saveChanges.addEventListener("click", async (e) => {
       const changes = Array.from(changedRelation.entries()).map(
@@ -268,7 +269,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   );
 
   const relatedToFile = [...originalTempMembers];
-
+  // new users are the subjects in tempMember, that were not fetched, i.e invited users
   const newUsers = tempMembers.filter(
   rel => !relatedToFile.some(r => r.subjectId === rel.subjectId)
 );
@@ -346,17 +347,20 @@ if (!tempModified && tempMembers.length === 0) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ objectId: fileId }),
   });
-
+// store the members in an array that can be changed without fetching
   if (res.ok) {
     const { relatedUsers } = await res.json();
     tempMembers = relatedUsers.map(u => ({...u, relation: normalizeRelations(u.relations)
 }));
-
+// store "original members" i.e. the memebers fetched sepereately
+// This matters when updating the database
     originalTempMembers = relatedUsers.map(u => ({...u, relation: normalizeRelations(u.relations)
 }));
   }
 }
+    // check if tempmember contains the userlist
     if (tempMembers && tempMembers.length > 0) {
+      //checking if the current member owns the file
       const ownFile = tempMembers.some(
         (rel) =>
           rel.relations.includes("owner") && rel.subjectId === currentUser.id,
@@ -365,7 +369,7 @@ if (!tempModified && tempMembers.length === 0) {
       const schemaRes = await fetch("/api/schema", { credentials: "include" });
       const schema = await schemaRes.json();
       window.schema = schema;
-
+      //create a div element for each member to be displayed 
       tempMembers.forEach((rel) => {
         const member = document.createElement("div");
         member.className = "member";
@@ -379,27 +383,28 @@ if (!tempModified && tempMembers.length === 0) {
         relationSel.className = "changeRelation";
         const relationOptions = Object.keys(schema?.file?.relations || {});
         
+        // format it beuatifully
         relationOptions.forEach((r) => {
           const option = document.createElement("option");
           option.value = r;
           option.innerText = r.charAt(0).toUpperCase() + r.slice(1);
-
+        // choose the relation specified in the db, so it displays the correct relation
           if (rel.relations.includes(r)) {
             option.selected = true;
           }
           relationSel.appendChild(option);
         });
-
+        // disable for oneself and non-owners
         if (rel.subjectId === currentUser.id || !ownFile) {
           relationSel.disabled = true;
         }
-
+        // indicate which user you are
         if (rel.subjectId === currentUser.id) {
           user.innerText += " (You)";
           user.style.fontWeight = 600;
           relationSel.style.fontWeight = 600;
         }
-
+        // update in client when changes are made in the select
         relationSel.addEventListener("change", async (e) => {
           const assignedRel = e.target.value;
           if (rel.relations.includes(assignedRel)) return;
@@ -411,9 +416,8 @@ if (!tempModified && tempMembers.length === 0) {
         rel.relations = assignedRel;
         });
         member.appendChild(user);
-        
-
         member.appendChild(relationSel);
+        // create an option for an owner to revoke acces from another member
         if (ownFile && rel.subjectId !== currentUser.id) {
           const deleteRel = document.createElement("a");
           deleteRel.innerText = "X";
@@ -439,7 +443,9 @@ if (!tempModified && tempMembers.length === 0) {
           helpDelete.innerText = "Remove Access";
           deleteRel.appendChild(helpDelete);
           member.appendChild(deleteRel);
-        } else if ((ownFile && rel.subjectId === currentUser.id) || (!ownFile && rel.subjectId === currentUser.id)){
+        } else if (rel.subjectId === currentUser.id)
+          // create an option to revoke own access
+          {
           const leaveSelectedFile = document.createElement("a")
           leaveSelectedFile.innerText = "Leave";
           leaveSelectedFile.href = "#";
@@ -485,11 +491,12 @@ if (!tempModified && tempMembers.length === 0) {
 
   };
 
-
+// add eventlistener to the costum relations link/button
 const customBtn = document.getElementById("custom-btn")
 customBtn.addEventListener("click", async (event)=>{
   event.preventDefault();
 
+  // create dialog for the creation of a new relation
 const customRelation = document.createElement("dialog");
   customRelation.id= "custom-modal";
   customRelation.className="modal-body"
@@ -551,39 +558,37 @@ await customRelation.showModal();
 createRelSubmit.addEventListener("click", async (e) => {
   e.preventDefault();
 
+  // get the formdata
+
   const data = new FormData(customRelForm);
   
   const relationName = data.get("relation-name");
 
   const selectedPrivileges = [];
 
+  // make sure the user has typed a name
   if (!relationName){
-    messageText.textContent="please enter username"
-    console.log("igen navn")
+    messageText.textContent="please enter relation name"
+    console.log("attempted to create relation with no name")
+    return
+  }
+  // validate name
+  if (!validateString(relationName)){
+    messageText.textContent="Please do not use special characters"
+    console.log("input invalid")
     return
   }
 
-  const existingRelations = Object.keys(window.schema?.file?.relations || {});
+  const existingRelationKeys = Object.keys(window.schema?.file?.relations || {});
   const existingEntries = Object.entries(window.schema?.file?.relations || {});
-  if (existingRelations.includes(relationName.toLowerCase())) {
+  // check if a relation with the same name as the input exists
+  if (existingRelationKeys.includes(relationName.toLowerCase())) {
     messageText.textContent=`A relation named "${relationName}" already exists!`;
-    console.log("existerende relation navn")
+    console.log("attempted to create a relation with the same name as a existing relation")
     return;
   }
+  console.log(existingEntries);
 
-  const existingRelation = existingEntries.find(([name, privileges]) => {
-  if (privileges.length !== selectedPrivileges.length) return false
-  if (selectedPrivileges.every(p => privileges.includes(p))){
-    console.log(privileges.length)
-    return true
-  };
-  });
-
-  if(existingRelation){
-    const duplicateName = existingRelation[0];
-    messageText.textContent = `A relation with these exact privileges already exists as "${duplicateName}".`;
-    return;
-  }
    // Find checked relations and push them to the "selectedPrivileges" array
   customRelForm.querySelectorAll('input[type="checkbox"]:checked').forEach((checkbox) => {
     selectedPrivileges.push(checkbox.name);
@@ -594,6 +599,26 @@ createRelSubmit.addEventListener("click", async (e) => {
     return;
   }
 
+  const existingRelation = existingEntries.find(([name, privileges]) => {
+    console.log(`privileges length ${privileges.length}`);
+    // check if existing array of privileges for a relation is the same 
+    // length as selected privileges
+    // if true check if the privileges are the same and return boolean value for true/false
+
+    if (privileges.length !== selectedPrivileges.length) {
+      return false}
+    return selectedPrivileges.every(p =>  privileges.includes(p))
+    });
+
+    // return without creating relation and tell the user the name of
+    // the relation that has their exact desired privileges
+  if(existingRelation){
+    const duplicateName = existingRelation[0];
+    messageText.textContent = `A relation with these exact privileges already exists as "${duplicateName}".`;
+    return;
+  }
+
+  //create new relation object and send it to the server
   const newRelation = {
     name: relationName.toLowerCase(),
     privileges: selectedPrivileges
@@ -606,6 +631,10 @@ createRelSubmit.addEventListener("click", async (e) => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(newRelation)
   })
+
+  // update the ui so the new relation becomes an option 
+  // without having to refresh the page
+
   if (window.schema && window.schema.file && window.schema.file.relations) {
       window.schema.file.relations[relationName.toLowerCase()] = selectedPrivileges;
     }
@@ -621,6 +650,7 @@ createRelSubmit.addEventListener("click", async (e) => {
 
 const deleteFileBtn = document.getElementById("delete-file");
 deleteFileBtn.addEventListener("click", async (event) =>{
+  //confirm in pop up before deleting
   if (!confirm){
     return
   }
@@ -630,6 +660,16 @@ deleteFileBtn.addEventListener("click", async (event) =>{
     alert("No file selected to delete");
     return;
   }
+
+  const currentUser = await getCurrentUser();
+
+  // disable button for non owners, css later to make it clear in the ui
+
+  if(!currentUser?.relations?.includes("owner")){
+    deleteFileBtn.disabled=true;
+  return
+  }
+  //send the file attempted to be deleted to the server
   const res = await fetch("/api/deleteFile", {
     method: "POST",
     credentials: "include",
