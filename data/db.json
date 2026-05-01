@@ -100,6 +100,12 @@
           "subjectId": "folder:nest1",
           "relation": "parent"
         }
+      ],
+      "file:deep_file": [
+        {
+          "subjectId": "folder:deep_nest",
+          "relation": "parent"
+        }
       ]
     },
     "bySubject": {
@@ -157,6 +163,12 @@
         {
           "relation": "parent",
           "objectId": "folder:deep_nest"
+        }
+      ],
+      "folder:deep_nest": [
+        {
+          "relation": "parent",
+          "objectId": "file:deep_file"
         }
       ]
     }
