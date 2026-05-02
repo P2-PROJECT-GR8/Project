@@ -269,11 +269,23 @@ class AccessControl {
     await this.db.write();
   }
 
+  // if new tuple has a path already that matches 100% new one and the new one grants less acsess than old then reject new tuple
+  // give popup to admin to inform whether deletion of certain tuple actually revokes acces and what path would still be granting access
+  // maybe move this elsewhere not sure if should go in accescontrol.
+  SanitizeNewTuple(userId, objectId) {
+    // find already existing paths so that we can figure out how new one impacts them
+    paths = this.locatePaths(userId, objectId);
+    acLevel = [];
+
+    paths.foreach((path) => {});
+  }
+
   locatePaths(userId, objectId, maxDepth = 5) {
     const paths = [];
     this.db.read();
     const { bySubject } = this.db.data.tupleStore;
 
+    // dfs algortihm
     function DFS(currentNode, path, visited, depth) {
       // if depth exceeded return
       if (depth > maxDepth) {
@@ -314,7 +326,6 @@ class AccessControl {
 
     DFS(userId, [], new Set([userId]), 0);
     return paths;
-    // DFS algortihm
   }
 }
 
