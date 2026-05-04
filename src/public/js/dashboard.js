@@ -283,8 +283,27 @@ document.addEventListener("DOMContentLoaded", async () => {
       const newMember = inviteInput.value.toLowerCase();
         if (!selectedFile) throw new Error("No selected file");
 
-        tempMembers.push({ subjectId: `user:${newMember}`, relations: "viewer", objectId: selectedFile });
-        tempModified = true;
+        const newId = `user:${newMember}`;
+
+      // check if user relation to file exists
+      const alreadyExists = tempMembers.some(u => u.subjectId === newId);
+      if (alreadyExists) return;
+
+      // remove from deleted if re-added
+      deletedUsers = deletedUsers.filter(u => u.subjectId !== newId);
+
+      // push to added users array
+      addedUsers.push({
+      subjectId: newId,
+      relations: ["viewer"],
+      objectId: selectedFile
+});
+
+// update UI state
+tempMembers.push({
+  subjectId: newId,
+  relations: ["viewer"]
+});
       }
       renderMembers(selectedFile);
       inviteInput.value = "";
@@ -317,10 +336,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     selectedFile = fileId;
 
     tempMembers = [];
-    originalTempMembers = [];
+
+    addedUsers = [];
     deletedUsers = [];
     changedRelation.clear();
-    tempModified = false;
 
     const relationsArray = relations ? relations.split(",") : [];
 
@@ -347,12 +366,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       newRel
     })
   );
-
-  const relatedToFile = [...originalTempMembers];
-  // new users are the subjects in tempMember, that were not fetched, i.e invited users
-  const newUsers = tempMembers.filter(
-  rel => !relatedToFile.some(r => r.subjectId === rel.subjectId)
-);
 // send updates for changed relations
  const res = await fetch("/api/saveAllChanges", {
   method: "POST",
@@ -360,7 +373,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({
     objectId: selectedFile,
-    addRel: newUsers,
+    addRel: addedUsers,
     deleteRel: deletedUsers,
     updateRel: changes
   }),
@@ -373,55 +386,48 @@ if (!res.ok) {
   return;
 }
 
-  tempMembers = tempMembers.filter(
-    u => !deletedUsers.some(d => d.subjectId === u.subjectId)
-  );
-
-  for (const [subjectId, { newRel }] of changedRelation.entries()) {
-    const user = tempMembers.find(u => u.subjectId === subjectId);
-    if (user) user.relations = [newRel];
-  }
-
 changedRelation.clear();
-tempModified = false;
+addedUsers=[];
+deletedUsers=[];
 
 renderMembers(selectedFile);
 document.getElementById("file-details").close();
 
 })
-const changedRelation = new Map();
-let tempMembers=[];
-let originalTempMembers = [];
+let tempMembers = [];
+let addedUsers = [];
 let deletedUsers = [];
-let tempModified = false;
+let changedRelation = new Map();
 
 const renderMembers = async (fileId) => {
   const membersList = document.getElementById("members");
   const currentUser = await getCurrentUser();
   membersList.innerHTML = "";
-if (!tempModified && tempMembers.length === 0) {
+  if (tempMembers.length === 0) {
   const res = await fetch("/relatedUsers", {
     method: "POST",
     credentials: "include",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ objectId: fileId }),
-  });
-// store the members in an array that can be changed without fetching
-  if (res.ok) {
+    });
+
+    if (res.ok) {
     const { relatedUsers } = await res.json();
-    tempMembers = relatedUsers.map(u => ({...u, relations: Array.isArray(u.relations) ? u.relations : [u.relations]
-}));
-// store "original members" i.e. the memebers fetched separately
-    originalTempMembers = relatedUsers.map(u => ({...u, relations:Array.isArray(u.relations) ? u.relations : [u.relations]
-}));
+
+    const normalized = relatedUsers.map(u => ({
+      ...u,
+      relations: Array.isArray(u.relations) ? u.relations : [u.relations]
+    }));
+
+    tempMembers = structuredClone(normalized);
   }
 }
     const schemaRes = await fetch("/api/schema", { credentials: "include" });
       const schema = await schemaRes.json();
       window.schema = schema;
       disableDelete();
-    // check if tempmember contains the userlist
-    if (tempMembers && tempMembers.length > 0) {
+      // check if tempmember contains the userlist
+      if (tempMembers && tempMembers.length > 0) {
       //checking if the current member owns the file
       const ownFile = tempMembers.some(
         (rel) =>
@@ -484,17 +490,26 @@ if (!tempModified && tempMembers.length === 0) {
           deleteRel.id = "delete-btn";
           deleteRel.addEventListener("click", async (event) => {
             event.preventDefault();
-            if (!confirm("Remove this user?")) return;
-          
+            // remove from array that is rendered
             tempMembers = tempMembers.filter(u => u.subjectId !== rel.subjectId);
 
-            deletedUsers.push({
-            subjectId: rel.subjectId,
-            relations: [...rel.relations],
-            objectId: fileId
-            });
+            // if added in the same "session", cancel invite instead
+            const recentlyInvited = addedUsers.some(u => u.subjectId === rel.subjectId);
+            tempMembers = tempMembers.filter(u => u.subjectId !== rel.subjectId);
 
-            renderMembers(fileId);
+            if (recentlyInvited) {
+              addedUsers = addedUsers.filter(u => u.subjectId !== rel.subjectId);
+            } else {
+              // add to deletedusers array
+              if (!deletedUsers.some(u => u.subjectId === rel.subjectId)) {
+                deletedUsers.push({
+                  subjectId: rel.subjectId,
+                  objectId: fileId
+                });
+              }
+            }
+
+          renderMembers(fileId);
           
           });
           const helpDelete = document.createElement("span");
@@ -740,7 +755,7 @@ const currentUser = await getCurrentUser();
   console.log("Schema not loaded yet");
   return;
   }
-  const userEntry = await tempMembers.find(rel => rel.subjectId === currentUser.id);
+  const userEntry = tempMembers.find(rel => rel.subjectId === currentUser.id);
   const userRelations = userEntry ? userEntry.relations : [];
 
   const canDelete = await userRelations.some(rel => 

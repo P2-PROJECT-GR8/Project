@@ -275,7 +275,7 @@ app.get("/api/folderContent", async (req, res) => {
   await db.read();
   if (folderId === "") {
     // For the root view, get all direct relations for the user.
-    const directUserRelations = db.data.tupleStore.bySubject[currentUser.id]||[];
+    const directUserRelations = db.data.tupleStore.bySubject[currentUser.id];
     const grouped = directUserRelations.reduce((acc, tuple) => {
       const oid = tuple.objectId;
 
@@ -474,15 +474,21 @@ app.post("/api/saveAllChanges", async (req, res) => {
       return res.status(403).send({ message: "Not authorized" });
     }
     //delete users
-    for (const { subjectId, relations } of deleteRel) {
-      for (const rel of relations) {
-        accessControl.deleteTuple(subjectId, rel, objectId);
+  for (const { subjectId, objectId: targetId } of deleteRel) {
+    const tuples = db.data.tupleStore.bySubject[subjectId] || [];
+
+    for (const tuple of tuples) {
+    if (tuple.objectId === targetId) {
+      accessControl.deleteTuple(subjectId, tuple.relation, targetId);
       }
     }
+  }
 
      // add invited users
     for (const { subjectId, relations } of addRel) {
+      for (const rel of relations){
       accessControl.addTuple(subjectId, relations, objectId);
+      }
     }
 
     // update tuples for changed relations

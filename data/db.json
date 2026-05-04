@@ -91,6 +91,30 @@
         {
           "subjectId": "user:magnus",
           "relation": "owner"
+        },
+        {
+          "subjectId": "user:bob",
+          "relation": [
+            "viewer"
+          ]
+        },
+        {
+          "subjectId": "user:alice",
+          "relation": [
+            "viewer"
+          ]
+        },
+        {
+          "subjectId": "user:jeff",
+          "relation": [
+            "viewer"
+          ]
+        },
+        {
+          "subjectId": "user:admin",
+          "relation": [
+            "viewer"
+          ]
         }
       ],
       "folder:nest1": [
@@ -127,16 +151,20 @@
         {
           "subjectId": "user:alice",
           "relation": "owner"
-        },
-        {
-          "subjectId": "user:emil",
-          "relation": "viewer"
         }
       ],
       "file:nyere_fil": [
         {
           "subjectId": "user:emil",
           "relation": "owner"
+        },
+        {
+          "subjectId": "user:alice",
+          "relation": "viewer"
+        },
+        {
+          "subjectId": "user:jeff",
+          "relation": "viewer"
         }
       ]
     },
@@ -175,18 +203,40 @@
         {
           "relation": "lastviewer",
           "objectId": "file:Project.pdf"
+        },
+        {
+          "relation": "viewer",
+          "objectId": "file:nyere_fil"
+        },
+        {
+          "relation": [
+            "viewer"
+          ],
+          "objectId": "file:test"
         }
       ],
       "user:bob": [
         {
           "relation": "viewer",
           "objectId": "file:Project.pdf"
+        },
+        {
+          "relation": [
+            "viewer"
+          ],
+          "objectId": "file:test"
         }
       ],
       "user:admin": [
         {
           "relation": "owner",
           "objectId": "folder:tester"
+        },
+        {
+          "relation": [
+            "viewer"
+          ],
+          "objectId": "file:test"
         }
       ],
       "folder:admin": [
@@ -219,13 +269,19 @@
         {
           "relation": "owner",
           "objectId": "file:ny_fil"
+        },
+        {
+          "relation": "viewer",
+          "objectId": "file:nyere_fil"
+        },
+        {
+          "relation": [
+            "viewer"
+          ],
+          "objectId": "file:test"
         }
       ],
       "user:emil": [
-        {
-          "relation": "viewer",
-          "objectId": "file:ny_fil"
-        },
         {
           "relation": "owner",
           "objectId": "file:nyere_fil"
