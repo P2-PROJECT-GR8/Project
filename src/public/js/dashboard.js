@@ -61,9 +61,10 @@ function renderFiles(files) {
       const listItem = document.createElement("div");
       listItem.className = "listitem";
       listItem.dataset.fileId = file.objectId;
-      // only show strongest relation not all of them
       console.log(file.relations);
-      listItem.dataset.relations = (file.relations || []).join(",");
+      //display only "strongest" relation here
+      listItem.dataset.relations = dominance(file);
+  
 
       const fileType = file.objectId.split(":")[0];
       const icon = document.createElement("i");
@@ -373,7 +374,7 @@ const renderMembers = async (fileId) => {
           return str.charAt(0).toUpperCase() + str.slice(1);
         });
 
-        // maybe noly display strognest relation here aswell. might be usefull for suer to be able to see all relations to their file.
+        // maybe show only strongest relation here aswell although maybe good thing that user can see all their relations to the object here
         relation.innerText = formattedRelations.join(", ");
 
         if (rel.subjectId === currentUser.id) {
@@ -421,10 +422,37 @@ const renderMembers = async (fileId) => {
   }
 };
 
-function dominance(relations) {
-  if (relations.length === 1) {
-    return relations[0];
-  }
+// calculate weight of all roles and return "strongest"
+function dominance(files) {
 
-  // calculate weight of all roles and return "strongest"
+//  weights for individual actions
+const actionWeights = {
+  view: 1,
+  comment: 2,
+  edit: 3,
+  create_child: 4,
+  share: 5,
+  delete: 10,
+  delete_folder: 12,
+};
+
+
+  //if (files.relations.length === 1) {
+  //  return files.relations[0];
+  //}
+
+  let strongest = files.relations[0];
+  let maxscore = 0;
+
+  files.relations.forEach((relation) =>{
+    const score = (files.actionsByRelation[relation] ?? []).reduce((sum, action) => sum + (actionWeights[action] ?? 0), 0);
+    
+    if (score > maxscore) {
+      maxscore = score;
+      strongest = relation;
+    }
+
+  });
+
+  return strongest;
 }

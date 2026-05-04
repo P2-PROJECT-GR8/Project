@@ -329,14 +329,15 @@ app.get("/api/folderContent", async (req, res) => {
 
   // get actions for a relation to send along aswell
   userRelations.forEach((element, index) => {
+    const objectType = element.objectId.split(":")[0];
+
     element.actionsByRelation = {};
 
     element.relations.forEach((rel) => {
       element.actionsByRelation[rel] =
-        db.data.schema["file"].relations?.[rel] ?? [];
+        db.data.schema[objectType].relations?.[rel] ?? [];
     });
   });
-  console.log(userRelations);
 
   res.json({ files: userRelations });
 });
