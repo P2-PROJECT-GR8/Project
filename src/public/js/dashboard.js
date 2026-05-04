@@ -61,6 +61,8 @@ function renderFiles(files) {
       const listItem = document.createElement("div");
       listItem.className = "listitem";
       listItem.dataset.fileId = file.objectId;
+      // only show strongest relation not all of them
+      console.log(file.relations);
       listItem.dataset.relations = (file.relations || []).join(",");
 
       const fileType = file.objectId.split(":")[0];
@@ -370,6 +372,8 @@ const renderMembers = async (fileId) => {
         const formattedRelations = rel.relations.map((str) => {
           return str.charAt(0).toUpperCase() + str.slice(1);
         });
+
+        // maybe noly display strognest relation here aswell. might be usefull for suer to be able to see all relations to their file.
         relation.innerText = formattedRelations.join(", ");
 
         if (rel.subjectId === currentUser.id) {
@@ -416,3 +420,11 @@ const renderMembers = async (fileId) => {
     // console.log(res.body);
   }
 };
+
+function dominance(relations) {
+  if (relations.length === 1) {
+    return relations[0];
+  }
+
+  // calculate weight of all roles and return "strongest"
+}

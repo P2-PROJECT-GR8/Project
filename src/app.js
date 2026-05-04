@@ -326,6 +326,18 @@ app.get("/api/folderContent", async (req, res) => {
   } else {
     return res.status(403).send({ message: "No access to this folder" });
   }
+
+  // get actions for a relation to send along aswell
+  userRelations.forEach((element, index) => {
+    element.actionsByRelation = {};
+
+    element.relations.forEach((rel) => {
+      element.actionsByRelation[rel] =
+        db.data.schema["file"].relations?.[rel] ?? [];
+    });
+  });
+  console.log(userRelations);
+
   res.json({ files: userRelations });
 });
 
