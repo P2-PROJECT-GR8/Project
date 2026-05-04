@@ -3,6 +3,151 @@ import { validateString } from "./utils.js";
 
 renderHeader();
 
+// renders an overview of all users within the system
+async function renderAdminUSerList() {
+  //Qol
+  const header = document.getElementById("allFilesHeader");
+  header.innerText = "All users";
+  const headerdescription = document.getElementById("allFIlesHeaderText");
+  headerdescription.innerText =
+    "here you will find an ovewrview of all users and their relations";
+
+  const res = await fetch("/api/userNames", { credentials: "include" });
+  const { userNames } = await res.json();
+
+  const fileList = document.getElementById("filesList");
+  fileList.innerHTML = "";
+
+  userNames.forEach((userName) => {
+    if (userName === "Admin") {
+      return;
+    }
+    const item = document.createElement("div");
+    item.className = "listitem admin-user";
+    item.dataset.userId = `user:${userName.toLowerCase()}`;
+
+    item.innerText = userName;
+    item.addEventListener("click", () => {
+      renderAdminFilesForUser(item.dataset.userId);
+    });
+
+    fileList.appendChild(item);
+  });
+}
+
+// aquires list of files to be rendered for the provided userId
+async function renderAdminFilesForUser(userId) {
+  //Qol
+  const header = document.getElementById("allFilesHeader");
+  header.innerText = `${userId.split(":")[1]}'s files`;
+  const headerdescription = document.getElementById("allFIlesHeaderText");
+  headerdescription.innerText = `here you will find an overview of ${userId.split(":")[1]}'s relations`;
+
+  const res = await fetch(`/api/adminFiles?userId=${userId}`, {
+    credentials: "include",
+  });
+  const { files } = await res.json();
+
+  renderFiles(files);
+}
+
+// renders received filelist to dahsboard
+function renderFiles(files) {
+  const filesList = document.getElementById("filesList");
+  filesList.innerHTML = "";
+
+  if (files.length > 0) {
+    files.forEach((file) => {
+      const listItem = document.createElement("div");
+      listItem.className = "listitem";
+      listItem.dataset.fileId = file.objectId;
+      listItem.dataset.relations = (file.relations || []).join(",");
+
+      const fileType = file.objectId.split(":")[0];
+      const icon = document.createElement("i");
+      icon.className = "material-icons type";
+      switch (fileType) {
+        case "folder":
+          icon.innerText = "folder";
+          listItem.addEventListener("click", (event) => {
+            const isMoreBtn = event.target.closest(".more-btn");
+            if (isMoreBtn) return;
+
+            navigateToFolder(file.objectId);
+            console.log("Clicked on folder ", listItem.dataset.fileId);
+          });
+          break;
+        case "file":
+          icon.innerText = "article";
+          break;
+        default:
+          icon.innerText = "question_mark";
+          break;
+      }
+
+      const itemTitle = document.createElement("div");
+      itemTitle.className = "item-title";
+
+      const h3 = document.createElement("h3");
+      h3.innerText = file.objectId.split(":")[1];
+
+      const p = document.createElement("p");
+      p.innerText = "Updated by User - 2 Hours ago";
+
+      itemTitle.appendChild(h3);
+      itemTitle.appendChild(p);
+
+      const relation = document.createElement("div");
+      relation.className = "relation";
+      relation.innerText = (file.relations || []).join(", ").toUpperCase();
+
+      const moreLink = document.createElement("a");
+      moreLink.href = "#";
+      const moreIcon = document.createElement("i");
+      moreIcon.className = "material-icons more-btn";
+      moreIcon.innerText = "more_vert";
+      moreLink.appendChild(moreIcon);
+
+      listItem.appendChild(icon);
+      listItem.appendChild(itemTitle);
+      listItem.appendChild(relation);
+      listItem.appendChild(moreLink);
+
+      filesList.appendChild(listItem);
+    });
+  }
+}
+
+// renders all of a users files
+async function renderFileListForUser(folderId = "") {
+  if (!folderId) {
+    const url = new URL(window.location);
+    folderId = url.searchParams.get("folderId") || "";
+  }
+  const res = await fetch(
+    `/api/folderContent?folderId=${encodeURIComponent(folderId)}`,
+    {
+      credentials: "include",
+    },
+  );
+  const { files } = await res.json();
+  renderFiles(files);
+}
+
+async function navigateToFolder(folderId) {
+  const url = new URL(window.location);
+  const newParam = folderId;
+  url.searchParams.set("folderId", newParam);
+  window.history.pushState({}, "", url);
+  renderFileListForUser(newParam);
+}
+
+window.addEventListener("popstate", () => {
+  const url = new URL(window.location);
+  const param = url.searchParams.get("folderId") || "";
+  renderFileListForUser(param);
+});
+
 function showPage(pageId) {
   // Deactivate all content pages
   document.querySelectorAll(".page").forEach((page) => {
@@ -60,12 +205,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     const data = new FormData(createNewForm);
     const formObject = Object.fromEntries(data);
     if (validateString(formObject.name)) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const parentFolder = urlParams.get("folderId") || "";
+
       const res = await fetch("/api/createNew", {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           objectId: `${formObject.type}:${formObject.name}`,
+          parentFolder: parentFolder,
         }),
       });
       const resData = await res.json();
@@ -74,7 +223,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       } else {
         createNewForm.reset();
         createNewModal.close();
-        await renderFileListForUSer(currentUser.id);
+        const url = new URL(window.location);
+        const param = url.searchParams.get("folderId") || "";
+        await renderFileListForUser(param);
       }
     } else {
       createNewErrorMsg.innerText =
@@ -102,75 +253,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   });
 
-  // load dahsboard
-  renderFileListForUSer(currentUser.id);
-
-  // renders all of a users files
-  async function renderFileListForUSer(userId) {
-    const res = await fetch("/files", {
-      credentials: "include",
-    });
-    const { files } = await res.json();
-    renderFiles(files);
-  }
-
-  // renders received filelist to dahsboard
-  function renderFiles(files) {
-    filesList.innerHTML = "";
-
-    if (files.length > 0) {
-      files.forEach((file) => {
-        const listItem = document.createElement("div");
-        listItem.className = "listitem";
-        listItem.dataset.fileId = file.objectId;
-        listItem.dataset.relations = file.relations;
-
-        const fileType = file.objectId.split(":")[0];
-        const icon = document.createElement("i");
-        icon.className = "material-icons type";
-        switch (fileType) {
-          case "folder":
-            icon.innerText = "folder";
-            break;
-          case "file":
-            icon.innerText = "article";
-            break;
-          default:
-            icon.innerText = "question_mark";
-            break;
-        }
-
-        const itemTitle = document.createElement("div");
-        itemTitle.className = "item-title";
-
-        const h3 = document.createElement("h3");
-        h3.innerText = file.objectId.split(":")[1];
-
-        const p = document.createElement("p");
-        p.innerText = "Updated by User - 2 Hours ago";
-
-        itemTitle.appendChild(h3);
-        itemTitle.appendChild(p);
-
-        const relation = document.createElement("div");
-        relation.className = "relation";
-        relation.innerText = file.relations.join(", ").toUpperCase();
-
-        const moreLink = document.createElement("a");
-        moreLink.href = "#";
-        const moreIcon = document.createElement("i");
-        moreIcon.className = "material-icons more-btn";
-        moreIcon.innerText = "more_vert";
-        moreLink.appendChild(moreIcon);
-
-        listItem.appendChild(icon);
-        listItem.appendChild(itemTitle);
-        listItem.appendChild(relation);
-        listItem.appendChild(moreLink);
-
-        filesList.appendChild(listItem);
-      });
-    }
+  // loads either defualt dashboard or admin dashboard
+  const adminRes = await fetch("/api/isAdmin");
+  if (adminRes.ok) {
+    // any HTML changes needed for admin should be done here
+    await renderAdminUSerList();
+  } else {
+    await renderFileListForUser();
   }
 
   let selectedFile;
@@ -234,7 +323,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const item = btn.closest(".listitem");
     const { fileId, relations } = item.dataset;
-    selectedFile = item.dataset.fileId;
+    selectedFile = fileId;
 
     const relationsArray = relations ? relations.split(",") : [];
     const inviteContainer = document.getElementById("invite-container");
@@ -327,33 +416,3 @@ const renderMembers = async (fileId) => {
     // console.log(res.body);
   }
 };
-
-// Create folder button
-// document
-//   .getElementById("confirm-create-folder")
-//   .addEventListener("click", async () => {
-//     const folderName = document.getElementById("folder-name-input").value;
-//     const folderError = document.getElementById("folder-error");
-
-//     if (!folderName) {
-//       folderError.innerText = "Please enter a folder name.";
-//       return;
-//     }
-
-//     const res = await fetch("/api/newFolder", {
-//       method: "POST",
-//       credentials: "include",
-//       headers: { "Content-Type": "application/json" },
-//       body: JSON.stringify({ folderName: folderName.toLowerCase() }),
-//     });
-
-//     if (res.ok) {
-//       modal_container.classList.remove("show");
-//       document.getElementById("folder-name-input").value = "";
-//       folderError.innerText = "";
-//       location.reload();
-//     } else {
-//       const data = await res.json();
-//       alert(data.message);
-//     }
-//   });
