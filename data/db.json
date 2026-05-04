@@ -92,6 +92,30 @@
           "subjectId": "user:magnus",
           "relation": "owner"
         }
+      ],
+      "file:asdfgh": [
+        {
+          "subjectId": "user:emil",
+          "relation": "owner"
+        }
+      ],
+      "file:fghj": [
+        {
+          "subjectId": "user:emil",
+          "relation": "owner"
+        }
+      ],
+      "file:fg45": [
+        {
+          "subjectId": "user:emil",
+          "relation": "owner"
+        }
+      ],
+      "file:rtyrt": [
+        {
+          "subjectId": "user:emil",
+          "relation": "owner"
+        }
       ]
     },
     "bySubject": {
@@ -139,6 +163,22 @@
         {
           "relation": "owner",
           "objectId": "file:Earnings.pdf"
+        },
+        {
+          "relation": "owner",
+          "objectId": "file:asdfgh"
+        },
+        {
+          "relation": "owner",
+          "objectId": "file:fghj"
+        },
+        {
+          "relation": "owner",
+          "objectId": "file:fg45"
+        },
+        {
+          "relation": "owner",
+          "objectId": "file:rtyrt"
         }
       ],
       "user:alice": [

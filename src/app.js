@@ -493,12 +493,14 @@ app.post("/api/deleteFile", async (req, res) =>{
   try{
   await db.read();
 
-  const isOwner = db.data.tupleStore.byObject[objectId]?.some(
-    (tuple) => tuple.subjectId === currentUser.id && tuple.relation === "owner"
+  const canDelete = await accessControl.can(
+    currentUser.name,
+    "delete",
+    objectId,
   );
 
-  if(!isOwner){
-    res.status(403).send({message: "only owners can delete files"})
+  if(!canDelete){
+    return res.status(403).send({message: "You are not authorized to delete files"})
   }
   // call the deletefile function for this objectId
   await accessControl.deleteFile(objectId)

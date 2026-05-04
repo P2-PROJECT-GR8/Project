@@ -309,22 +309,6 @@ document.getElementById("file-details").close();
 
 })
 const changedRelation = new Map();
-/*
-const renderTempMembers = async (fileId) => {
-  const membersList = document.getElementById("members");
-  membersList.innerHTML = "";
-  members.forEach((rel) => {
-    const member = document.createElement("div");
-    member.className = "member";
-    const user = document.createElement("p");
-    const userName = rel.subjectId.split(":")[1];
-    user.innerText = userName.charAt(0).toUpperCase() + userName.slice(1);
-    member.appendChild(user);
-    member.appendChild(relation);
-    membersList.appendChild(member);
-  });
-};
-*/
 let tempMembers=[];
 let originalTempMembers = [];
 let deletedUsers = [];
@@ -352,7 +336,7 @@ if (!tempModified && tempMembers.length === 0) {
     const { relatedUsers } = await res.json();
     tempMembers = relatedUsers.map(u => ({...u, relation: normalizeRelations(u.relations)
 }));
-// store "original members" i.e. the memebers fetched sepereately
+// store "original members" i.e. the memebers fetched separately
 // This matters when updating the database
     originalTempMembers = relatedUsers.map(u => ({...u, relation: normalizeRelations(u.relations)
 }));
@@ -485,8 +469,6 @@ if (!tempModified && tempMembers.length === 0) {
       }
         membersList.appendChild(member);
       });
-    } else {
-    console.log(res.body);
     }
 
   };
@@ -650,25 +632,19 @@ createRelSubmit.addEventListener("click", async (e) => {
 
 const deleteFileBtn = document.getElementById("delete-file");
 deleteFileBtn.addEventListener("click", async (event) =>{
-  //confirm in pop up before deleting
-  if (!confirm){
+
+  event.preventDefault();
+
+  if(!confirm("Delete File?")){
     return
   }
-  event.preventDefault();
 
   if (!selectedFile) {
     alert("No file selected to delete");
     return;
   }
 
-  const currentUser = await getCurrentUser();
 
-  // disable button for non owners, css later to make it clear in the ui
-
-  if(!currentUser?.relations?.includes("owner")){
-    deleteFileBtn.disabled=true;
-  return
-  }
   //send the file attempted to be deleted to the server
   const res = await fetch("/api/deleteFile", {
     method: "POST",
@@ -684,15 +660,4 @@ deleteFileBtn.addEventListener("click", async (event) =>{
     const data = await res.json();
     alert("Error: " + data.message);
   }
-})
-/*
-<div class="listitem">
-  <i class="material-icons type">article</i>
-  <div class="item-title">
-    <h3>Project.pdf</h3>
-    <p>Updated by User - 2 Hours ago</p>
-  </div>
-  <div class="relation">OWNER</div>
-  <a href="#"><i class="material-icons">more_vert</i></a>
-</div>
-*/
+});
