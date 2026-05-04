@@ -275,7 +275,7 @@ app.get("/api/folderContent", async (req, res) => {
   await db.read();
   if (folderId === "") {
     // For the root view, get all direct relations for the user.
-    const directUserRelations = db.data.tupleStore.bySubject[currentUser.id];
+    const directUserRelations = db.data.tupleStore.bySubject[currentUser.id]||[];
     const grouped = directUserRelations.reduce((acc, tuple) => {
       const oid = tuple.objectId;
 

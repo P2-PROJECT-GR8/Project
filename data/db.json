@@ -122,6 +122,22 @@
           "subjectId": "folder:deep_nest",
           "relation": "parent"
         }
+      ],
+      "file:ny_fil": [
+        {
+          "subjectId": "user:alice",
+          "relation": "owner"
+        },
+        {
+          "subjectId": "user:emil",
+          "relation": "viewer"
+        }
+      ],
+      "file:nyere_fil": [
+        {
+          "subjectId": "user:emil",
+          "relation": "owner"
+        }
       ]
     },
     "bySubject": {
@@ -149,10 +165,6 @@
           "objectId": "file:1"
         },
         {
-          "relation": "editor",
-          "objectId": "file:Earnings.pdf"
-        },
-        {
           "relation": "viewer",
           "objectId": "file:Project.pdf"
         },
@@ -163,34 +175,6 @@
         {
           "relation": "lastviewer",
           "objectId": "file:Project.pdf"
-        }
-      ],
-      "user:emil": [
-        {
-          "relation": "owner",
-          "objectId": "file:Earnings.pdf"
-        },
-        {
-          "relation": "owner",
-          "objectId": "file:asdfgh"
-        },
-        {
-          "relation": "owner",
-          "objectId": "file:fghj"
-        },
-        {
-          "relation": "owner",
-          "objectId": "file:fg45"
-        },
-        {
-          "relation": "owner",
-          "objectId": "file:rtyrt"
-        }
-      ],
-      "user:alice": [
-        {
-          "relation": "viewer",
-          "objectId": "file:Earnings.pdf"
         }
       ],
       "user:bob": [
@@ -229,6 +213,22 @@
         {
           "relation": "parent",
           "objectId": "file:deep_file"
+        }
+      ],
+      "user:alice": [
+        {
+          "relation": "owner",
+          "objectId": "file:ny_fil"
+        }
+      ],
+      "user:emil": [
+        {
+          "relation": "viewer",
+          "objectId": "file:ny_fil"
+        },
+        {
+          "relation": "owner",
+          "objectId": "file:nyere_fil"
         }
       ]
     }

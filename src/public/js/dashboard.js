@@ -283,7 +283,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const newMember = inviteInput.value.toLowerCase();
         if (!selectedFile) throw new Error("No selected file");
 
-        tempMembers.push({ subjectId: `user:${newMember}`, relations: ["viewer"], objectId: selectedFile });
+        tempMembers.push({ subjectId: `user:${newMember}`, relations: "viewer", objectId: selectedFile });
         tempModified = true;
       }
       renderMembers(selectedFile);
@@ -322,7 +322,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     changedRelation.clear();
     tempModified = false;
 
-    const relationsArray = normalizeRelations(relations);
+    const relationsArray = relations ? relations.split(",") : [];
 
     const inviteContainer = document.getElementById("invite-container");
     console.log(relationsArray);
@@ -394,12 +394,6 @@ let tempMembers=[];
 let originalTempMembers = [];
 let deletedUsers = [];
 let tempModified = false;
-function normalizeRelations(rel) {
-  if (!rel) return [];
-  if (Array.isArray(rel)) return rel;
-  if (typeof rel === "string") return rel.split(",").map(r => r.trim());
-  return [];
-}
 
 const renderMembers = async (fileId) => {
   const membersList = document.getElementById("members");
@@ -415,13 +409,17 @@ if (!tempModified && tempMembers.length === 0) {
 // store the members in an array that can be changed without fetching
   if (res.ok) {
     const { relatedUsers } = await res.json();
-    tempMembers = relatedUsers.map(u => ({...u, relations: normalizeRelations(u.relations)
+    tempMembers = relatedUsers.map(u => ({...u, relations: Array.isArray(u.relations) ? u.relations : [u.relations]
 }));
 // store "original members" i.e. the memebers fetched separately
-    originalTempMembers = relatedUsers.map(u => ({...u, relations: normalizeRelations(u.relations)
+    originalTempMembers = relatedUsers.map(u => ({...u, relations:Array.isArray(u.relations) ? u.relations : [u.relations]
 }));
   }
 }
+    const schemaRes = await fetch("/api/schema", { credentials: "include" });
+      const schema = await schemaRes.json();
+      window.schema = schema;
+      disableDelete();
     // check if tempmember contains the userlist
     if (tempMembers && tempMembers.length > 0) {
       //checking if the current member owns the file
@@ -430,9 +428,6 @@ if (!tempModified && tempMembers.length === 0) {
           rel.relations.includes("owner") && rel.subjectId === currentUser.id,
       );
 
-      const schemaRes = await fetch("/api/schema", { credentials: "include" });
-      const schema = await schemaRes.json();
-      window.schema = schema;
       //create a div element for each member to be displayed 
       tempMembers.forEach((rel) => {
         const member = document.createElement("div");
@@ -474,10 +469,10 @@ if (!tempModified && tempMembers.length === 0) {
           if (rel.relations.includes(assignedRel)) return;
 
         changedRelation.set(rel.subjectId, {
-          oldRel: rel.relations,
+          oldRel: [...rel.relations],
           newRel: assignedRel
         });
-        rel.relations = assignedRel;
+        rel.relations = [assignedRel];
         });
         member.appendChild(user);
         member.appendChild(relationSel);
@@ -550,7 +545,6 @@ if (!tempModified && tempMembers.length === 0) {
         membersList.appendChild(member);
       });
     }
-
   };
 
 // add eventlistener to the costum relations link/button
@@ -724,7 +718,6 @@ deleteFileBtn.addEventListener("click", async (event) =>{
     return;
   }
 
-
   //send the file attempted to be deleted to the server
   const res = await fetch("/api/deleteFile", {
     method: "POST",
@@ -740,3 +733,18 @@ deleteFileBtn.addEventListener("click", async (event) =>{
     alert("Error: " + data.message);
   }
 });
+
+const disableDelete = async ()=>{
+const currentUser = await getCurrentUser();
+  if (!window.schema) {
+  console.log("Schema not loaded yet");
+  return;
+  }
+  const userEntry = await tempMembers.find(rel => rel.subjectId === currentUser.id);
+  const userRelations = userEntry ? userEntry.relations : [];
+
+  const canDelete = await userRelations.some(rel => 
+  window.schema?.file?.relations?.[rel]?.includes("delete")
+  );
+  deleteFileBtn.disabled=!canDelete
+}
