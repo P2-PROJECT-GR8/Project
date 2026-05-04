@@ -93,28 +93,34 @@
           "relation": "owner"
         }
       ],
-      "file:asdfgh": [
+      "folder:nest1": [
         {
-          "subjectId": "user:emil",
-          "relation": "owner"
+          "subjectId": "folder:admin",
+          "relation": "parent"
         }
       ],
-      "file:fghj": [
+      "file:nestedfile": [
         {
-          "subjectId": "user:emil",
-          "relation": "owner"
+          "subjectId": "folder:nest1",
+          "relation": "parent"
         }
       ],
-      "file:fg45": [
+      "file:test123": [
         {
-          "subjectId": "user:emil",
-          "relation": "owner"
+          "subjectId": "folder:admin",
+          "relation": "parent"
         }
       ],
-      "file:rtyrt": [
+      "folder:deep_nest": [
         {
-          "subjectId": "user:emil",
-          "relation": "owner"
+          "subjectId": "folder:nest1",
+          "relation": "parent"
+        }
+      ],
+      "file:deep_file": [
+        {
+          "subjectId": "folder:deep_nest",
+          "relation": "parent"
         }
       ]
     },
@@ -197,6 +203,32 @@
         {
           "relation": "owner",
           "objectId": "folder:tester"
+        }
+      ],
+      "folder:admin": [
+        {
+          "relation": "parent",
+          "objectId": "folder:nest1"
+        },
+        {
+          "relation": "parent",
+          "objectId": "file:test123"
+        }
+      ],
+      "folder:nest1": [
+        {
+          "relation": "parent",
+          "objectId": "file:nestedfile"
+        },
+        {
+          "relation": "parent",
+          "objectId": "folder:deep_nest"
+        }
+      ],
+      "folder:deep_nest": [
+        {
+          "relation": "parent",
+          "objectId": "file:deep_file"
         }
       ]
     }

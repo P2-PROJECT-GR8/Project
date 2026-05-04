@@ -5,6 +5,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { JSONFilePreset } from "lowdb/node";
 import { AccessControl } from "./routes/access.js";
+import { send } from "process";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -249,23 +250,82 @@ app.post("/logout", (req, res) => {
   }
 });
 
-app.get("/files", async (req, res) => {
-  const token = req.cookies.sessionToken;
-  if (!token) {
-    return res.status(401).send({ message: "Unauthorized" });
-  }
-
+app.get("/api/files", async (req, res) => {
+  let currentUser;
   try {
-    const decoded = jwt.verify(token, SECRET_KEY);
-    const userId = decoded.userId;
-
-    const userRelations = await accessControl.getUserRelations(userId);
-    // console.log(userRelations);
-
-    res.json({ files: userRelations });
+    currentUser = getUser(req);
   } catch (error) {
-    res.status(401).send({ message: "Invalid session" });
+    return res.status(401).send({ message: "Invalid session" });
   }
+  const userRelations = await accessControl.getUserRelations(currentUser.id);
+  res.json({ files: userRelations });
+});
+
+app.get("/api/folderContent", async (req, res) => {
+  let currentUser;
+  try {
+    currentUser = getUser(req, res);
+  } catch (error) {
+    return res.status(401).send({ message: "Invalid session" });
+  }
+
+  const folderId = req.query.folderId || "";
+  let userRelations = [];
+
+  await db.read();
+  if (folderId === "") {
+    // For the root view, get all direct relations for the user.
+    const directUserRelations = db.data.tupleStore.bySubject[currentUser.id];
+    const grouped = directUserRelations.reduce((acc, tuple) => {
+      const oid = tuple.objectId;
+
+      if (!acc[oid]) {
+        acc[oid] = {
+          objectId: oid,
+          relations: [],
+        };
+      }
+
+      // Only add relation if list already exists
+      if (!acc[oid].relations.includes(tuple.relation)) {
+        acc[oid].relations.push(tuple.relation);
+      }
+
+      return acc;
+    }, {});
+    // Convert to array
+    userRelations = Object.values(grouped);
+  } else if (await accessControl.can(currentUser.id, "view", folderId)) {
+    const rawContent = db.data.tupleStore.bySubject[folderId] || [];
+
+    const grouped = {};
+    for (const tuple of rawContent) {
+      const oid = tuple.objectId;
+      const inheritedRelations = await accessControl.expandUserRelations(
+        currentUser.id,
+        oid,
+      );
+
+      if (!grouped[oid]) {
+        grouped[oid] = {
+          objectId: oid,
+          relations: [],
+        };
+      }
+
+      inheritedRelations.forEach((rel) => {
+        if (!grouped[oid].relations.includes(rel)) {
+          grouped[oid].relations.push(rel);
+        }
+      });
+    }
+
+    userRelations = Object.values(grouped);
+    console.log(userRelations);
+  } else {
+    return res.status(403).send({ message: "No access to this folder" });
+  }
+  res.json({ files: userRelations });
 });
 
 app.post("/api/createNew", async (req, res) => {
@@ -277,19 +337,33 @@ app.post("/api/createNew", async (req, res) => {
     return res.status(401).send({ message: "User not authenticated" });
   }
 
-  const { objectId } = req.body;
+  const { objectId, parentFolder } = req.body;
   const objectType = objectId.split(":")[0];
+
+  await db.read();
+  if (Object.hasOwn(db.data.tupleStore.byObject, objectId)) {
+    return res
+      .status(409)
+      .send({ message: "An object with this ID already exists." });
+  }
 
   if (
     objectType === "folder" ||
     objectType === "file" ||
     objectType === "group"
   ) {
-    await db.read();
-    if (Object.hasOwn(db.data.tupleStore.byObject, objectId)) {
-      return res
-        .status(409)
-        .send({ message: "An object with this ID already exists." });
+    if (parentFolder) {
+      if (accessControl.can(currentUser.id, "create_child", parentFolder)) {
+        await accessControl.addTuple(parentFolder, "parent", objectId);
+        return res
+          .status(201)
+          .send({ message: "Object created successfully!" });
+      } else {
+        return res.status(403).send({
+          message:
+            "User does not have permission to create objects within this folder",
+        });
+      }
     } else {
       await accessControl.addTuple(currentUser.id, "owner", objectId);
       return res.status(201).send({ message: "Object created successfully!" });
@@ -308,7 +382,7 @@ app.post("/api/newTuple", async (req, res) => {
     return res.status(401).send({ message: "User not authenticated" });
   }
   const { objectId, relation, subjectId } = req.body;
-  const canShare = await accessControl.can(currentUser.name, "share", objectId);
+  const canShare = await accessControl.can(currentUser.id, "share", objectId);
   if (!canShare) {
     return res
       .status(403)
@@ -369,11 +443,7 @@ app.post("/api/deleteTuple", async (req, res) => {
     return res.status(401).send({ message: "User not authenticated" });
   }
   // Check if current user is athorized to delete relations
-  const canDelete = await accessControl.can(
-    currentUser.name,
-    "delete",
-    objectId,
-  );
+  const canDelete = await accessControl.can(currentUser.id, "delete", objectId);
   if (!canDelete) {
     return res
       .status(403)
@@ -455,7 +525,7 @@ app.get("/api/adminRelations", async (req, res) => {
   } catch (error) {
     return res.status(401).send({ message: "Invalid session" });
   }
-}); 
+});
 
 app.post("/api/newRelationType", async (req, res)=>{
   let currentUser;
@@ -567,6 +637,26 @@ app.get("/api/userNames", (req, res) => {
   res.send({ userNames: userNames });
 });
 
+// Create a new folder
+app.post("/api/newFolder", async (req, res) => {
+  let currentUser;
+  try {
+    currentUser = getUser(req);
+  } catch (err) {
+    return res.status(401).send({ message: "User not authenticated" });
+  }
+
+  const { folderName } = req.body;
+
+  if (!folderName) {
+    return res.status(400).send({ message: "Folder name is required" });
+  }
+
+  accessControl.addTuple(currentUser.id, "owner", `folder:${folderName}`);
+
+  res.status(201).send({ message: "Folder created successfully" });
+});
+
 // return the list of files for the provided userId if user is admin
 app.get("/api/adminFiles", async (req, res) => {
   const token = req.cookies.sessionToken;
@@ -598,9 +688,10 @@ app.get("/api/isAdmin", async (req, res) => {
   }
 
   if (getUser(req).id !== "user:admin") {
-    return res.status(403).send({ messeage: "not admin" });
+    return res.status(403).send({ message: "not admin" });
+  } else {
+    return (res.status(200), send());
   }
-  res.json({ status: true });
 });
 
 app.listen(3000, () => {

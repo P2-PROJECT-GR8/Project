@@ -44,14 +44,13 @@ class AccessControl {
 
   /**
    * Checks if a user can perform a specific action on an object.
-   * @param {string} userName - The name of the user (e.g., 'alice').
+   * @param {string} userId - The ID of the user (e.g., 'user:alice').
    * @param {string} action - The action to be performed (e.g., 'read', 'write').
    * @param {string} objectId - The ID of the object (e.g., 'file:1').
    * @returns {Promise<boolean>} - Whether a user can perform an action.
    * @memberof AccessControl
    */
-  async can(userName, action, objectId) {
-    const userId = `user:${userName}`;
+  async can(userId, action, objectId) {
     // Get all relations this user has to an object
     const relations = await this.expandUserRelations(userId, objectId);
     // Find the type of object the user is trying to access
