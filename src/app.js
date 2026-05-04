@@ -564,7 +564,7 @@ app.post("/api/deleteFile", async (req, res) =>{
   await db.read();
 
   const canDelete = await accessControl.can(
-    currentUser.name,
+    currentUser.id,
     "delete",
     objectId,
   );

@@ -233,15 +233,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       createNewErrorMsg.innerText =
         'Please only use letters, numbers and symbols like: ".-_"';
     }
-    if (res.ok) {
-    modal_container.classList.remove("show");
-    document.getElementById("folder-name-input").value = "";
-    folderError.innerText = "";
-    location.reload();
-    } else {
-      const data = await res.json();
-      alert(data.message);
-    }
   });
 
   // Set the initial active page
@@ -292,7 +283,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const newMember = inviteInput.value.toLowerCase();
         if (!selectedFile) throw new Error("No selected file");
 
-        tempMembers.push({ subjectId: `user:${newMember}`, relations: "viewer", objectId: selectedFile });
+        tempMembers.push({ subjectId: `user:${newMember}`, relations: ["viewer"], objectId: selectedFile });
         tempModified = true;
       }
       renderMembers(selectedFile);
@@ -375,9 +366,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   }),
 });
 
+const resData = await res.json();
+
 if (!res.ok) {
-  const data = await res.json();
-  alert("Error: " + data.message);
+  alert("Error: " + resData.message);
   return;
 }
 
@@ -423,11 +415,10 @@ if (!tempModified && tempMembers.length === 0) {
 // store the members in an array that can be changed without fetching
   if (res.ok) {
     const { relatedUsers } = await res.json();
-    tempMembers = relatedUsers.map(u => ({...u, relation: normalizeRelations(u.relations)
+    tempMembers = relatedUsers.map(u => ({...u, relations: normalizeRelations(u.relations)
 }));
 // store "original members" i.e. the memebers fetched separately
-// This matters when updating the database
-    originalTempMembers = relatedUsers.map(u => ({...u, relation: normalizeRelations(u.relations)
+    originalTempMembers = relatedUsers.map(u => ({...u, relations: normalizeRelations(u.relations)
 }));
   }
 }
@@ -743,7 +734,6 @@ deleteFileBtn.addEventListener("click", async (event) =>{
   })
   
   if (res.ok) {
-    alert("File deleted");
     location.reload();
   } else {
     const data = await res.json();
