@@ -720,16 +720,12 @@ const deleteFileBtn = document.getElementById("delete-file");
 deleteFileBtn.addEventListener("click", async (event) =>{
 
   event.preventDefault();
-
-  if(!confirm("Delete File?")){
-    return
-  }
+  console.log("knap trykket")
 
   if (!selectedFile) {
     alert("No file selected to delete");
     return;
   }
-
   //send the file attempted to be deleted to the server
   const res = await fetch("/api/deleteFile", {
     method: "POST",
@@ -737,7 +733,6 @@ deleteFileBtn.addEventListener("click", async (event) =>{
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ objectId: selectedFile })
   })
-  console.log(res)
   if (res.ok) {
     location.reload();
   } else {
