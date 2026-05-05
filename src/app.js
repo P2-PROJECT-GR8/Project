@@ -481,12 +481,34 @@ app.post("/api/saveAllChanges", async (req, res) => {
     return res.status(401).send({ message: "User not authenticated" });
   }
   try {
+    const canShare = accessControl.can(currentUser.id, "share", objectId)
+    const canDelete = accessControl.can(currentUser.id, "delete", objectId)
+    const canEdit = accessControl.can(currentUser.id, "edit", objectId)
+    if(addRel.length>0){
+      if(!canShare){
+        return res.status(403).send({ message: "Not authorized to share!" });
+      }
+    }
+    if(deleteRel.length > 0){
+      if(!canDelete){
+        return res.status(403).send({ message: "Not authorized to revoke users' access!" });
+      }
+
+    }
+    if(updateRel.length > 0){
+      if(!canEdit){
+        return res.status(403).send({ message: "Not authorized to edit users' relations!" });
+      }
+    }
+    /*
     const isOwner = db.data.tupleStore.byObject[objectId]?.some(
     (tuple) => tuple.subjectId === currentUser.id && tuple.relation === "owner"
     );
     if (!isOwner) {
       return res.status(403).send({ message: "Not authorized" });
     }
+      */
+
     //delete users
     for (const { subjectId } of deleteRel) {
     const tuples = [...(db.data.tupleStore.bySubject[subjectId] || [])];

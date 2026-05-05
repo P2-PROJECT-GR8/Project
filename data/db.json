@@ -25,6 +25,10 @@
         "lastviewer": [
           "view",
           "delete"
+        ],
+        "sharer": [
+          "view",
+          "share"
         ]
       }
     },
@@ -117,34 +121,34 @@
           "relation": "parent"
         }
       ],
-      "folder:testerfolder": [
+      "folder:folderTester": [
         {
           "subjectId": "user:emil",
           "relation": "owner"
+        },
+        {
+          "subjectId": "user:jeff",
+          "relation": "sharer"
         }
       ],
-      "folder:testingtesting": [
+      "folder:nestedTester": [
         {
-          "subjectId": "user:emil",
-          "relation": "owner"
-        }
-      ],
-      "folder:komnu": [
-        {
-          "subjectId": "user:emil",
-          "relation": "owner"
-        }
-      ],
-      "folder:proevemappe": [
-        {
-          "subjectId": "user:emil",
-          "relation": "owner"
-        }
-      ],
-      "file:proevefil": [
-        {
-          "subjectId": "folder:proevemappe",
+          "subjectId": "folder:folderTester",
           "relation": "parent"
+        },
+        {
+          "subjectId": "user:alice",
+          "relation": "viewer"
+        }
+      ],
+      "file:deepTester": [
+        {
+          "subjectId": "folder:nestedTester",
+          "relation": "parent"
+        },
+        {
+          "subjectId": "user:alice",
+          "relation": "viewer"
         }
       ]
     },
@@ -171,6 +175,10 @@
         {
           "relation": "viewer",
           "objectId": "file:testfil"
+        },
+        {
+          "relation": "sharer",
+          "objectId": "folder:folderTester"
         }
       ],
       "user:admin": [
@@ -209,6 +217,14 @@
         {
           "relation": "owner",
           "objectId": "file:ny_fil"
+        },
+        {
+          "relation": "viewer",
+          "objectId": "file:deepTester"
+        },
+        {
+          "relation": "viewer",
+          "objectId": "folder:nestedTester"
         }
       ],
       "user:emil": [
@@ -218,43 +234,19 @@
         },
         {
           "relation": "owner",
-          "objectId": "folder:testerfolder"
-        },
-        {
-          "relation": "owner",
-          "objectId": "folder:testingtesting"
-        },
-        {
-          "relation": "owner",
-          "objectId": "folder:komnu"
-        },
-        {
-          "relation": "owner",
-          "objectId": "folder:proevemappe"
+          "objectId": "folder:folderTester"
         }
       ],
-      "folder:testfolder": [
+      "folder:folderTester": [
         {
           "relation": "parent",
-          "objectId": "file:testfilifolder"
+          "objectId": "folder:nestedTester"
         }
       ],
-      "folder:folder": [
+      "folder:nestedTester": [
         {
           "relation": "parent",
-          "objectId": "file:fil_i_folder"
-        }
-      ],
-      "folder:foldertest": [
-        {
-          "relation": "parent",
-          "objectId": "file:virkplz"
-        }
-      ],
-      "folder:proevemappe": [
-        {
-          "relation": "parent",
-          "objectId": "file:proevefil"
+          "objectId": "file:deepTester"
         }
       ]
     }

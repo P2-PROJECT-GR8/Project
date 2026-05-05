@@ -322,17 +322,16 @@ class AccessControl {
 
     // Remove all relations to the file
     // The deleteTuple function delete when there are no more relations
-    const tuples = this.db.data.tupleStore.byObject[objectId]
     const objectType = objectId.split(":")[0];
     if(objectType === "folder"){
       const folderContent =
       this.db.data.tupleStore.bySubject[objectId] || [];
 
     for (const content of [...folderContent]) {
-      // Recursively delete children
+      // recursively delete children
       await this.deleteFile(content.objectId);
 
-      // Remove relation
+      // remove relation
       await this.deleteTuple(
         content.subjectId,
         content.relation,
@@ -340,7 +339,15 @@ class AccessControl {
       );
     }
   }
-}
+  const tuples = this.db.data.tupleStore.byObject[objectId]
+  for (const tuple of [...tuples]) {
+    await this.deleteTuple(
+      tuple.subjectId,
+      tuple.relation,
+      objectId
+    );
+  }
+  }
 }
 
 export { AccessControl };

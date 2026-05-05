@@ -784,5 +784,6 @@ function dominance(files) {
       strongest = relation;
     }
   });
+  console.log(strongest)
   return strongest;
 }
