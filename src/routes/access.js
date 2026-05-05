@@ -274,6 +274,7 @@ class AccessControl {
     this.db.read();
     const { bySubject } = this.db.data.tupleStore;
 
+    // dfs algortihm
     function DFS(currentNode, path, visited, depth) {
       // if depth exceeded return
       if (depth > maxDepth) {
@@ -314,7 +315,6 @@ class AccessControl {
 
     DFS(userId, [], new Set([userId]), 0);
     return paths;
-    // DFS algortihm
   }
 
   async deleteFile(objectId){

@@ -61,6 +61,7 @@ function renderFiles(files) {
       const listItem = document.createElement("div");
       listItem.className = "listitem";
       listItem.dataset.fileId = file.objectId;
+      console.log(file.relations);
       listItem.dataset.relations = (file.relations || []).join(",");
 
       const fileType = file.objectId.split(":")[0];
@@ -99,7 +100,8 @@ function renderFiles(files) {
 
       const relation = document.createElement("div");
       relation.className = "relation";
-      relation.innerText = (file.relations || []).join(", ").toUpperCase();
+      // display only strongest relation to user
+      relation.innerText = dominance(file).toUpperCase();
 
       const moreLink = document.createElement("a");
       moreLink.href = "#";
@@ -463,6 +465,14 @@ const renderMembers = async (fileId) => {
           relationSel.disabled = true;
         }
         // indicate which user you are
+        const relation = document.createElement("p");
+        const formattedRelations = rel.relations.map((str) => {
+          return str.charAt(0).toUpperCase() + str.slice(1);
+        });
+
+        // maybe show only strongest relation here aswell although maybe good thing that user can see all their relations to the object here
+        relation.innerText = formattedRelations.join(", ");
+
         if (rel.subjectId === currentUser.id) {
           user.innerText += " (You)";
           user.style.fontWeight = 600;
@@ -751,8 +761,37 @@ const currentUser = await getCurrentUser();
   const userEntry = tempMembers.find(rel => rel.subjectId === currentUser.id);
   const userRelations = userEntry ? userEntry.relations : [];
 
-  const canDelete = await userRelations.some(rel => 
+  const canDelete = await userRelations.some(rel => {
   window.schema?.file?.relations?.[rel]?.includes("delete")
-  );
+  });
   deleteFileBtn.disabled=!canDelete
+}
+// calculate weight of all roles and return "strongest"
+function dominance(files) {
+  //  weights for individual actions
+  const actionWeights = {
+    view: 1,
+    comment: 2,
+    edit: 3,
+    create_child: 4,
+    share: 5,
+    delete: 10,
+    delete_folder: 12,
+  };
+
+  let strongest = files.relations[0];
+  let maxscore = 0;
+
+  files.relations.forEach((relation) => {
+    const score = (files.actionsByRelation[relation] ?? []).reduce(
+      (sum, action) => sum + (actionWeights[action] ?? 0),
+      0,
+    );
+
+    if (score > maxscore) {
+      maxscore = score;
+      strongest = relation;
+    }
+  });
+  return strongest;
 }
