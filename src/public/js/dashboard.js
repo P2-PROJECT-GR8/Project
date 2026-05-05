@@ -62,8 +62,7 @@ function renderFiles(files) {
       listItem.className = "listitem";
       listItem.dataset.fileId = file.objectId;
       console.log(file.relations);
-      //display only "strongest" relation here
-      listItem.dataset.relations = dominance(file);
+      listItem.dataset.relations = (file.relations || []).join(",");
 
       const fileType = file.objectId.split(":")[0];
       const icon = document.createElement("i");
@@ -101,7 +100,8 @@ function renderFiles(files) {
 
       const relation = document.createElement("div");
       relation.className = "relation";
-      relation.innerText = (file.relations || []).join(", ").toUpperCase();
+      // display only strongest relation to user
+      relation.innerText = dominance(file).toUpperCase();
 
       const moreLink = document.createElement("a");
       moreLink.href = "#";
@@ -448,6 +448,5 @@ function dominance(files) {
       strongest = relation;
     }
   });
-
   return strongest;
 }
