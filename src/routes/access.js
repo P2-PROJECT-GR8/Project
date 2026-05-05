@@ -321,7 +321,7 @@ class AccessControl {
 
   async log(subjectId, action, objectId) {
     const now = Date.now();
-    const retainDurationMS = 30 * 24 * 60 ** 1000;
+    const retainDurationMS = 30 * 24 * 60 * 1000;
 
     const newLog = {
       subject: subjectId,
@@ -332,7 +332,7 @@ class AccessControl {
 
     // only retain logs for a month
     this.db.data.log = this.db.data.log.filter((entry) => {
-      now - entry.time <= retainDurationMS;
+      return now - entry.time <= retainDurationMS;
     });
 
     console.log(newLog);
