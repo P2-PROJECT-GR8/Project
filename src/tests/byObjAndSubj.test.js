@@ -32,4 +32,14 @@ describe("addTuple", () => {
       { subjectId: "user:alice", relation: "owner" },
     ]);
   });
+
+  it("adds tuple to bySubject", async () => {
+    //act
+    await ac.addTuple("user:alice", "owner", "file:1");
+
+    //Assert
+    expect(db.data.tupleStore.bySubject["user:alice"]).toEqual([
+      { relation: "owner", objectId: "file:1" },
+    ]);
+  });
 });
