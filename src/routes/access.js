@@ -51,6 +51,9 @@ class AccessControl {
    * @memberof AccessControl
    */
   async can(userId, action, objectId) {
+    // log access attempt
+    await this.db.read();
+    await this.log(userId, action, objectId);
     // Get all relations this user has to an object
     const relations = await this.expandUserRelations(userId, objectId);
     // Find the type of object the user is trying to access
@@ -314,6 +317,27 @@ class AccessControl {
     DFS(userId, [], new Set([userId]), 0);
     return paths;
     // DFS algortihm
+  }
+
+  async log(subjectId, action, objectId) {
+    const now = Date.now();
+    const retainDurationMS = 30 * 24 * 60 ** 1000;
+
+    const newLog = {
+      subject: subjectId,
+      action: action,
+      object: objectId,
+      time: now,
+    };
+
+    // only retain logs for a month
+    this.db.data.log = this.db.data.log.filter((entry) => {
+      now - entry.time <= retainDurationMS;
+    });
+
+    console.log(newLog);
+    this.db.data.log.push(newLog);
+    await this.db.write();
   }
 }
 

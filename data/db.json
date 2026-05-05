@@ -198,5 +198,25 @@
       "id": "user:bob",
       "name": "bob"
     }
+  ],
+  "log": [
+    {
+      "subject": "user:magnus",
+      "action": "view",
+      "object": "folder:admin",
+      "time": 1777971058638
+    },
+    {
+      "subject": "user:magnus",
+      "action": "view",
+      "object": "folder:nest1",
+      "time": 1777971060754
+    },
+    {
+      "subject": "user:magnus",
+      "action": "view",
+      "object": "folder:deep_nest",
+      "time": 1777971062338
+    }
   ]
 }

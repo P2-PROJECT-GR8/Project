@@ -19,6 +19,7 @@ const db = await JSONFilePreset(path.join(__dirname, "..", "data", "db.json"), {
     bySubject: {},
   },
   schema: { definitions: {} },
+  log: [],
 });
 
 // @ts-ignore
