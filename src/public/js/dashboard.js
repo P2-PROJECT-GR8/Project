@@ -737,7 +737,7 @@ deleteFileBtn.addEventListener("click", async (event) =>{
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ objectId: selectedFile })
   })
-  
+  console.log(res)
   if (res.ok) {
     location.reload();
   } else {

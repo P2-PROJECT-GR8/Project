@@ -604,12 +604,14 @@ app.post("/api/deleteFile", async (req, res) =>{
   const children = await db.data.tupleStore.bySubject[objectId];
   for (const child of children){
     if(child.relation === "parent"){
-      accessControl.deleteTuple(objectId, child.relation, child.objectId)
+      await accessControl.deleteTuple(objectId, child.relation, child.objectId)
       console.log("deleted:", child.objectId)
     }
   }
+  console.log(objectId)
   await accessControl.deleteFile(objectId)
   await db.write();
+  console.log("success")
   res.status(200).send({message: "file deleted"});
   }} catch(err){
     console.error("Delete Error:", err);
