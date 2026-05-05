@@ -51,7 +51,7 @@ async function renderAdminFilesForUser(userId) {
   renderFiles(files);
 }
 
-// renders received filelist to dahsboard
+// renders received filelist to dashboard
 function renderFiles(files) {
   const filesList = document.getElementById("filesList");
   filesList.innerHTML = "";
@@ -280,7 +280,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     const errorMessage = document.getElementById("modalErrorMessage");
     // Check the length of the input value, not the value itself.
     if (inviteInput.value.length >= 2 && inviteInput.value.length <= 10) {
-      const newId = `user:${inviteInput.value.toLowerCase()}`;
+    // validate input
+    if(!validateString(inviteInput.value)){
+      alert("do not use special characters")
+      return}
+      
+    const newId = `user:${inviteInput.value.toLowerCase()}`;
     if (!selectedFile) return;
 
     // check if they already have a relation
@@ -422,7 +427,7 @@ const renderMembers = async (fileId) => {
       disableDelete();
       // check if tempmember contains the userlist
       if (tempMembers && tempMembers.length > 0) {
-      //checking if the current member owns the file
+      //checking if the current user owns the file
       const ownFile = tempMembers.some(
         (rel) =>
           rel.relations.includes("owner") && rel.subjectId === currentUser.id,
