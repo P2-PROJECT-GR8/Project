@@ -6,6 +6,14 @@
  */
 
 /**
+ * @typedef {object} LogEntry
+ * @property {string} subjectId
+ * @property {string} action
+ * @property {string} objectId
+ * @property {number} time
+ */
+
+/**
  * @typedef {Object.<string, { relations: Object.<string, string[]> }>} Schema
  * The schema defines the types of objects and the possible relations between them.
  * The keys are object types (e.g., 'file', 'folder').
@@ -271,9 +279,9 @@ class AccessControl {
     await this.db.write();
   }
 
-  locatePaths(userId, objectId, maxDepth = 5) {
+  async locatePaths(userId, objectId, maxDepth = 5) {
     const paths = [];
-    this.db.read();
+    await this.db.read();
     const { bySubject } = this.db.data.tupleStore;
 
     // dfs algortihm
@@ -321,23 +329,52 @@ class AccessControl {
 
   async log(subjectId, action, objectId) {
     const now = Date.now();
-    const retainDurationMS = 30 * 24 * 60 * 1000;
+    const retainDurationMS = 30 * 24 * 60 * 60 * 1000;
 
-    const newLog = {
-      subject: subjectId,
+    const entry = {
+      subjectId: subjectId,
       action: action,
-      object: objectId,
+      objectId: objectId,
       time: now,
     };
 
-    // only retain logs for a month
-    this.db.data.log = this.db.data.log.filter((entry) => {
-      return now - entry.time <= retainDurationMS;
-    });
+    const store = this.db.data.logs;
 
-    console.log(newLog);
-    this.db.data.log.push(newLog);
+    store.bySubject[subjectId] ??= [];
+    store.byObject[objectId] ??= [];
+
+    store.bySubject[subjectId].push(entry);
+    store.byObject[objectId].push(entry);
+
+    // filter for old logs
+    this.filterLogs(retainDurationMS);
+
     await this.db.write();
+  }
+
+  filterLogs(retainDurationMS) {
+    const now = Date.now();
+
+    for (const subjectId in this.db.data.logs.bySubject) {
+      this.db.data.logs.bySubject[subjectId] = this.db.data.logs.bySubject[
+        subjectId
+      ].filter((e) => {
+        return now - e.time <= retainDurationMS;
+      });
+      if (this.db.data.logs.bySubject[subjectId].length === 0) {
+        delete this.db.data.logs.bySubject[subjectId];
+      }
+    }
+    for (const objectId in this.db.data.logs.byObject) {
+      this.db.data.logs.byObject[objectId] = this.db.data.logs.byObject[
+        objectId
+      ].filter((e) => {
+        return now - e.time <= retainDurationMS;
+      });
+      if (this.db.data.logs.byObject[objectId].length === 0) {
+        delete this.db.data.logs.byObject[objectId];
+      }
+    }
   }
 }
 

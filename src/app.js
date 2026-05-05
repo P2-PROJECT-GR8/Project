@@ -19,7 +19,10 @@ const db = await JSONFilePreset(path.join(__dirname, "..", "data", "db.json"), {
     bySubject: {},
   },
   schema: { definitions: {} },
-  log: [],
+  logs: {
+    byObject: {},
+    bySubject: {},
+  },
 });
 
 // @ts-ignore
@@ -498,7 +501,7 @@ app.get("/api/adminRelations", async (req, res) => {
     const userId = req.query.userId;
     const objectId = req.query.objectId;
 
-    const paths = accessControl.locatePaths(userId, objectId);
+    const paths = await accessControl.locatePaths(userId, objectId);
     // console.log(userRelations);
 
     res.json({ paths: paths });
