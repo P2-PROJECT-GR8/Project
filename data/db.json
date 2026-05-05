@@ -120,6 +120,66 @@
           "subjectId": "user:jeff",
           "relation": "viewer"
         }
+      ],
+      "file:testfilifolder": [
+        {
+          "subjectId": "folder:testfolder",
+          "relation": "parent"
+        }
+      ],
+      "file:filifoldertest": [
+        {
+          "subjectId": "folder:foldertest",
+          "relation": "parent"
+        }
+      ],
+      "file:foldertest": [
+        {
+          "subjectId": "user:emil",
+          "relation": "owner"
+        }
+      ],
+      "file:filTest": [
+        {
+          "subjectId": "folder:folderTest",
+          "relation": "parent"
+        }
+      ],
+      "file:filTest1": [
+        {
+          "subjectId": "folder:foldertester",
+          "relation": "parent"
+        }
+      ],
+      "file:filTest2": [
+        {
+          "subjectId": "folder:foldertester",
+          "relation": "parent"
+        }
+      ],
+      "folder:foldertest2": [
+        {
+          "subjectId": "folder:foldertest1",
+          "relation": "parent"
+        }
+      ],
+      "file:filtest1": [
+        {
+          "subjectId": "folder:foldertest2",
+          "relation": "parent"
+        }
+      ],
+      "file:filtest2": [
+        {
+          "subjectId": "folder:foldertest2",
+          "relation": "parent"
+        }
+      ],
+      "folder:folderTest": [
+        {
+          "subjectId": "user:emil",
+          "relation": "owner"
+        }
       ]
     },
     "bySubject": {
@@ -193,6 +253,58 @@
         {
           "relation": "owner",
           "objectId": "file:testfil"
+        },
+        {
+          "relation": "owner",
+          "objectId": "file:foldertest"
+        },
+        {
+          "relation": "owner",
+          "objectId": "folder:folderTest"
+        }
+      ],
+      "folder:testfolder": [
+        {
+          "relation": "parent",
+          "objectId": "file:testfilifolder"
+        }
+      ],
+      "folder:foldertest": [
+        {
+          "relation": "parent",
+          "objectId": "file:filifoldertest"
+        }
+      ],
+      "folder:folderTest": [
+        {
+          "relation": "parent",
+          "objectId": "file:filTest"
+        }
+      ],
+      "folder:foldertester": [
+        {
+          "relation": "parent",
+          "objectId": "file:filTest1"
+        },
+        {
+          "relation": "parent",
+          "objectId": "file:filTest2"
+        }
+      ],
+      "folder:foldertest1": [
+        {
+          "relation": "parent",
+          "objectId": "folder:foldertest2"
+        }
+      ],
+      "folder:foldertest2": [
+        {
+          "relation": "parent",
+          "objectId": "file:filtest1"
+        },
+        {
+          "relation": "parent",
+          "objectId": "file:filtest2"
         }
       ]
     }

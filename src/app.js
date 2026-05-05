@@ -582,21 +582,36 @@ app.post("/api/deleteFile", async (req, res) =>{
   }
   try{
   await db.read();
-
+  const objectType = objectId.split(":")[0];
+  if(objectType === "file"){
   const canDelete = await accessControl.can(
     currentUser.id,
     "delete",
     objectId,
   );
-
   if(!canDelete){
-    return res.status(403).send({message: "You are not authorized to delete files"})
-  }
+    return res.status(403).send({message: "You are not authorized to delete this file"})
+  }} else if (objectType === "folder"){
+  const canDelete = await accessControl.can(
+    currentUser.id,
+    "delete_folder",
+    objectId,
+  );
+  if(!canDelete){
+    return res.status(403).send({message: "You are not authorized to delete this folder"})
+  };
   // call the deletefile function for this objectId
+  const children = await db.data.tupleStore.bySubject[objectId];
+  for (const child of children){
+    if(child.relation === "parent"){
+      accessControl.deleteTuple(objectId, child.relation, child.objectId)
+      console.log("deleted:", child.objectId)
+    }
+  }
   await accessControl.deleteFile(objectId)
   await db.write();
   res.status(200).send({message: "file deleted"});
-} catch(err){
+  }} catch(err){
     console.error("Delete Error:", err);
     return res.status(500).send({ message: "Internal server error" });
   }
