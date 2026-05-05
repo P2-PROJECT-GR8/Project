@@ -128,7 +128,9 @@ async function renderFileListForUser(folderId = "") {
   }
   const res = await fetch(
     `/api/folderContent?folderId=${encodeURIComponent(folderId)}`,
-    {credentials: "include"},
+    {
+      credentials: "include",
+    },
   );
   if (!res.ok) {
   console.error("Failed to fetch folder:", await res.text());
