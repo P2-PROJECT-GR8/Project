@@ -709,7 +709,7 @@ app.get("/api/isAdmin", async (req, res) => {
   if (getUser(req).id !== "user:admin") {
     return res.status(403).send({ message: "not admin" });
   } else {
-    return (res.status(200), send());
+    return (res.status(200).send({isAdmin: true}));
   }
 });
 

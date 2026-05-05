@@ -258,23 +258,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   });
 
-  // loads either defualt dashboard or admin dashboard
-  const adminRes = await fetch("/api/isAdmin");
+    // loads either defualt dashboard or admin dashboard
+  const adminRes = await fetch("/api/isAdmin", {credentials: "include"});
   if (adminRes.ok) {
     // any HTML changes needed for admin should be done here
-    await renderAdminUSerList();
   } else {
     await renderFileListForUser();
   }
-
-  // old version
-
-  //const res = await fetch("/files", {
-  //  credentials: "include",
-  //});
-  //const { files } = await res.json();
-
-
 
   const inviteInput = document.getElementById("invite-field");
   const inviteBtn = document.getElementById("invite-member");
@@ -357,6 +347,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   });
+  
   // fetch the server when saving all changes
   const saveChanges = document.getElementById("save-changes");
       saveChanges.addEventListener("click", async (e) => {
@@ -396,6 +387,7 @@ renderMembers(selectedFile);
 document.getElementById("file-details").close();
 
 })
+
 let tempMembers = [];
 let addedUsers = [];
 let deletedUsers = [];
