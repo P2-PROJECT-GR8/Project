@@ -80,8 +80,9 @@ const redirectIfLoggedIn = (req, res, next) => {
   try {
     const decoded = jwt.verify(token, SECRET_KEY);
     db.read();
-
-    if (db.data.users.some((user) => user.id === decoded.userId)) {
+if (decoded.userId === "user:admin") {
+      return res.redirect("/pages/admin");
+    } else if (db.data.users.some((user) => user.id === decoded.userId)) {
       return res.redirect("/pages/dashboard");
     }
     next();

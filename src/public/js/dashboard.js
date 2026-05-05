@@ -281,7 +281,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!selectedFile) return;
 
     // check if they already have a relation
-    if (tempMembers.some(u => u.subjectId === newId)) return;
+    if (tempMembers.some(u => u.subjectId === newId)) {
+      alert("User is already related to this file")
+    return;}
 
     // remove from deleted if re-added
     deletedUsers = deletedUsers.filter(u => u.subjectId !== newId);
@@ -418,7 +420,6 @@ const renderMembers = async (fileId) => {
     const schemaRes = await fetch("/api/schema", { credentials: "include" });
       const schema = await schemaRes.json();
       window.schema = schema;
-      disableDelete();
       // check if tempmember contains the userlist
       if (tempMembers && tempMembers.length > 0) {
       //checking if the current user owns the file
@@ -426,6 +427,7 @@ const renderMembers = async (fileId) => {
         (rel) =>
           rel.relations.includes("owner") && rel.subjectId === currentUser.id,
       );
+      disableDelete();
 
       //create a div element for each member to be displayed 
       tempMembers.forEach((rel) => {
@@ -491,7 +493,7 @@ const renderMembers = async (fileId) => {
           deleteRel.id = "delete-btn";
           deleteRel.addEventListener("click", (event) => {
             event.preventDefault();
-
+            console.log("knap trykket")
             // remove from array that is being rendered
             tempMembers = tempMembers.filter(u => u.subjectId !== rel.subjectId);
             const subjectId = rel.subjectId
@@ -753,11 +755,13 @@ const currentUser = await getCurrentUser();
   const userEntry = tempMembers.find(rel => rel.subjectId === currentUser.id);
   const userRelations = userEntry ? userEntry.relations : [];
 
-  const canDelete = await userRelations.some(rel => {
+  const canDelete = await userRelations.some(rel => 
   window.schema?.file?.relations?.[rel]?.includes("delete")
-  });
+  );
+  console.log(canDelete)
   deleteFileBtn.disabled=!canDelete
 }
+
 // calculate weight of all roles and return "strongest"
 function dominance(files) {
   //  weights for individual actions

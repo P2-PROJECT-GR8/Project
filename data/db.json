@@ -110,6 +110,16 @@
           "subjectId": "user:alice",
           "relation": "owner"
         }
+      ],
+      "file:testfil": [
+        {
+          "subjectId": "user:emil",
+          "relation": "owner"
+        },
+        {
+          "subjectId": "user:jeff",
+          "relation": "viewer"
+        }
       ]
     },
     "bySubject": {
@@ -131,6 +141,10 @@
         {
           "relation": "viewer",
           "objectId": "file:1"
+        },
+        {
+          "relation": "viewer",
+          "objectId": "file:testfil"
         }
       ],
       "user:admin": [
@@ -173,12 +187,12 @@
       ],
       "user:emil": [
         {
-          "relation": "viewer",
-          "objectId": "file:test"
-        },
-        {
           "relation": "editor",
           "objectId": "file:Project.pdf"
+        },
+        {
+          "relation": "owner",
+          "objectId": "file:testfil"
         }
       ]
     }
