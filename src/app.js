@@ -50,6 +50,11 @@ const isAuthenticated = (req, res, next) => {
   }
 };
 
+async function hasAccess(userId, objectId) {
+  const relations = await accessControl.expandUserRelations(userId, objectId);
+  return relations.length > 0;
+}
+
 /**
  * Function for getting the requesting users id and name from the db
  * Wrap this in a trycatch to handle any errors.
@@ -296,7 +301,7 @@ app.get("/api/folderContent", async (req, res) => {
     }, {});
     // Convert to array
     userRelations = Object.values(grouped);
-  } else if (await accessControl.can(currentUser.id, "view", folderId)) {
+  } else if (await await hasAccess(currentUser.id, folderId)) {
     const rawContent = db.data.tupleStore.bySubject[folderId] || [];
 
     const grouped = {};
