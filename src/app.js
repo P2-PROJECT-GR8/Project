@@ -469,34 +469,34 @@ app.post("/api/saveAllChanges", async (req, res) => {
   try {
     const isOwner = db.data.tupleStore.byObject[objectId]?.some(
     (tuple) => tuple.subjectId === currentUser.id && tuple.relation === "owner"
-  );
+    );
     if (!isOwner) {
       return res.status(403).send({ message: "Not authorized" });
     }
     //delete users
-  for (const { subjectId, objectId: targetId } of deleteRel) {
-    const tuples = db.data.tupleStore.bySubject[subjectId] || [];
-
+    for (const { subjectId } of deleteRel) {
+    const tuples = [...(db.data.tupleStore.bySubject[subjectId] || [])];
     for (const tuple of tuples) {
-    if (tuple.objectId === targetId) {
-      accessControl.deleteTuple(subjectId, tuple.relation, targetId);
-      }
-    }
-  }
+      if (tuple.objectId === objectId) {
+      await accessControl.deleteTuple(subjectId, tuple.relation, objectId);
+      console.log("true deleting:", tuple)
+      }}}
+  
 
      // add invited users
     for (const { subjectId, relations } of addRel) {
       for (const rel of relations){
-      accessControl.addTuple(subjectId, relations, objectId);
+      await accessControl.addTuple(subjectId, rel, objectId);
+      console.log("true, adding:", rel)
       }
     }
 
     // update tuples for changed relations
     for (const { subjectId, oldRel, newRel } of updateRel) {
       for (const rel of oldRel) {
-        accessControl.deleteTuple(subjectId, rel, objectId);
+        await accessControl.deleteTuple(subjectId, rel, objectId);
       }
-      accessControl.addTuple(subjectId, newRel, objectId);
+      await accessControl.addTuple(subjectId, newRel, objectId);
     }
 
     return res.json({ success: true });

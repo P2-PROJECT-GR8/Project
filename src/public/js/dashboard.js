@@ -280,35 +280,29 @@ document.addEventListener("DOMContentLoaded", async () => {
     const errorMessage = document.getElementById("modalErrorMessage");
     // Check the length of the input value, not the value itself.
     if (inviteInput.value.length >= 2 && inviteInput.value.length <= 10) {
-      const newMember = inviteInput.value.toLowerCase();
-        if (!selectedFile) throw new Error("No selected file");
+      const newId = `user:${inviteInput.value.toLowerCase()}`;
+    if (!selectedFile) return;
 
-        const newId = `user:${newMember}`;
+    // check if they already have a relation
+    if (tempMembers.some(u => u.subjectId === newId)) return;
 
-      // check if user relation to file exists
-      const alreadyExists = tempMembers.some(u => u.subjectId === newId);
-      if (alreadyExists) return;
+    // remove from deleted if re-added
+    deletedUsers = deletedUsers.filter(u => u.subjectId !== newId);
 
-      // remove from deleted if re-added
-      deletedUsers = deletedUsers.filter(u => u.subjectId !== newId);
-
-      // push to added users array
-      addedUsers.push({
+    tempMembers.push({
       subjectId: newId,
-      relations: ["viewer"],
-      objectId: selectedFile
-});
+      relations: ["viewer"]
+    });
 
-// update UI state
-tempMembers.push({
-  subjectId: newId,
-  relations: ["viewer"]
-});
-      }
-      renderMembers(selectedFile);
+    addedUsers.push({
+      subjectId: newId,
+      relations: ["viewer"]
+    });
+
+    renderMembers(selectedFile);
       inviteInput.value = "";
       console.log(tempMembers);
-    });
+    }});
 
   filesList.addEventListener("click", async (event) => {
     const btn = event.target.closest(".more-btn");
@@ -366,6 +360,7 @@ tempMembers.push({
       newRel
     })
   );
+  
 // send updates for changed relations
  const res = await fetch("/api/saveAllChanges", {
   method: "POST",
@@ -413,7 +408,6 @@ const renderMembers = async (fileId) => {
 
     if (res.ok) {
     const { relatedUsers } = await res.json();
-
     const normalized = relatedUsers.map(u => ({
       ...u,
       relations: Array.isArray(u.relations) ? u.relations : [u.relations]
@@ -488,29 +482,23 @@ const renderMembers = async (fileId) => {
           deleteRel.innerText = "X";
           deleteRel.href = "#";
           deleteRel.id = "delete-btn";
-          deleteRel.addEventListener("click", async (event) => {
+          deleteRel.addEventListener("click", (event) => {
             event.preventDefault();
-            // remove from array that is rendered
-            tempMembers = tempMembers.filter(u => u.subjectId !== rel.subjectId);
 
-            // if added in the same "session", cancel invite instead
-            const recentlyInvited = addedUsers.some(u => u.subjectId === rel.subjectId);
+            // remove from array that is being rendered
             tempMembers = tempMembers.filter(u => u.subjectId !== rel.subjectId);
-
-            if (recentlyInvited) {
-              addedUsers = addedUsers.filter(u => u.subjectId !== rel.subjectId);
+            const subjectId = rel.subjectId
+            // if user was just invited cancel invite
+            if (addedUsers.some(u => u.subjectId === subjectId)) {
+              addedUsers = addedUsers.filter(u => u.subjectId !== subjectId);
             } else {
-              // add to deletedusers array
-              if (!deletedUsers.some(u => u.subjectId === rel.subjectId)) {
-                deletedUsers.push({
-                  subjectId: rel.subjectId,
-                  objectId: fileId
-                });
+            if (!deletedUsers.some(u => u.subjectId === subjectId)) {
+                deletedUsers.push({ subjectId });
+                console.log(deletedUsers)
               }
             }
 
-          renderMembers(fileId);
-          
+            renderMembers(fileId);
           });
           const helpDelete = document.createElement("span");
           helpDelete.className = "tooltip";
