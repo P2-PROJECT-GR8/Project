@@ -349,7 +349,26 @@ class AccessControl {
     // filter for old logs
     this.filterLogs(retainDurationMS);
 
+    const stats = this.db.data.logs.stats.bySubject;
+    stats[subjectId] ??= { lastMinute: 0, lastHour: 0 };
+
+    stats[subjectId].lastMinute++;
+    stats[subjectId].lastHour++;
+
     await this.db.write();
+  }
+
+  async decaystats() {
+    await this.db.read();
+    const stats = this.db.data.logs.stats;
+
+    for (const userId in stats.bySubject) {
+      stats.bySubject[userId].lastMinute *= 0.5;
+      stats.bySubject[userId].lastHour *= 0.9;
+    }
+
+    await this.db.write();
+
   }
 
   filterLogs(retainDurationMS) {

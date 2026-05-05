@@ -22,6 +22,9 @@ const db = await JSONFilePreset(path.join(__dirname, "..", "data", "db.json"), {
   logs: {
     byObject: {},
     bySubject: {},
+    stats: {
+      bySubject: {}
+    }
   },
 });
 
@@ -566,6 +569,50 @@ app.get("/api/isAdmin", async (req, res) => {
   }
 });
 
+app.get("/api/adminLogs", async (req, res) => {
+    const token = req.cookies.sessionToken;
+    const { subjectId, objectId } = req.query;
+    // user has to have valid token
+    if (!token) {
+    return res.status(401).send({ message: "Unauthorized" });
+    }
+    // unless admin deny request
+    if (getUser(req).id !== "user:admin") {
+      return res.status(403).send({ messeage: "request denied" });
+    }
+
+    await db.read();
+
+    let logs = [];
+    let stats = {lastMinute: 0, lastHour: 0};
+
+    if(subjectId) {
+      logs = db.data.logs.bySubject[subjectId] ?? [];
+    }
+
+    if(objectId) {
+      const objectLogs = db.data.logs.byObject[objectId] ?? [];
+      logs = subjectId ? logs.filter(i => i.objectId === objectId) : objectId;
+    }
+
+    if(subjectId){
+      const userStats = db.data.logs.stats.bySubject[subjectId];
+      if (userStats){
+      stats.lastMinute = userStats.lastMinute;
+      stats.lastHour = userStats.lastHour;
+      }
+    }
+    
+
+    res.json({logs: logs, stats: stats});
+
+});
+
+app.get("/api/adminDecay", async (req, res) => {
+    await accessControl.decaystats();
+    return res.status(200).send({messeage: "logs decayed"});
+});
+
 app.listen(3000, () => {
   console.log("Server running at http://localhost:3000");
 });
@@ -589,6 +636,7 @@ app.post("/api/adminDeleteTuple", async (req, res) => {
   });
   return res.status(200).json({ success: true });
 });
+
 
 // accessControl.addTuple("user:jeff", "owner", "file:1");
 // accessControl.addTuple("user:alice", "editor", "file:1");

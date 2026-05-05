@@ -213,6 +213,84 @@
           "action": "view",
           "objectId": "folder:nest1",
           "time": 1777978683496
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "folder:admin",
+          "time": 1778002253288
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "folder:nest1",
+          "time": 1778002254099
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "folder:deep_nest",
+          "time": 1778002254723
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "folder:deep_nest",
+          "time": 1778002264956
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "folder:admin",
+          "time": 1778004190978
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "folder:nest1",
+          "time": 1778004191882
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "folder:deep_nest",
+          "time": 1778004192504
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "folder:admin",
+          "time": 1778004204828
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "folder:nest1",
+          "time": 1778004205464
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "folder:deep_nest",
+          "time": 1778004205918
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "folder:admin",
+          "time": 1778004207801
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "folder:nest1",
+          "time": 1778004208475
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "folder:deep_nest",
+          "time": 1778004208901
         }
       ]
     },
@@ -223,6 +301,30 @@
           "action": "view",
           "objectId": "folder:admin",
           "time": 1777978681986
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "folder:admin",
+          "time": 1778002253288
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "folder:admin",
+          "time": 1778004190978
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "folder:admin",
+          "time": 1778004204828
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "folder:admin",
+          "time": 1778004207801
         }
       ],
       "folder:nest1": [
@@ -231,8 +333,72 @@
           "action": "view",
           "objectId": "folder:nest1",
           "time": 1777978683496
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "folder:nest1",
+          "time": 1778002254099
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "folder:nest1",
+          "time": 1778004191882
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "folder:nest1",
+          "time": 1778004205464
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "folder:nest1",
+          "time": 1778004208475
+        }
+      ],
+      "folder:deep_nest": [
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "folder:deep_nest",
+          "time": 1778002254723
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "folder:deep_nest",
+          "time": 1778002264956
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "folder:deep_nest",
+          "time": 1778004192504
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "folder:deep_nest",
+          "time": 1778004205918
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "folder:deep_nest",
+          "time": 1778004208901
         }
       ]
+    },
+    "stats": {
+      "bySubject": {
+        "user:magnus": {
+          "lastMinute": 1.0231815399180607e-12,
+          "lastHour": 0.09880447660855561
+        }
+      }
     }
   }
 }

@@ -14,23 +14,46 @@
                 <h1>Welcome to admin overview</h1>
                 <div id="input-Display"> 
                     <div class="field">
-                        <label for="user-Select">select a user:</label>
+                        <label for="user-Select">Select a user:</label>
                         <select id="user-Select">
                         
                         </select>
                     </div> 
                     <div class="field">
                     <!-- maybe split these up so that only objects related to selected user gets shown-->
-                        <label for="object-Select">select a file or folder:</label>
+                        <label for="object-Select">Select a file or folder:</label>
                         <select id="object-Select">
                             <option value="please select a user first"></option>
                         </select>
                     </div> 
-                    <button id="submit" type="button">locate paths</button>
+                    <button id="paths-submit" type="button" class="btn-style">Locate paths</button>
                 </div>
                 <div id="main-Display">
                     <h1 id="relation-Overview-Header"></h1>
                     
+                </div>
+                <div id="logs">
+                    <h2>Overview of access logs</h2>
+                    <div id="logs-field">
+                        <div class="field">
+                            <label for="logs-user-select">Select a user</label>
+                            <select id="logs-user-select">
+
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="logs-object-select">Select a file or folder</label>
+                            <select id="logs-object-select">
+
+                            </select>
+                        </div>
+                        <button id="logs-submit" type="button" class="btn-style">Show logs</button>
+                        <div id="logs-display">
+
+                        </div>
+                        
+
+                    </div>
                 </div>
             </div>
         </div>

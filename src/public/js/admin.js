@@ -3,6 +3,10 @@ import { renderHeader } from "./navRenderer.js";
 // wait for DOM load before doing anything
 document.addEventListener("DOMContentLoaded", async () => {
   renderHeader();
+  const decay = await fetch("/api/adminDecay");
+  if (!decay.ok){
+    console.log("failed to decay");
+  }
   const userSelect = document.getElementById("user-Select");
   const objectSelect = document.getElementById("object-Select");
   const display = document.getElementById("main-Display");
@@ -34,7 +38,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const { files } = await filelist.json();
     renderFiles(files);
   });
-  const locatePathsBtn = document.getElementById("submit");
+  const locatePathsBtn = document.getElementById("paths-submit");
   locatePathsBtn.addEventListener("click", async () => {
     const userId = `user:${userSelect.value.toLowerCase()}`;
     const objectId = objectSelect.value;
@@ -131,4 +135,85 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
     });
   }
+
+  // logs section
+  const logsUserSelect = document.getElementById("logs-user-select");
+  const logsObjectSelect = document.getElementById("logs-object-select");
+  const logsDisplay = document.getElementById("logs-display");
+  const logsSubmit = document.getElementById("logs-submit");
+  console.log(" user select " + logsUserSelect);
+  console.log(" object select " + logsObjectSelect);
+  console.log(" log display " + logsDisplay);
+  console.log(" logs button " + logsSubmit);
+
+  // repeat logic for selects
+  userNames.forEach((user) => {
+    if (user === "Admin") {
+      return;
+    }
+    let element = document.createElement("option");
+    element.value = user;
+    element.innerText = user;
+    console.log(element);
+    logsUserSelect.appendChild(element);
+  });
+
+  logsUserSelect.addEventListener("change", async () => {
+    const filelist = await fetch(
+      `/api/adminFiles?userId=user:${logsUserSelect.value.toLowerCase()}`,
+      { credentials: "include" },
+    );
+    if (!filelist.ok) {
+      console.error("failed to fetch files");
+    }
+    const { files } = await filelist.json();
+    logsRenderFiles(files);
+  });
+
+  function logsRenderFiles(files) {
+    logsObjectSelect.innerHTML = "";
+    files.forEach((file) => {
+      let element = document.createElement("option");
+      element.value = file.objectId;
+      element.innerText = file.objectId.split(":")[1];
+      logsObjectSelect.appendChild(element);
+    });
+  }
+
+  // render the requsted logs and inform admin if any user has made an exseccive amount of requests
+  logsSubmit.addEventListener("click", async () => {
+
+    // fetch logs
+    const res = await fetch(`/api/adminLogs?subjectId=user:${logsUserSelect.value.toLowerCase()}&objectId=${logsObjectSelect.value}`);
+    const { logs, stats } = await res.json();
+    console.log("i am logs" + logs);
+
+    renderLogs(logs, stats);
+
+  });
+
+  function renderLogs(logs , stats){
+    logsDisplay.innerHTML = "";
+
+    // stats summary
+    const summary = document.createElement("p");
+    summary.textContent = `Last minute: ${Math.round(stats.lastMinute)}, ` + 
+    `Last hour: ${Math.round(stats.lastHour)}`;
+    logsDisplay.appendChild(summary);
+
+    if (!logs.length) {
+      logsDisplay.appendChild(document.createTextNode("no logs found"));
+    }
+
+    const ul = document.createElement("ul");
+    logs.sort((a,b) => b.time - a.time).forEach(log => {
+      const li = document.createElement("li");
+      li.textContent = `[${new Date(log.time).toLocaleString()}] ` + `${log.subjectId} → ${log.action} → ${log.objectId}`;
+      ul.appendChild(li);
+    });
+
+    logsDisplay.appendChild(ul);
+  }
+
+
 });
