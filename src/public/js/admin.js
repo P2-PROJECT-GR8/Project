@@ -3,10 +3,6 @@ import { renderHeader } from "./navRenderer.js";
 // wait for DOM load before doing anything
 document.addEventListener("DOMContentLoaded", async () => {
   renderHeader();
-  const decay = await fetch("/api/adminDecay");
-  if (!decay.ok) {
-    console.log("failed to decay");
-  }
   const userSelect = document.getElementById("user-Select");
   const objectSelect = document.getElementById("object-Select");
   const display = document.getElementById("main-Display");

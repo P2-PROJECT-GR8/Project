@@ -22,9 +22,6 @@ const db = await JSONFilePreset(path.join(__dirname, "..", "data", "db.json"), {
   logs: {
     byObject: {},
     bySubject: {},
-    stats: {
-      bySubject: {},
-    },
   },
 });
 
@@ -582,35 +579,10 @@ app.get("/api/adminLogs", async (req, res) => {
   }
 
   await db.read();
-
+  // get all logs
   let logs = Object.values(db.data.logs.bySubject).flat();
 
-  // aquire all logs for admin
-
-  // old logic
-  /* if(subjectId) {
-      logs = db.data.logs.bySubject[subjectId] ?? [];
-    }
-
-    if(objectId) {
-      const objectLogs = db.data.logs.byObject[objectId] ?? [];
-      logs = subjectId ? logs.filter(i => i.objectId === objectId) : objectId;
-    }
-
-    if(subjectId){
-      const userStats = db.data.logs.stats.bySubject[subjectId];
-      if (userStats){
-      stats.lastMinute = userStats.lastMinute;
-      stats.lastHour = userStats.lastHour;
-      }
-    } */
-
-  res.json({ logs, stats: db.data.logs.stats ?? {} });
-});
-
-app.get("/api/adminDecay", async (req, res) => {
-  await accessControl.decaystats();
-  return res.status(200).send({ messeage: "logs decayed" });
+  res.json({ logs });
 });
 
 app.listen(3000, () => {

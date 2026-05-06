@@ -475,14 +475,6 @@
           "time": 1778053587073
         }
       ]
-    },
-    "stats": {
-      "bySubject": {
-        "user:magnus": {
-          "lastMinute": 0,
-          "lastHour": 0
-        }
-      }
     }
   }
 }
