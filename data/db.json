@@ -7,7 +7,9 @@
           "edit",
           "delete",
           "share",
-          "comment"
+          "comment",
+          "manage_relations",
+          "remove_relations"
         ],
         "editor": [
           "view",
@@ -21,6 +23,15 @@
         "commenter": [
           "view",
           "comment"
+        ],
+        "lastviewer": [
+          "view",
+          "delete"
+        ],
+        "sharer": [
+          "view",
+          "share",
+          "manage_relations"
         ]
       }
     },
@@ -41,22 +52,12 @@
     "byObject": {
       "file:Project.pdf": [
         {
-          "subjectId": "user:magnus",
-          "relation": "owner"
-        },
-        {
           "subjectId": "user:emil",
-          "relation": "viewer"
-        }
-      ],
-      "file:1": [
-        {
-          "subjectId": "user:jeff",
-          "relation": "owner"
+          "relation": "editor"
         },
         {
-          "subjectId": "user:jeff",
-          "relation": "veiwer"
+          "subjectId": "user:magnus",
+          "relation": "viewer"
         }
       ],
       "folder:admin": [
@@ -68,12 +69,6 @@
       "folder:tester": [
         {
           "subjectId": "user:admin",
-          "relation": "owner"
-        }
-      ],
-      "file:test": [
-        {
-          "subjectId": "user:magnus",
           "relation": "owner"
         }
       ],
@@ -106,37 +101,87 @@
           "subjectId": "folder:deep_nest",
           "relation": "parent"
         }
+      ],
+      "file:ny_fil": [
+        {
+          "subjectId": "user:alice",
+          "relation": "owner"
+        }
+      ],
+      "file:virkplz": [
+        {
+          "subjectId": "folder:foldertest",
+          "relation": "parent"
+        }
+      ],
+      "folder:folderTester": [
+        {
+          "subjectId": "user:emil",
+          "relation": "owner"
+        },
+        {
+          "subjectId": "user:jeff",
+          "relation": "sharer"
+        },
+        {
+          "subjectId": "user:magnus",
+          "relation": "viewer"
+        }
+      ],
+      "folder:nestedTester": [
+        {
+          "subjectId": "folder:folderTester",
+          "relation": "parent"
+        },
+        {
+          "subjectId": "user:alice",
+          "relation": "viewer"
+        }
+      ],
+      "file:deepTester": [
+        {
+          "subjectId": "folder:nestedTester",
+          "relation": "parent"
+        },
+        {
+          "subjectId": "user:alice",
+          "relation": "viewer"
+        }
+      ],
+      "file:newfile": [
+        {
+          "subjectId": "user:emil",
+          "relation": "owner"
+        },
+        {
+          "subjectId": "user:jeff",
+          "relation": "viewer"
+        }
       ]
     },
     "bySubject": {
       "user:magnus": [
         {
           "relation": "owner",
-          "objectId": "file:Project.pdf"
-        },
-        {
-          "relation": "owner",
           "objectId": "folder:admin"
         },
         {
-          "relation": "owner",
-          "objectId": "file:test"
+          "relation": "viewer",
+          "objectId": "file:Project.pdf"
+        },
+        {
+          "relation": "viewer",
+          "objectId": "folder:folderTester"
         }
       ],
       "user:jeff": [
         {
-          "relation": "owner",
-          "objectId": "file:1"
+          "relation": "sharer",
+          "objectId": "folder:folderTester"
         },
         {
-          "relation": "veiwer",
-          "objectId": "file:1"
-        }
-      ],
-      "user:emil": [
-        {
           "relation": "viewer",
-          "objectId": "file:Project.pdf"
+          "objectId": "file:newfile"
         }
       ],
       "user:admin": [
@@ -169,6 +214,46 @@
         {
           "relation": "parent",
           "objectId": "file:deep_file"
+        }
+      ],
+      "user:alice": [
+        {
+          "relation": "owner",
+          "objectId": "file:ny_fil"
+        },
+        {
+          "relation": "viewer",
+          "objectId": "file:deepTester"
+        },
+        {
+          "relation": "viewer",
+          "objectId": "folder:nestedTester"
+        }
+      ],
+      "user:emil": [
+        {
+          "relation": "editor",
+          "objectId": "file:Project.pdf"
+        },
+        {
+          "relation": "owner",
+          "objectId": "folder:folderTester"
+        },
+        {
+          "relation": "owner",
+          "objectId": "file:newfile"
+        }
+      ],
+      "folder:folderTester": [
+        {
+          "relation": "parent",
+          "objectId": "folder:nestedTester"
+        }
+      ],
+      "folder:nestedTester": [
+        {
+          "relation": "parent",
+          "objectId": "file:deepTester"
         }
       ]
     }
