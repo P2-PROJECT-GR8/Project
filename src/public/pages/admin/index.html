@@ -12,25 +12,44 @@
         <div class="admin-Container">
             <div class="admin-Options">
                 <h1>Welcome to admin overview</h1>
-                <div id="input-Display"> 
+                <div id="input-Display" class="input-row"> 
                     <div class="field">
-                        <label for="user-Select">select a user:</label>
+                        <label for="user-Select">Select a user:</label>
                         <select id="user-Select">
                         
                         </select>
                     </div> 
                     <div class="field">
                     <!-- maybe split these up so that only objects related to selected user gets shown-->
-                        <label for="object-Select">select a file or folder:</label>
+                        <label for="object-Select">Select a file or folder:</label>
                         <select id="object-Select">
                             <option value="please select a user first"></option>
                         </select>
                     </div> 
-                    <button id="submit" type="button">locate paths</button>
+                    <button id="paths-submit" type="button" class="btn-style btn-lift:hover btn-lift">Locate paths</button>
                 </div>
                 <div id="main-Display">
                     <h1 id="relation-Overview-Header"></h1>
                     
+                </div>
+                <div id="logs">
+                    <h2>Overview of access logs</h2>
+
+                    <div id="logs-input" class="input-row">
+                        <div class="field">
+                            <label for="logs-user-search">Search by user</label>
+                            <input id="logs-user-search" type="text" placeholder="e.g. admin" />
+                        </div>
+                        <div class="field">
+                            <label for="logs-object-search">Search by file / folder</label>
+                            <input id="logs-object-search" type="text" placeholder="e.g. example.pdf" />
+                        </div>
+                    </div>
+
+
+                    <div id="logs-display" class="log-box">
+
+                    </div>
                 </div>
             </div>
         </div>
