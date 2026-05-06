@@ -328,7 +328,7 @@ class AccessControl {
       this.db.data.tupleStore.bySubject[objectId] || [];
 
     for (const content of [...folderContent]) {
-      // recursively delete children
+      // run recursively for  children
       await this.deleteFile(content.objectId);
 
       // remove relation
