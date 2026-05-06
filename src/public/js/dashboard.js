@@ -344,11 +344,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const inviteContainer = document.getElementById("invite-container");
     console.log(relationsArray);
 
-    if (!relationsArray.some((el) => el === "owner")) {
-      inviteContainer.classList.add("hidden");
-    } else {
-      inviteContainer.classList.remove("hidden");
-    }
+    inviteContainer.classList.remove("hidden");
     renderMembers(selectedFile);
     fileDetailsModal.showModal();
   });
@@ -420,11 +416,19 @@ const renderMembers = async (fileId) => {
     }));
 
     tempMembers = structuredClone(normalized);
-  }
-}
+      } 
+    }
     const schemaRes = await fetch("/api/schema", { credentials: "include" });
       const schema = await schemaRes.json();
-      window.schema = schema;
+
+      const inviteContainer = document.getElementById("invite-container")
+      const canShare = shareObj(currentUser, tempMembers, schema);
+      if (!canShare){inviteContainer.classList.add("hidden");
+    } else {
+      inviteContainer.classList.remove("hidden");
+
+      }
+      
       // check if tempmember contains the userlist
       if (tempMembers && tempMembers.length > 0) {
       //checking if the current user owns the file
@@ -433,6 +437,8 @@ const renderMembers = async (fileId) => {
           rel.relations.includes("owner") && rel.subjectId === currentUser.id,
       );
       disableDelete();
+      const canDelRel = delRel(currentUser, tempMembers, schema);
+      const canManageRel = manageRel(currentUser, tempMembers, schema);
 
       //create a div element for each member to be displayed 
       tempMembers.forEach((rel) => {
@@ -459,9 +465,16 @@ const renderMembers = async (fileId) => {
           }
           relationSel.appendChild(option);
         });
-        // disable for oneself and non-owners
-        if (rel.subjectId === currentUser.id || !ownFile) {
+        // if can't manage relations, disable select
+        if (!canManageRel) {
           relationSel.disabled = true;
+        }
+        //disable for current user
+        if (rel.subjectId === currentUser.id) {
+          relationSel.disabled = true;
+        }
+        if(rel.relations.includes("owner")){
+           relationSel.disabled = true;
         }
         // indicate which user you are
         const relation = document.createElement("p");
@@ -491,7 +504,7 @@ const renderMembers = async (fileId) => {
         member.appendChild(user);
         member.appendChild(relationSel);
         // create an option for an owner to revoke acces from another member
-        if (ownFile && rel.subjectId !== currentUser.id) {
+        if (canDelRel && rel.subjectId !== currentUser.id) {
           const deleteRel = document.createElement("a");
           deleteRel.innerText = "X";
           deleteRel.href = "#";
@@ -762,6 +775,29 @@ const currentUser = await getCurrentUser();
   deleteFileBtn.disabled=!canDelete
 }
 
+const delRel = (currentUser, tempMembers, schema)=>{
+  const userEntry = tempMembers.find(rel => rel.subjectId === currentUser.id);
+  const userRelations = userEntry ? userEntry.relations : [];
+
+  return userRelations.some(rel => 
+  schema?.file?.relations?.[rel]?.includes("remove_relations"));
+}
+
+const manageRel = (currentUser, tempMembers, schema)=>{
+  const userEntry = tempMembers.find(rel => rel.subjectId === currentUser.id);
+  const userRelations = userEntry ? userEntry.relations : [];
+
+  return userRelations.some(rel => 
+  schema?.file?.relations?.[rel]?.includes("manage_relations"))
+}
+
+const shareObj = (currentUser, tempMembers, schema)=>{
+  const userEntry = tempMembers.find(rel => rel.subjectId === currentUser.id);
+  const userRelations = userEntry ? userEntry.relations : [];
+
+  return userRelations.some(rel => 
+  schema?.file?.relations?.[rel]?.includes("share"))
+}
 // calculate weight of all roles and return "strongest"
 function dominance(files) {
   //  weights for individual actions

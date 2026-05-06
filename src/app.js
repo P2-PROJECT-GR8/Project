@@ -487,20 +487,20 @@ app.post("/api/saveAllChanges", async (req, res) => {
   }
   try {
     const canShare = accessControl.can(currentUser.id, "share", objectId)
-    //const canDelete = accessControl.can(currentUser.id, "delete", objectId)
-    //const canEdit = accessControl.can(currentUser.id, "edit", objectId)
+    const canDelete = accessControl.can(currentUser.id, "remove_relations", objectId)
+    const canEdit = accessControl.can(currentUser.id, "manage_relations", objectId)
     if(addRel.length>0){
       if(!canShare){
         return res.status(403).send({ message: "Not authorized to share!" });
       }
     }
     if(deleteRel.length > 0){
-      if(!canShare){
+      if(!canDelete){
         return res.status(403).send({ message: "Not authorized to revoke users' access!" });
       }
     }
     if(updateRel.length > 0){
-      if(!canShare){
+      if(!canEdit){
         return res.status(403).send({ message: "Not authorized to edit users' relations!" });
       }
     }

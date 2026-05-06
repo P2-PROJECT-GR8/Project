@@ -7,7 +7,9 @@
           "edit",
           "delete",
           "share",
-          "comment"
+          "comment",
+          "manage_relations",
+          "remove_relations"
         ],
         "editor": [
           "view",
@@ -28,7 +30,8 @@
         ],
         "sharer": [
           "view",
-          "share"
+          "share",
+          "manage_relations"
         ]
       }
     },
@@ -49,22 +52,12 @@
     "byObject": {
       "file:Project.pdf": [
         {
-          "subjectId": "user:magnus",
-          "relation": "owner"
-        },
-        {
           "subjectId": "user:emil",
           "relation": "editor"
-        }
-      ],
-      "file:1": [
-        {
-          "subjectId": "user:jeff",
-          "relation": "owner"
         },
         {
-          "subjectId": "user:jeff",
-          "relation": "veiwer"
+          "subjectId": "user:magnus",
+          "relation": "viewer"
         }
       ],
       "folder:admin": [
@@ -129,6 +122,10 @@
         {
           "subjectId": "user:jeff",
           "relation": "sharer"
+        },
+        {
+          "subjectId": "user:magnus",
+          "relation": "viewer"
         }
       ],
       "folder:nestedTester": [
@@ -150,35 +147,41 @@
           "subjectId": "user:alice",
           "relation": "viewer"
         }
+      ],
+      "file:newfile": [
+        {
+          "subjectId": "user:emil",
+          "relation": "owner"
+        },
+        {
+          "subjectId": "user:jeff",
+          "relation": "viewer"
+        }
       ]
     },
     "bySubject": {
       "user:magnus": [
         {
           "relation": "owner",
+          "objectId": "folder:admin"
+        },
+        {
+          "relation": "viewer",
           "objectId": "file:Project.pdf"
         },
         {
-          "relation": "owner",
-          "objectId": "folder:admin"
+          "relation": "viewer",
+          "objectId": "folder:folderTester"
         }
       ],
       "user:jeff": [
         {
-          "relation": "owner",
-          "objectId": "file:1"
-        },
-        {
-          "relation": "viewer",
-          "objectId": "file:1"
-        },
-        {
-          "relation": "viewer",
-          "objectId": "file:testfil"
-        },
-        {
           "relation": "sharer",
           "objectId": "folder:folderTester"
+        },
+        {
+          "relation": "viewer",
+          "objectId": "file:newfile"
         }
       ],
       "user:admin": [
@@ -235,6 +238,10 @@
         {
           "relation": "owner",
           "objectId": "folder:folderTester"
+        },
+        {
+          "relation": "owner",
+          "objectId": "file:newfile"
         }
       ],
       "folder:folderTester": [
