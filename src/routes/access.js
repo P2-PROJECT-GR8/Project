@@ -150,10 +150,6 @@ class AccessControl {
     const allObjectIds = new Set(Object.keys(this.db.data.tupleStore.byObject));
 
     for (const objectId of allObjectIds) {
-      // not their membership in groups, so we can skip group objects.
-      if (objectId.startsWith("group:")) {
-        continue;
-      }
 
       const relations = await this.expandUserRelations(userId, objectId);
 

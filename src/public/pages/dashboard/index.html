@@ -36,7 +36,7 @@
           <h2>File Vault</h2>
           <ul>
             <li>
-              <a href="#files"><i class="material-icons">folder</i>My Files</a>
+              <a href="#files"><i class="material-icons">folder</i>All Files</a>
             </li>
             <li>
               <a href="#groups"
@@ -149,12 +149,13 @@
                 <select name="type" id="new-type-select" class="select-new-type">
                   <option value="file">File</option>
                   <option value="folder">Folder</option>
+                  <option value="group">Group</option>
                 </select>
                 <div class="create-new-buttons">
                   <button id="create-new-cancel" class="cancel-modal">Cancel</button>
                   <span></span>
                   <button id="create-new-button" class="btn-lift">Create</button>
-                </span>
+                </div>
               </form>
             </div>
             <p id="create-new-error" style="text-align: center; color: red;"></p>
@@ -162,10 +163,8 @@
         </div>
 
 
-          
-          
         <div id="groups" class="page">
-          <h1>Groups</h1>
+          <h1>Here are all your groups</h1>
             <p id="allFIlesHeaderText">
               Here you will find an overview of all your groups
             </p>
@@ -174,7 +173,6 @@
             </button>
 
             <!-- <button id="create-option">Create Folder</button> -->
-          </div>
           <div id="GroupsList">
             <!-- <div class="listitem">
               <i class="material-icons type">article</i>
@@ -239,38 +237,40 @@
             </div>
           </dialog>
           <dialog id="create-new-group">
-            <div class="create-new-group-modal">
-              <h2>Create a new file</h2>
-              <form id="create-new-group-form">
+            <div class="create-new-modal">
+              <h2>Create a new group</h2>
+              <form id="create-new-form">
                 <input
                 name="name"
                   type="text"
-                  id="new-group-name-input"
+                  id="new-name-input"
                   placeholder="Write the name of the group"
                 />
                 <select name="type" id="new-type-select" class="select-new-type">
                   <option value="group">Group</option>
                 </select>
 
-                <div class="create-new-group-buttons">
-                  <button id="create-new-group-cancel" class="cancel-modal">Cancel</button>
+                <div class="create-new-buttons">
+                  <button id="create-new-cancel" class="cancel-modal">Cancel</button>
                   <span></span>
-                  <button id="create-new-group-button" class="btn-lift">Create</button>
-                </span>
+                  <button id="create-new-button" class="btn-lift">Create</button>
+                </div> 
               </form>
             </div>
-            <p id="create-new-group-error" style="text-align: center; color: red;"></p>
+            <p id="create-new-error" style="text-align: center; color: red;"></p>
           </dialog>
-    
+        </div>
 
-        
-        
-       <div id="shared" class="page">
-          <h1 id="allFilesHeader">Shared files</h1>
-          <div class="pageHeader">
+
+        <div id="shared" class="page">
+          <h1>Here are all Files shared with you</h1>
             <p id="allFIlesHeaderText">
-              Here you will find an overview of all files share with you
+              Here you will find an overview of all files shared with you
             </p>
+
+            <!-- <button id="create-option">Create Folder</button> -->
+          </div>
+          <div id="SharedList">      
           </div>
           <dialog id="shared-details">
             <div class="modal-body">
@@ -317,7 +317,37 @@
                   <p>Member</p>
                 </div>
               </div>
+              <div id="modal-buttons">
+                <button id="cancel-modal" class="cancel-modal">Cancel</button>
+                <div></div>
+                <button class="btn-lift">Save Changes</button>
+              </div>
+            </div>
           </dialog>
+          <dialog id="create-new">
+            <div class="create-new-modal">
+              <h2>Create a new file</h2>
+              <form id="create-new-form">
+                <input
+                name="name"
+                  type="text"
+                  id="new-name-input"
+                  placeholder="Write the name of the group"
+                />
+                <select name="type" id="new-type-select" class="select-new-type">
+                  <option value="group">Group</option>
+                </select>
+
+                <div class="create-new-buttons">
+                  <button id="create-new-cancel" class="cancel-modal">Cancel</button>
+                  <span></span>
+                  <button id="create-new-button" class="btn-lift">Create</button>
+                </div>
+              </form>
+            </div>
+            <p id="create-new-error" style="text-align: center; color: red;"></p>
+          </dialog>
+        </div>
 
       </main>
       <footer class="footer"></footer>

@@ -103,7 +103,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   // load dahsboard
-  renderFileListForUSer(currentUser.id);
+  await renderFileListForUSer(currentUser.id);
 
   // renders all of a users files
   async function renderFileListForUSer(userId) {
@@ -111,15 +111,19 @@ document.addEventListener("DOMContentLoaded", async () => {
       credentials: "include",
     });
     const { files } = await res.json();
-    renderFiles(files);
+    renderMyFiles(files);
+    renderGroups(files);
   }
 
   // renders received filelist to dahsboard
-  function renderFiles(files) {
+  function renderMyFiles(files) {
     filesList.innerHTML = "";
 
-    if (files.length > 0) {
-      files.forEach((file) => {
+    const ownedFiles = files.filter(file => 
+                                    file.relations.includes("owner") && !file.objectId.startsWith("group:"));
+
+        if (ownedFiles.length > 0) {
+        ownedFiles.forEach((file) => {
         const listItem = document.createElement("div");
         listItem.className = "listitem";
         listItem.dataset.fileId = file.objectId;
@@ -173,6 +177,64 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
+    
+    
+         function renderGroups(files) {
+  console.log("renderGroups called with:", files);
+  const groupsList = document.getElementById("GroupsList");
+  console.log("GroupsList element:", groupsList);
+  groupsList.innerHTML = "";
+  // ... rest stays the same
+
+  const groups = files.filter(file => file.objectId.startsWith("group:"));
+
+  if (groups.length > 0) {
+    groups.forEach((file) => {
+      const listItem = document.createElement("div");
+      listItem.className = "listitem";
+      listItem.dataset.fileId = file.objectId;
+      listItem.dataset.relations = file.relations;
+
+      const icon = document.createElement("i");
+      icon.className = "material-icons type";
+      icon.innerText = "people";
+
+      const itemTitle = document.createElement("div");
+      itemTitle.className = "item-title";
+
+      const h3 = document.createElement("h3");
+      h3.innerText = file.objectId.split(":")[1];
+
+      const p = document.createElement("p");
+      p.innerText = "Updated by User - 2 Hours ago";
+
+      itemTitle.appendChild(h3);
+      itemTitle.appendChild(p);
+
+      const relation = document.createElement("div");
+      relation.className = "relation";
+      relation.innerText = file.relations.join(", ").toUpperCase();
+
+      const moreLink = document.createElement("a");
+      moreLink.href = "#";
+      const moreIcon = document.createElement("i");
+      moreIcon.className = "material-icons more-btn";
+      moreIcon.innerText = "more_vert";
+      moreLink.appendChild(moreIcon);
+
+      listItem.appendChild(icon);
+      listItem.appendChild(itemTitle);
+      listItem.appendChild(relation);
+      listItem.appendChild(moreLink);
+
+      groupsList.appendChild(listItem);
+    });
+  }
+}
+
+    
+    
+    
   let selectedFile;
 
   const inviteInput = document.getElementById("invite-field");
