@@ -23,8 +23,8 @@ const db = await JSONFilePreset(path.join(__dirname, "..", "data", "db.json"), {
     byObject: {},
     bySubject: {},
     stats: {
-      bySubject: {}
-    }
+      bySubject: {},
+    },
   },
 });
 
@@ -570,23 +570,25 @@ app.get("/api/isAdmin", async (req, res) => {
 });
 
 app.get("/api/adminLogs", async (req, res) => {
-    const token = req.cookies.sessionToken;
-    const { subjectId, objectId } = req.query;
-    // user has to have valid token
-    if (!token) {
+  const token = req.cookies.sessionToken;
+  //const { subjectId, objectId } = req.query;
+  // user has to have valid token
+  if (!token) {
     return res.status(401).send({ message: "Unauthorized" });
-    }
-    // unless admin deny request
-    if (getUser(req).id !== "user:admin") {
-      return res.status(403).send({ messeage: "request denied" });
-    }
+  }
+  // unless admin deny request
+  if (getUser(req).id !== "user:admin") {
+    return res.status(403).send({ messeage: "request denied" });
+  }
 
-    await db.read();
+  await db.read();
 
-    let logs = [];
-    let stats = {lastMinute: 0, lastHour: 0};
+  let logs = Object.values(db.data.logs.bySubject).flat();
 
-    if(subjectId) {
+  // aquire all logs for admin
+
+  // old logic
+  /* if(subjectId) {
       logs = db.data.logs.bySubject[subjectId] ?? [];
     }
 
@@ -601,16 +603,14 @@ app.get("/api/adminLogs", async (req, res) => {
       stats.lastMinute = userStats.lastMinute;
       stats.lastHour = userStats.lastHour;
       }
-    }
-    
+    } */
 
-    res.json({logs: logs, stats: stats});
-
+  res.json({ logs, stats: db.data.logs.stats ?? {} });
 });
 
 app.get("/api/adminDecay", async (req, res) => {
-    await accessControl.decaystats();
-    return res.status(200).send({messeage: "logs decayed"});
+  await accessControl.decaystats();
+  return res.status(200).send({ messeage: "logs decayed" });
 });
 
 app.listen(3000, () => {
@@ -636,7 +636,6 @@ app.post("/api/adminDeleteTuple", async (req, res) => {
   });
   return res.status(200).json({ success: true });
 });
-
 
 // accessControl.addTuple("user:jeff", "owner", "file:1");
 // accessControl.addTuple("user:alice", "editor", "file:1");

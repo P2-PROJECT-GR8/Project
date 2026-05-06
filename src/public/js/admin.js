@@ -4,7 +4,7 @@ import { renderHeader } from "./navRenderer.js";
 document.addEventListener("DOMContentLoaded", async () => {
   renderHeader();
   const decay = await fetch("/api/adminDecay");
-  if (!decay.ok){
+  if (!decay.ok) {
     console.log("failed to decay");
   }
   const userSelect = document.getElementById("user-Select");
@@ -91,12 +91,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       //title
       const title = document.createElement("h3");
-      title.className = "path-title"
+      title.className = "path-title";
       title.textContent = `path ${index + 1}`;
 
       // container for the relation path
       const relationContent = document.createElement("div");
-      relationContent.className = "path-relation"
+      relationContent.className = "path-relation";
 
       const list = document.createElement("ul");
       path.forEach((step) => {
@@ -137,83 +137,106 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // logs section
-  const logsUserSelect = document.getElementById("logs-user-select");
-  const logsObjectSelect = document.getElementById("logs-object-select");
+  const logsUserSearch = document.getElementById("logs-user-search");
+  const logsObjectSearch = document.getElementById("logs-object-search");
   const logsDisplay = document.getElementById("logs-display");
-  const logsSubmit = document.getElementById("logs-submit");
-  console.log(" user select " + logsUserSelect);
-  console.log(" object select " + logsObjectSelect);
-  console.log(" log display " + logsDisplay);
-  console.log(" logs button " + logsSubmit);
+  //debug
+  //console.log(" user select " + logsUserSelect);
+  //console.log(" object select " + logsObjectSelect);
+  //console.log(" log display " + logsDisplay);
+  //console.log(" logs button " + logsSubmit);
 
-  // repeat logic for selects
-  userNames.forEach((user) => {
-    if (user === "Admin") {
+  let allLogs = [];
+
+  // fetch all files on page load
+  async function loadAllLogs() {
+    const res = await fetch("/api/adminLogs", { credentials: "include" });
+
+    if (!res.ok) {
+      console.log("failed to load logs");
       return;
     }
-    let element = document.createElement("option");
-    element.value = user;
-    element.innerText = user;
-    console.log(element);
-    logsUserSelect.appendChild(element);
-  });
 
-  logsUserSelect.addEventListener("change", async () => {
-    const filelist = await fetch(
-      `/api/adminFiles?userId=user:${logsUserSelect.value.toLowerCase()}`,
-      { credentials: "include" },
-    );
-    if (!filelist.ok) {
-      console.error("failed to fetch files");
-    }
-    const { files } = await filelist.json();
-    logsRenderFiles(files);
-  });
+    const { logs } = await res.json();
 
-  function logsRenderFiles(files) {
-    logsObjectSelect.innerHTML = "";
-    files.forEach((file) => {
-      let element = document.createElement("option");
-      element.value = file.objectId;
-      element.innerText = file.objectId.split(":")[1];
-      logsObjectSelect.appendChild(element);
-    });
+    allLogs = logs;
+
+    renderLogs(allLogs);
   }
 
-  // render the requsted logs and inform admin if any user has made an exseccive amount of requests
-  logsSubmit.addEventListener("click", async () => {
+  loadAllLogs();
 
-    // fetch logs
-    const res = await fetch(`/api/adminLogs?subjectId=user:${logsUserSelect.value.toLowerCase()}&objectId=${logsObjectSelect.value}`);
-    const { logs, stats } = await res.json();
-    console.log("i am logs" + logs);
+  // live filtering
+  logsUserSearch.addEventListener("input", filterLogs);
+  logsObjectSearch.addEventListener("input", filterLogs);
 
-    renderLogs(logs, stats);
+  function filterLogs() {
+    const userQuery = logsUserSearch.value.toLowerCase();
+    const objectQuery = logsObjectSearch.value.toLowerCase();
 
-  });
+    const filteredLogs = allLogs.filter((log) => {
+      const userMatch = log.subjectId.toLowerCase().includes(userQuery);
+      const objectMatch = log.objectId.toLowerCase().includes(objectQuery);
 
-  function renderLogs(logs , stats){
+      return userMatch && objectMatch;
+    });
+
+    renderLogs(filteredLogs);
+  }
+
+  function renderLogs(logs) {
     logsDisplay.innerHTML = "";
 
-    // stats summary
-    const summary = document.createElement("p");
-    summary.textContent = `Last minute: ${Math.round(stats.lastMinute)}, ` + 
-    `Last hour: ${Math.round(stats.lastHour)}`;
-    logsDisplay.appendChild(summary);
-
     if (!logs.length) {
-      logsDisplay.appendChild(document.createTextNode("no logs found"));
+      logsDisplay.textContent = "No logs found for current search criteria";
     }
 
-    const ul = document.createElement("ul");
-    logs.sort((a,b) => b.time - a.time).forEach(log => {
-      const li = document.createElement("li");
-      li.textContent = `[${new Date(log.time).toLocaleString()}] ` + `${log.subjectId} → ${log.action} → ${log.objectId}`;
-      ul.appendChild(li);
+    // stats
+    const accessCounts = {};
+
+    logs.forEach((log) => {
+      accessCounts[log.subjectId] = (accessCounts[log.subjectId] || 0) + 1;
     });
+
+    // sort users by highest request count
+    const sortedStats = Object.entries(accessCounts).sort(
+      (a, b) => b[1] - a[1],
+    );
+
+    const statsContainer = document.createElement("div");
+    statsContainer.className = "log-stats";
+
+    const statsTitle = document.createElement("h4");
+    statsTitle.className = "log-stats-title";
+    statsTitle.textContent = "Access attempts (highest → lowest)";
+    statsContainer.appendChild(statsTitle);
+
+    const statsList = document.createElement("ul");
+    statsList.className = "log-stats-list";
+
+    sortedStats.forEach(([user, count]) => {
+      const li = document.createElement("li");
+      li.className = "log-sats-item";
+      li.textContent = `${user} - ${count}`;
+      statsList.appendChild(li);
+    });
+
+    statsContainer.appendChild(statsList);
+    logsDisplay.appendChild(statsContainer);
+
+    // log entries
+
+    const ul = document.createElement("ul");
+    logs
+      .sort((a, b) => b.time - a.time)
+      .forEach((log) => {
+        const li = document.createElement("li");
+        li.textContent =
+          `[${new Date(log.time).toLocaleString()}] ` +
+          `${log.subjectId} → ${log.action} → ${log.objectId}`;
+        ul.appendChild(li);
+      });
 
     logsDisplay.appendChild(ul);
   }
-
-
 });

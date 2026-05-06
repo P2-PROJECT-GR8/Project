@@ -34,21 +34,19 @@
                 </div>
                 <div id="logs">
                     <h2>Overview of access logs</h2>
+
                     <div id="logs-input" class="input-row">
                         <div class="field">
-                            <label for="logs-user-select">Select a user</label>
-                            <select id="logs-user-select">
-
-                            </select>
+                            <label for="logs-user-search">Search by user</label>
+                            <input id="logs-user-search" type="text" placeholder="e.g. admin" />
                         </div>
                         <div class="field">
-                            <label for="logs-object-select">Select a file or folder</label>
-                            <select id="logs-object-select">
-
-                            </select>
+                            <label for="logs-object-search">Search by file / folder</label>
+                            <input id="logs-object-search" type="text" placeholder="e.g. example.pdf" />
                         </div>
-                        <button id="logs-submit" type="button" class="btn-style btn-lift:hover btn-lift">Show logs</button>
                     </div>
+
+
                     <div id="logs-display" class="log-box">
 
                     </div>
