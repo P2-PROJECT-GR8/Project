@@ -11,6 +11,7 @@
  * @property {string} action
  * @property {string} objectId
  * @property {number} time
+ * @property {boolean} allowed
  */
 
 /**
@@ -59,19 +60,21 @@ class AccessControl {
    * @memberof AccessControl
    */
   async can(userId, action, objectId) {
-    // log access attempt
     await this.db.read();
-    await this.log(userId, action, objectId);
     // Get all relations this user has to an object
     const relations = await this.expandUserRelations(userId, objectId);
     // Find the type of object the user is trying to access
     const type = objectId.split(":")[0];
 
     // return whether the set of permissions based on the relation includes the requested action
-    return relations.some((rel) => {
+    const allowed = relations.some((rel) => {
       const permissions = this.db.data.schema[type]?.relations[rel];
       return permissions && permissions.includes(action);
     });
+    // log access attempt
+    await this.log(userId, action, objectId, allowed);
+
+    return allowed;
   }
 
   // recursively check all the relations a user has to an object and return them as a set
@@ -327,7 +330,7 @@ class AccessControl {
     return paths;
   }
 
-  async log(subjectId, action, objectId) {
+  async log(subjectId, action, objectId, allowed) {
     const now = Date.now();
     const retainDurationMS = 30 * 24 * 60 * 60 * 1000;
 
@@ -336,6 +339,7 @@ class AccessControl {
       action: action,
       objectId: objectId,
       time: now,
+      allowed: allowed,
     };
 
     const store = this.db.data.logs;

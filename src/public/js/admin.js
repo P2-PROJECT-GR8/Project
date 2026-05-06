@@ -229,7 +229,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const li = document.createElement("li");
         li.textContent =
           `[${new Date(log.time).toLocaleString()}] ` +
-          `${log.subjectId} → ${log.action} → ${log.objectId}`;
+          `${log.subjectId} → ${log.action} → ${log.objectId}: Allowed: ${log.allowed}`;
         ul.appendChild(li);
       });
 
