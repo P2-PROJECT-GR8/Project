@@ -6,6 +6,15 @@
  */
 
 /**
+ * @typedef {object} LogEntry
+ * @property {string} subjectId
+ * @property {string} action
+ * @property {string} objectId
+ * @property {number} time
+ * @property {boolean} allowed
+ */
+
+/**
  * @typedef {Object.<string, { relations: Object.<string, string[]> }>} Schema
  * The schema defines the types of objects and the possible relations between them.
  * The keys are object types (e.g., 'file', 'folder').
@@ -51,16 +60,21 @@ class AccessControl {
    * @memberof AccessControl
    */
   async can(userId, action, objectId) {
+    await this.db.read();
     // Get all relations this user has to an object
     const relations = await this.expandUserRelations(userId, objectId);
     // Find the type of object the user is trying to access
     const type = objectId.split(":")[0];
 
     // return whether the set of permissions based on the relation includes the requested action
-    return relations.some((rel) => {
+    const allowed = relations.some((rel) => {
       const permissions = this.db.data.schema[type]?.relations[rel];
       return permissions && permissions.includes(action);
     });
+    // log access attempt
+    await this.log(userId, action, objectId, allowed);
+
+    return allowed;
   }
 
   // recursively check all the relations a user has to an object and return them as a set
@@ -268,9 +282,9 @@ class AccessControl {
     await this.db.write();
   }
 
-  locatePaths(userId, objectId, maxDepth = 5) {
+  async locatePaths(userId, objectId, maxDepth = 5) {
     const paths = [];
-    this.db.read();
+    await this.db.read();
     const { bySubject } = this.db.data.tupleStore;
 
     // dfs algortihm
@@ -314,6 +328,57 @@ class AccessControl {
 
     DFS(userId, [], new Set([userId]), 0);
     return paths;
+  }
+
+  async log(subjectId, action, objectId, allowed) {
+    const now = Date.now();
+    const retainDurationMS = 30 * 24 * 60 * 60 * 1000;
+
+    const entry = {
+      subjectId: subjectId,
+      action: action,
+      objectId: objectId,
+      time: now,
+      allowed: allowed,
+    };
+
+    const store = this.db.data.logs;
+
+    store.bySubject[subjectId] ??= [];
+    store.byObject[objectId] ??= [];
+
+    store.bySubject[subjectId].push(entry);
+    store.byObject[objectId].push(entry);
+
+    // filter for old logs
+    this.filterLogs(retainDurationMS);
+
+    await this.db.write();
+  }
+
+  filterLogs(retainDurationMS) {
+    const now = Date.now();
+
+    for (const subjectId in this.db.data.logs.bySubject) {
+      this.db.data.logs.bySubject[subjectId] = this.db.data.logs.bySubject[
+        subjectId
+      ].filter((e) => {
+        return now - e.time <= retainDurationMS;
+      });
+      if (this.db.data.logs.bySubject[subjectId].length === 0) {
+        delete this.db.data.logs.bySubject[subjectId];
+      }
+    }
+    for (const objectId in this.db.data.logs.byObject) {
+      this.db.data.logs.byObject[objectId] = this.db.data.logs.byObject[
+        objectId
+      ].filter((e) => {
+        return now - e.time <= retainDurationMS;
+      });
+      if (this.db.data.logs.byObject[objectId].length === 0) {
+        delete this.db.data.logs.byObject[objectId];
+      }
+    }
   }
 }
 

@@ -198,5 +198,75 @@
       "id": "user:bob",
       "name": "bob"
     }
-  ]
+  ],
+  "logs": {
+    "bySubject": {
+      "user:magnus": [
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "folder:admin",
+          "time": 1778064059262,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "folder:nest1",
+          "time": 1778064060112,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "folder:deep_nest",
+          "time": 1778064060775,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "folder:deep_nest",
+          "time": 1778064062561,
+          "allowed": true
+        }
+      ]
+    },
+    "byObject": {
+      "folder:admin": [
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "folder:admin",
+          "time": 1778064059262,
+          "allowed": true
+        }
+      ],
+      "folder:nest1": [
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "folder:nest1",
+          "time": 1778064060112,
+          "allowed": true
+        }
+      ],
+      "folder:deep_nest": [
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "folder:deep_nest",
+          "time": 1778064060775,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "folder:deep_nest",
+          "time": 1778064062561,
+          "allowed": true
+        }
+      ]
+    }
+  }
 }

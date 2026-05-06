@@ -19,6 +19,10 @@ const db = await JSONFilePreset(path.join(__dirname, "..", "data", "db.json"), {
     bySubject: {},
   },
   schema: { definitions: {} },
+  logs: {
+    byObject: {},
+    bySubject: {},
+  },
 });
 
 // @ts-ignore
@@ -497,7 +501,7 @@ app.get("/api/adminRelations", async (req, res) => {
     const userId = req.query.userId;
     const objectId = req.query.objectId;
 
-    const paths = accessControl.locatePaths(userId, objectId);
+    const paths = await accessControl.locatePaths(userId, objectId);
     // console.log(userRelations);
 
     res.json({ paths: paths });
@@ -560,6 +564,25 @@ app.get("/api/isAdmin", async (req, res) => {
   } else {
     return (res.status(200), send());
   }
+});
+
+app.get("/api/adminLogs", async (req, res) => {
+  const token = req.cookies.sessionToken;
+  //const { subjectId, objectId } = req.query;
+  // user has to have valid token
+  if (!token) {
+    return res.status(401).send({ message: "Unauthorized" });
+  }
+  // unless admin deny request
+  if (getUser(req).id !== "user:admin") {
+    return res.status(403).send({ messeage: "request denied" });
+  }
+
+  await db.read();
+  // get all logs
+  let logs = Object.values(db.data.logs.bySubject).flat();
+
+  res.json({ logs });
 });
 
 app.listen(3000, () => {

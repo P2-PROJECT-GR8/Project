@@ -34,7 +34,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const { files } = await filelist.json();
     renderFiles(files);
   });
-  const locatePathsBtn = document.getElementById("submit");
+  const locatePathsBtn = document.getElementById("paths-submit");
   locatePathsBtn.addEventListener("click", async () => {
     const userId = `user:${userSelect.value.toLowerCase()}`;
     const objectId = objectSelect.value;
@@ -87,12 +87,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       //title
       const title = document.createElement("h3");
-      title.className = "path-title"
+      title.className = "path-title";
       title.textContent = `path ${index + 1}`;
 
       // container for the relation path
       const relationContent = document.createElement("div");
-      relationContent.className = "path-relation"
+      relationContent.className = "path-relation";
 
       const list = document.createElement("ul");
       path.forEach((step) => {
@@ -130,5 +130,109 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
       });
     });
+  }
+
+  // logs section
+  const logsUserSearch = document.getElementById("logs-user-search");
+  const logsObjectSearch = document.getElementById("logs-object-search");
+  const logsDisplay = document.getElementById("logs-display");
+  //debug
+  //console.log(" user select " + logsUserSelect);
+  //console.log(" object select " + logsObjectSelect);
+  //console.log(" log display " + logsDisplay);
+  //console.log(" logs button " + logsSubmit);
+
+  let allLogs = [];
+
+  // fetch all files on page load
+  async function loadAllLogs() {
+    const res = await fetch("/api/adminLogs", { credentials: "include" });
+
+    if (!res.ok) {
+      console.log("failed to load logs");
+      return;
+    }
+
+    const { logs } = await res.json();
+
+    allLogs = logs;
+
+    renderLogs(allLogs);
+  }
+
+  loadAllLogs();
+
+  // live filtering
+  logsUserSearch.addEventListener("input", filterLogs);
+  logsObjectSearch.addEventListener("input", filterLogs);
+
+  function filterLogs() {
+    const userQuery = logsUserSearch.value.toLowerCase();
+    const objectQuery = logsObjectSearch.value.toLowerCase();
+
+    const filteredLogs = allLogs.filter((log) => {
+      const userMatch = log.subjectId.toLowerCase().includes(userQuery);
+      const objectMatch = log.objectId.toLowerCase().includes(objectQuery);
+
+      return userMatch && objectMatch;
+    });
+
+    renderLogs(filteredLogs);
+  }
+
+  function renderLogs(logs) {
+    logsDisplay.innerHTML = "";
+
+    if (!logs.length) {
+      logsDisplay.textContent = "No logs found for current search criteria";
+    }
+
+    // stats
+    const accessCounts = {};
+
+    logs.forEach((log) => {
+      accessCounts[log.subjectId] = (accessCounts[log.subjectId] || 0) + 1;
+    });
+
+    // sort users by highest request count
+    const sortedStats = Object.entries(accessCounts).sort(
+      (a, b) => b[1] - a[1],
+    );
+
+    const statsContainer = document.createElement("div");
+    statsContainer.className = "log-stats";
+
+    const statsTitle = document.createElement("h4");
+    statsTitle.className = "log-stats-title";
+    statsTitle.textContent = "Access attempts (highest → lowest)";
+    statsContainer.appendChild(statsTitle);
+
+    const statsList = document.createElement("ul");
+    statsList.className = "log-stats-list";
+
+    sortedStats.forEach(([user, count]) => {
+      const li = document.createElement("li");
+      li.className = "log-sats-item";
+      li.textContent = `${user} - ${count}`;
+      statsList.appendChild(li);
+    });
+
+    statsContainer.appendChild(statsList);
+    logsDisplay.appendChild(statsContainer);
+
+    // log entries
+
+    const ul = document.createElement("ul");
+    logs
+      .sort((a, b) => b.time - a.time)
+      .forEach((log) => {
+        const li = document.createElement("li");
+        li.textContent =
+          `[${new Date(log.time).toLocaleString()}] ` +
+          `${log.subjectId} → ${log.action} → ${log.objectId}: Allowed: ${log.allowed}`;
+        ul.appendChild(li);
+      });
+
+    logsDisplay.appendChild(ul);
   }
 });
