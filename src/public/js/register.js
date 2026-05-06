@@ -3,15 +3,10 @@ const regHandler = async (event) => {
   const regName = document.getElementById("regInput").value;
   const errorMsg = document.getElementById("ErrorMsg");
   const successMsg = document.getElementById("successMsg");
+  const landingSite = document.getElementById("formContainer");
 
-  if (!regName) {
-    errorMsg.innerText = "Please type desired username!";
-    return;
-  } else if (regName.length < 2 || regName.length > 10) {
-    errorMsg.innerText =
-      "Invalid username. Usernames must be between 2 and 10 characters long.";
-    return;
-  }
+  const error = validateRegName(regName);
+
   const res = await fetch("/register", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -29,7 +24,18 @@ const regHandler = async (event) => {
   }
 };
 
-const landingSite = document.getElementById("formContainer");
+// Moved logic out of regHandler so unit testing would be easier to make and more reliable
+export const validateRegName = (regName) => {
+  if (!regName) {
+    return "Please type desired username!";
+  }
+
+  if (regName.length < 2 || regName.length > 10) {
+    return "Invalid username. Usernames must be between 2 and 10 characters long";
+  }
+
+  return null;
+};
 
 const attachRegisterListener = () => {
   const registerBtn = document.getElementById("registerLink");
@@ -85,5 +91,3 @@ const attachLoginListener = () => {
     });
   }
 };
-
-attachRegisterListener();
