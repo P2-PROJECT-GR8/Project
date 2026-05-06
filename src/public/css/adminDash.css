@@ -1,4 +1,4 @@
-#input-Display {
+.input-row {
     display: flex;
     align-items: flex-end;
     gap: 24px;
@@ -115,9 +115,6 @@
   white-space: nowrap;
 }
 
-.btn-style:hover
-.btn-style:active
-
 
 .path-title {
   grid-area: title;
@@ -139,31 +136,36 @@
 }
 
 
-#logs {
-  margin-top: 32px;
-}
-
-#logs-field {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-
+.log-box {
+  margin-top: 24px;
   padding: 16px;
+
   background-color: #ffffff;
   border: 1px solid #d7ddda;
   border-radius: 6px;
+
+  font-size: 0.9rem;
 }
 
-#logs-field .field select {
-  min-width: 250px;
-}
-
-#logs-field {
+.log-box ul {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0;
   display: flex;
-  align-items: flex-end;
-  gap: 24px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 6px;
 }
+
+.log-box li {
+  padding: 6px 10px;
+  background-color: #f6f8f7;
+  border: 1px solid #e1e6e3;
+  border-radius: 4px;
+
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.85rem;
+}
+
 
 
 

@@ -12,7 +12,7 @@
         <div class="admin-Container">
             <div class="admin-Options">
                 <h1>Welcome to admin overview</h1>
-                <div id="input-Display"> 
+                <div id="input-Display" class="input-row"> 
                     <div class="field">
                         <label for="user-Select">Select a user:</label>
                         <select id="user-Select">
@@ -26,7 +26,7 @@
                             <option value="please select a user first"></option>
                         </select>
                     </div> 
-                    <button id="paths-submit" type="button" class="btn-style">Locate paths</button>
+                    <button id="paths-submit" type="button" class="btn-style btn-lift:hover btn-lift">Locate paths</button>
                 </div>
                 <div id="main-Display">
                     <h1 id="relation-Overview-Header"></h1>
@@ -34,7 +34,7 @@
                 </div>
                 <div id="logs">
                     <h2>Overview of access logs</h2>
-                    <div id="logs-field">
+                    <div id="logs-input" class="input-row">
                         <div class="field">
                             <label for="logs-user-select">Select a user</label>
                             <select id="logs-user-select">
@@ -47,11 +47,9 @@
 
                             </select>
                         </div>
-                        <button id="logs-submit" type="button" class="btn-style">Show logs</button>
-                        <div id="logs-display">
-
-                        </div>
-                        
+                        <button id="logs-submit" type="button" class="btn-style btn-lift:hover btn-lift">Show logs</button>
+                    </div>
+                    <div id="logs-display" class="log-box">
 
                     </div>
                 </div>
