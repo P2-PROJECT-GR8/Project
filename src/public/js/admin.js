@@ -1,4 +1,6 @@
 import { renderHeader } from "./navRenderer.js";
+import { renderMembers } from "./dashboard.js";
+import { getCurrentUser } from "./dashboard.js"
 
 // wait for DOM load before doing anything
 document.addEventListener("DOMContentLoaded", async () => {
@@ -239,6 +241,15 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 });
 
+const currentUser = await getCurrentUser();
+
+const editObjectSubmit = document.getElementById("admin-edit-submit")
+editObjectSubmit.addEventListener("click", ()=>{
+loadObjectModal();
+})
+
+const fileDetailsModal = document.getElementById("file-details")
+
 async function editObjOptions(){
     const editOptions = document.getElementById("admin-edit")
     const res = await fetch("/api/objects");
@@ -253,12 +264,56 @@ async function editObjOptions(){
           const option = document.createElement("option");
           const name = o.objectId.split(":")[1];
           console.log(name)
-          option.value = name;
+          option.value = o.objectId;
           option.innerText = name.charAt(0).toUpperCase() + name.slice(1);
           editOptions.appendChild(option);
       });
 }
 
-async function loadobjectModals(){
-  
+async function loadObjectModal() {
+
+  const filedetails = document.getElementById("file-details");
+
+  const userList = document.getElementById("data-users");
+
+  const userNamesRes = await fetch("/api/userNames", {
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+  });
+
+  const { userNames } = await userNamesRes.json();
+
+  userList.innerHTML = "";
+
+  userNames.forEach((user) => {
+    const option = document.createElement("option");
+    option.innerText = user;
+    userList.appendChild(option);
+  });
+
+  const editOptions = document.getElementById("admin-edit");
+
+  selectedFile = editOptions.value;
+
+  console.log("selected file:", selectedFile);
+
+  tempMembers = [];
+  addedUsers = [];
+  deletedUsers = [];
+  changedRelation.clear();
+
+  const inviteContainer = document.getElementById("invite-container");
+
+  inviteContainer.classList.remove("hidden");
+
+  renderMembers(selectedFile);
+
+  fileDetailsModal.showModal();
 }
+
+let tempMembers=[];
+let addedUsers=[];
+let deletedUsers=[];
+let changedRelation = new Map();
+let selectedFile
+

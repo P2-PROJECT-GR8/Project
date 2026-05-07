@@ -769,7 +769,7 @@ const currentUser = await getCurrentUser();
   const userRelations = userEntry ? userEntry.relations : [];
 
   const canDelete = await userRelations.some(rel => 
-  window.schema?.file?.relations?.[rel]?.includes("delete")
+  window.schema?.file?.relations?.[rel]?.includes("delete")|| currentUser.id === "user:admin"
   );
   console.log(canDelete)
   deleteFileBtn.disabled=!canDelete
@@ -780,7 +780,7 @@ const delRel = (currentUser, tempMembers, schema)=>{
   const userRelations = userEntry ? userEntry.relations : [];
 
   return userRelations.some(rel => 
-  schema?.file?.relations?.[rel]?.includes("remove_relations"));
+  schema?.file?.relations?.[rel]?.includes("remove_relations")|| currentUser.id === "user:admin");
 }
 
 const manageRel = (currentUser, tempMembers, schema)=>{
@@ -788,7 +788,7 @@ const manageRel = (currentUser, tempMembers, schema)=>{
   const userRelations = userEntry ? userEntry.relations : [];
 
   return userRelations.some(rel => 
-  schema?.file?.relations?.[rel]?.includes("manage_relations"))
+  schema?.file?.relations?.[rel]?.includes("manage_relations")|| currentUser.id === "user:admin")
 }
 
 const shareObj = (currentUser, tempMembers, schema)=>{
@@ -796,7 +796,7 @@ const shareObj = (currentUser, tempMembers, schema)=>{
   const userRelations = userEntry ? userEntry.relations : [];
 
   return userRelations.some(rel => 
-  schema?.file?.relations?.[rel]?.includes("share"))
+  schema?.file?.relations?.[rel]?.includes("share")|| currentUser.id === "user:admin")
 }
 // calculate weight of all roles and return "strongest"
 function dominance(files) {
@@ -828,3 +828,7 @@ function dominance(files) {
   console.log(strongest)
   return strongest;
 }
+
+export {renderMembers};
+export {getCurrentUser}
+
