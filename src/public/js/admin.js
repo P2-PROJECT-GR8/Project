@@ -1,6 +1,7 @@
 import { renderHeader } from "./navRenderer.js";
 import { renderMembers } from "./dashboard.js";
-import { getCurrentUser } from "./dashboard.js"
+import { getCurrentUser } from "./dashboard.js";
+import { saveAllChanges} from "./dashboard.js";
 
 // wait for DOM load before doing anything
 document.addEventListener("DOMContentLoaded", async () => {
@@ -242,6 +243,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 const currentUser = await getCurrentUser();
+const canDelRel=true;
+const canManageRel=true;
+const canShare=true;
 
 const editObjectSubmit = document.getElementById("admin-edit-submit")
 editObjectSubmit.addEventListener("click", ()=>{
@@ -310,6 +314,12 @@ async function loadObjectModal() {
 
   fileDetailsModal.showModal();
 }
+
+const saveChanges = document.getElementById("save-changes");
+  saveChanges.addEventListener("click", async (e) => {
+    e.preventDefault();
+    saveAllChanges(e);
+})
 
 let tempMembers=[];
 let addedUsers=[];

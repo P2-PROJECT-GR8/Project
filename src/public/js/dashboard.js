@@ -352,10 +352,15 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
   
   // fetch the server when saving all changes
-  const saveChanges = document.getElementById("save-changes");
-      saveChanges.addEventListener("click", async (e) => {
-      const changes = Array.from(changedRelation.entries()).map(
-    ([subjectId, { oldRel, newRel }]) => ({
+const saveChanges = document.getElementById("save-changes");
+  saveChanges.addEventListener("click", async (e) => {
+    e.preventDefault();
+    saveAllChanges(e);
+})
+
+const saveAllChanges = async (event)=>{
+  const changes = Array.from(changedRelation.entries()).map(
+      ([subjectId, { oldRel, newRel }]) => ({
       subjectId,
       oldRel,
       newRel
@@ -389,7 +394,7 @@ deletedUsers=[];
 renderMembers(selectedFile);
 document.getElementById("file-details").close();
 
-})
+};
 
 let tempMembers = [];
 let addedUsers = [];
@@ -830,5 +835,6 @@ function dominance(files) {
 }
 
 export {renderMembers};
-export {getCurrentUser}
+export {getCurrentUser};
+export {saveAllChanges};
 
