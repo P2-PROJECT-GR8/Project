@@ -433,3 +433,7 @@ button {
   border: 0px;
   text-decoration: underline;
 }
+
+.leave-btn{
+  background-color: var(--primary);
+}

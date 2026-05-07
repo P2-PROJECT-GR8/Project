@@ -540,10 +540,10 @@ const renderMembers = async (fileId) => {
         } else if (rel.subjectId === currentUser.id)
           // create an option to revoke own access
           {
-          const leaveSelectedFile = document.createElement("a")
+          const leaveSelectedFile = document.createElement("button")
           leaveSelectedFile.innerText = "Leave";
-          leaveSelectedFile.href = "#";
           leaveSelectedFile.id="leave-file";
+          leaveSelectedFile.classList="btn-lift"
           const helpLeave = document.createElement("span");
           helpLeave.className = "tooltip";
           helpLeave.innerText = "Revoke own access";

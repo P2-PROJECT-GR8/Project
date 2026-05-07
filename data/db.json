@@ -52,11 +52,23 @@
     "byObject": {
       "file:Project.pdf": [
         {
-          "subjectId": "user:emil",
-          "relation": "editor"
+          "subjectId": "user:magnus",
+          "relation": "owner"
         },
         {
-          "subjectId": "user:magnus",
+          "subjectId": "user:viktor",
+          "relation": "viewer"
+        },
+        {
+          "subjectId": "user:kasper",
+          "relation": "viewer"
+        },
+        {
+          "subjectId": "user:frederik",
+          "relation": "viewer"
+        },
+        {
+          "subjectId": "user:emil",
           "relation": "viewer"
         }
       ],
@@ -166,7 +178,7 @@
           "objectId": "folder:admin"
         },
         {
-          "relation": "viewer",
+          "relation": "owner",
           "objectId": "file:Project.pdf"
         },
         {
@@ -232,16 +244,16 @@
       ],
       "user:emil": [
         {
-          "relation": "editor",
-          "objectId": "file:Project.pdf"
-        },
-        {
           "relation": "owner",
           "objectId": "folder:folderTester"
         },
         {
           "relation": "owner",
           "objectId": "file:newfile"
+        },
+        {
+          "relation": "viewer",
+          "objectId": "file:Project.pdf"
         }
       ],
       "folder:folderTester": [
@@ -254,6 +266,24 @@
         {
           "relation": "parent",
           "objectId": "file:deepTester"
+        }
+      ],
+      "user:viktor": [
+        {
+          "relation": "viewer",
+          "objectId": "file:Project.pdf"
+        }
+      ],
+      "user:kasper": [
+        {
+          "relation": "viewer",
+          "objectId": "file:Project.pdf"
+        }
+      ],
+      "user:frederik": [
+        {
+          "relation": "viewer",
+          "objectId": "file:Project.pdf"
         }
       ]
     }
@@ -314,6 +344,13 @@
           "objectId": "folder:deep_nest",
           "time": 1778064062561,
           "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "manage_relations",
+          "objectId": "file:Project.pdf",
+          "time": 1778181563261,
+          "allowed": true
         }
       ]
     },
@@ -349,6 +386,15 @@
           "action": "view",
           "objectId": "folder:deep_nest",
           "time": 1778064062561,
+          "allowed": true
+        }
+      ],
+      "file:Project.pdf": [
+        {
+          "subjectId": "user:magnus",
+          "action": "manage_relations",
+          "objectId": "file:Project.pdf",
+          "time": 1778181563261,
           "allowed": true
         }
       ]
