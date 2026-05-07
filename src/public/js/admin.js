@@ -132,6 +132,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
+  editObjOptions();
+
   // logs section
   const logsUserSearch = document.getElementById("logs-user-search");
   const logsObjectSearch = document.getElementById("logs-object-search");
@@ -234,7 +236,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
 
     logsDisplay.appendChild(ul);
-    editObjOptions();
   }
 });
 
@@ -256,4 +257,8 @@ async function editObjOptions(){
           option.innerText = name.charAt(0).toUpperCase() + name.slice(1);
           editOptions.appendChild(option);
       });
+}
+
+async function loadobjectModals(){
+  
 }
