@@ -695,6 +695,15 @@ app.get("/api/userNames", (req, res) => {
   res.send({ userNames: userNames });
 });
 
+app.get("/api/objects", async (req, res) => {
+  await db.read();
+const validTypes = new Set(["folder", "file"]);
+
+const objects = Object.entries(db.data?.tupleStore?.byObject || {})
+  .filter(([id]) => validTypes.has(id.split(":")[0]))
+  .map(([objectId, relations]) => ({ objectId, relations }));
+});
+
 // Create a new folder
 app.post("/api/newFolder", async (req, res) => {
   let currentUser;

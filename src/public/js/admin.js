@@ -234,5 +234,26 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
 
     logsDisplay.appendChild(ul);
+    editObjOptions();
   }
 });
+
+async function editObjOptions(){
+    const editOptions = document.getElementById("admin-edit")
+    const res = await fetch("/api/objects");
+    if (!res.ok) {
+    const text = await res.text();
+    console.error("Error response:", text);
+    throw new Error("Request failed");
+    }
+    const {objects} = await res.json();
+    console.log(objects)
+      objects.forEach((o) => {
+          const option = document.createElement("option");
+          const name = o.objectId.split(":")[1];
+          console.log(name)
+          option.value = name;
+          option.innerText = name.charAt(0).toUpperCase() + name.slice(1);
+          editOptions.appendChild(option);
+      });
+}
