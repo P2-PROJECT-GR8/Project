@@ -366,6 +366,23 @@ button {
   grid-area: buttons-cn;
 }
 
+  .create-new-group-buttons{
+  margin-top: 2rem;
+  display: grid;
+  grid-template-columns: auto 1fr auto;      
+  grid-area: buttons-cn;
+}
+ #create-new-group-form input {
+  padding: 1rem;
+  border: 0px solid;
+  background-color: #ecf0f1;
+  border-radius: 8px;
+  grid-area: input-cn;
+  font-size: 1rem;
+}     
+      
+    
+
 .cancel-modal {
   background-color: transparent !important;
   color: var(--on-surface-variant) !important;

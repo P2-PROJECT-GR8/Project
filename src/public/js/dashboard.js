@@ -46,7 +46,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     createNewErrorMsg.innerText = "";
     createNewModal.showModal();
   });
-
+    
+                                  
   const createNewCancelBtn = document.getElementById("create-new-cancel");
   createNewCancelBtn.addEventListener("click", (e) => {
     e.preventDefault();
@@ -81,6 +82,54 @@ document.addEventListener("DOMContentLoaded", async () => {
         'Please only use letters, numbers and symbols like: ".-_"';
     }
   });
+    
+    
+  const createNewGroupModal = document.getElementById("create-new-group");
+  const createNewGroupForm = document.getElementById("create-new-group-form");
+  const createNewGroupErrorMsg = document.getElementById("create-new-group-error");
+  const groupsList = document.getElementById("GroupsList");
+  const newGroupBtn = document.getElementById("newGroupBtn");
+  newGroupBtn.addEventListener("click", () => {
+      createNewGroupErrorMsg.innerText = "";
+      createNewGroupModal.showModal();
+  });
+
+  const createNewGroupCancelBtn = document.getElementById("create-new-group-cancel");
+  createNewGroupCancelBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    createNewGroupModal.close();
+    createNewGroupForm.reset();
+  });
+    
+  const createNewGroupButton = document.getElementById("create-new-group-button");
+  createNewGroupButton.addEventListener("click", async (e) => {
+    e.preventDefault();
+    const data = new FormData(createNewGroupForm);
+    const formObject = Object.fromEntries(data);
+    if (validateString(formObject.name)) {
+      const res = await fetch("/api/createNew", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          objectId: `group:${formObject.name}`,
+        }),
+      });
+      const resData = await res.json();
+      if (!res.ok) {
+        createNewGroupErrorMsg.innerText = resData.message;
+      } else {
+        createNewGroupForm.reset();
+        createNewGroupModal.close();
+        await renderFileListForUSer(currentUser.id);
+      }
+    } else {
+      createNewErrorMsg.innerText =
+        'Please only use letters, numbers and symbols like: ".-_"';
+    }
+  }); 
+    
+    
 
   // Set the initial active page
   showPage("#files"); // Set "All Files" as the default active page
@@ -184,7 +233,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   const groupsList = document.getElementById("GroupsList");
   console.log("GroupsList element:", groupsList);
   groupsList.innerHTML = "";
-  // ... rest stays the same
 
   const groups = files.filter(file => file.objectId.startsWith("group:"));
 
