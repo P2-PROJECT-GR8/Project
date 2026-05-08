@@ -107,22 +107,6 @@
         {
           "subjectId": "folder:deep_nest",
           "relation": "parent"
-        },
-        {
-          "subjectId": "user:bob",
-          "relation": "viewer"
-        },
-        {
-          "subjectId": "user:alice",
-          "relation": "viewer"
-        },
-        {
-          "subjectId": "user:jeff",
-          "relation": "viewer"
-        },
-        {
-          "subjectId": "user:magnus",
-          "relation": "viewer"
         }
       ],
       "file:ny_fil": [
@@ -199,10 +183,6 @@
         {
           "relation": "viewer",
           "objectId": "folder:folderTester"
-        },
-        {
-          "relation": "viewer",
-          "objectId": "file:deep_file"
         }
       ],
       "user:jeff": [
@@ -211,12 +191,12 @@
           "objectId": "folder:folderTester"
         },
         {
-          "relation": "veiwer",
-          "objectId": "file:1"
+          "relation": "viewer",
+          "objectId": "file:newfile"
         },
         {
-          "relation": "viewer",
-          "objectId": "file:deep_file"
+          "relation": "lastviewer",
+          "objectId": "folder:folderTester"
         }
       ],
       "user:admin": [
@@ -545,13 +525,6 @@
           "objectId": "folder:nest1",
           "time": 1778064060112,
           "allowed": true
-        },
-        {
-          "subjectId": "user:magnus",
-          "action": "view",
-          "objectId": "folder:nest1",
-          "time": 1778235934948,
-          "allowed": true
         }
       ],
       "folder:deep_nest": [
@@ -567,50 +540,6 @@
           "action": "view",
           "objectId": "folder:deep_nest",
           "time": 1778064062561,
-          "allowed": true
-        },
-        {
-          "subjectId": "user:magnus",
-          "action": "view",
-          "objectId": "folder:deep_nest",
-          "time": 1778235935868,
-          "allowed": true
-        },
-        {
-          "subjectId": "user:magnus",
-          "action": "view",
-          "objectId": "folder:deep_nest",
-          "time": 1778235975900,
-          "allowed": true
-        }
-      ],
-      "file:deep_file": [
-        {
-          "subjectId": "user:magnus",
-          "action": "share",
-          "objectId": "file:deep_file",
-          "time": 1778235942870,
-          "allowed": true
-        },
-        {
-          "subjectId": "user:magnus",
-          "action": "share",
-          "objectId": "file:deep_file",
-          "time": 1778235953331,
-          "allowed": true
-        },
-        {
-          "subjectId": "user:magnus",
-          "action": "share",
-          "objectId": "file:deep_file",
-          "time": 1778235956176,
-          "allowed": true
-        },
-        {
-          "subjectId": "user:magnus",
-          "action": "share",
-          "objectId": "file:deep_file",
-          "time": 1778235962225,
           "allowed": true
         }
       ],
