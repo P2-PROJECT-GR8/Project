@@ -99,55 +99,78 @@ class AccessControl {
   /**
    * Recursively expands relations between a subject and an object.
    * @private
-   * @param {string} subjectId - The ID of the subject (user, group, etc.).
-   * @param {string} objectId - The ID of the object.
-   * @param {Set<string>} visited - A set to track visited subject-object pairs to prevent cycles.
+   * @param {string} subjectId - The ID of the subject (e.g., 'user:alice').
+   * @param {string} objectId - The ID of the object (e.g., 'file:1').
    * @returns {Promise<string[]>} - An array of discovered relations.
    * @memberof AccessControl
    */
   async _expand(subjectId, objectId) {
     await this.db.read();
-    const { byObject, bySubject } = this.db.data.tupleStore;
+    const { byObject } = this.db.data.tupleStore;
+
+    // 1. Find all groups the subject belongs to, transitively.
+    const subjectAndGroups = this._getSubjectGroups(subjectId);
+    subjectAndGroups.add(subjectId);
 
     const discoveredRelations = new Set();
-    const visited = new Set();
+    const visitedObjects = new Set();
     const queue = [objectId];
 
+    // 2. Traverse up the object hierarchy from the target object.
     while (queue.length > 0) {
       const currentTarget = queue.shift();
 
-      if (visited.has(currentTarget)) continue;
-      visited.add(currentTarget);
+      if (visitedObjects.has(currentTarget)) continue;
+      visitedObjects.add(currentTarget);
 
       const tuples = byObject[currentTarget] || [];
 
       for (const tuple of tuples) {
-        // Case A: Direct relation
-        if (tuple.subjectId === subjectId) {
-          discoveredRelations.add(tuple.relation);
-        }
-
-        // Case B: Indirect relation via Folder/Parent inheritance
-        else if (tuple.relation === "parent") {
+        // If the tuple defines a parent, add the parent to the queue to check it next.
+        if (tuple.relation === "parent") {
           queue.push(tuple.subjectId);
-        }
-
-        // Case C: Indirect relation via Group inheritance
-        else {
-          const userRelations = bySubject[subjectId] || [];
-          const isMember = userRelations.some(
-            (r) => r.objectId === tuple.subjectId && r.relation === "member",
-          );
-
-          if (isMember) {
-            discoveredRelations.add(tuple.relation);
-          }
+        } else if (subjectAndGroups.has(tuple.subjectId)) {
+          // For any other relation, if the subject is the user or one of their groups,
+          // they inherit the relation.
+          discoveredRelations.add(tuple.relation);
         }
       }
     }
 
     discoveredRelations.delete("parent");
     return Array.from(discoveredRelations);
+  }
+
+  /**
+   * Finds all groups a subject is a member of, transitively.
+   * @private
+   * @param {string} subjectId The ID of the subject (e.g., 'user:alice').
+   * @returns {Set<string>} A set of group IDs.
+   * @memberof AccessControl
+   */
+  _getSubjectGroups(subjectId) {
+    const { bySubject } = this.db.data.tupleStore;
+    const groups = new Set();
+    const queue = [subjectId];
+    const visited = new Set([subjectId]);
+
+    while (queue.length > 0) {
+      const current = queue.shift();
+      const memberships = bySubject[current] || [];
+      for (const tuple of memberships) {
+        if (
+          tuple.relation === "member" &&
+          tuple.objectId.startsWith("group:")
+        ) {
+          if (!visited.has(tuple.objectId)) {
+            visited.add(tuple.objectId);
+            groups.add(tuple.objectId);
+            queue.push(tuple.objectId);
+          }
+        }
+      }
+    }
+    return groups;
   }
 
   /**
@@ -230,6 +253,7 @@ class AccessControl {
     } else
       console.error(
         "Tried to add a tupple to the byObject database that already exists",
+        { subjectId, relation, objectId }
       );
 
     // 2. Add tuple to the bySubject index, same method as step 1
@@ -379,6 +403,38 @@ class AccessControl {
 
     console.log("locate paths returned something probably");
     return paths;
+  }
+
+  async deleteFile(objectId){
+    await this.db.read();
+
+    // Remove all relations to the file
+    // The deleteTuple function delete when there are no more relations
+    const objectType = objectId.split(":")[0];
+    if(objectType === "folder"){
+      const folderContent =
+      this.db.data.tupleStore.bySubject[objectId] || [];
+
+    for (const content of [...folderContent]) {
+      // run recursively for  children
+      await this.deleteFile(content.objectId);
+
+      // remove relation
+      await this.deleteTuple(
+        content.subjectId,
+        content.relation,
+        content.objectId
+      );
+    }
+  }
+  const tuples = this.db.data.tupleStore.byObject[objectId]
+  for (const tuple of [...tuples]) {
+    await this.deleteTuple(
+      tuple.subjectId,
+      tuple.relation,
+      objectId
+    );
+  }
   }
 
   async log(subjectId, action, objectId, allowed) {
