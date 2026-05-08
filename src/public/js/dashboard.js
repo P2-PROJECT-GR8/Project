@@ -274,6 +274,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const inviteInput = document.getElementById("invite-field");
   const inviteBtn = document.getElementById("invite-member");
   inviteBtn.addEventListener("click", async (event) => {
+    event.preventDefault
     const errorMessage = document.getElementById("modalErrorMessage");
     // Check the length of the input value, not the value itself.
     if (inviteInput.value.length >= 2 && inviteInput.value.length <= 10) {

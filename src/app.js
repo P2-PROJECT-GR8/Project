@@ -490,9 +490,9 @@ app.post("/api/saveAllChanges", async (req, res) => {
     return res.status(401).send({ message: "User not authenticated" });
   }
   try {
-    const canShare = accessControl.can(currentUser.id, "share", objectId)
-    const canDelete = accessControl.can(currentUser.id, "remove_relations", objectId)
-    const canEdit = accessControl.can(currentUser.id, "manage_relations", objectId)
+    const canShare = await accessControl.can(currentUser.id, "share", objectId)
+    const canDelete = await accessControl.can(currentUser.id, "remove_relations", objectId)
+    const canEdit = await accessControl.can(currentUser.id, "manage_relations", objectId)
     if(addRel.length>0){
       if(!canShare){
         return res.status(403).send({ message: "Not authorized to share!" });
@@ -508,14 +508,6 @@ app.post("/api/saveAllChanges", async (req, res) => {
         return res.status(403).send({ message: "Not authorized to edit users' relations!" });
       }
     }
-    /*
-    const isOwner = db.data.tupleStore.byObject[objectId]?.some(
-    (tuple) => tuple.subjectId === currentUser.id && tuple.relation === "owner"
-    );
-    if (!isOwner) {
-      return res.status(403).send({ message: "Not authorized" });
-    }
-      */
 
     //delete users
     for (const { subjectId } of deleteRel) {

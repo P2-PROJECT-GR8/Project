@@ -310,6 +310,64 @@
           "time": 1778181563261,
           "allowed": true
         }
+      ],
+      "user:emil": [
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "folder:folderTester",
+          "time": 1778240668848,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "folder:folderTester",
+          "time": 1778240682698,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "folder:nestedTester",
+          "time": 1778240720181,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "folder:nestedTester",
+          "time": 1778240720184,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "folder:nestedTester",
+          "time": 1778240720186,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "folder:folderTester",
+          "time": 1778240737998,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "folder:folderTester",
+          "time": 1778240738001,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "folder:folderTester",
+          "time": 1778240738002,
+          "allowed": false
+        }
       ]
     },
     "byObject": {
@@ -354,6 +412,66 @@
           "objectId": "file:Project.pdf",
           "time": 1778181563261,
           "allowed": true
+        }
+      ],
+      "folder:folderTester": [
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "folder:folderTester",
+          "time": 1778240668848,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "folder:folderTester",
+          "time": 1778240682698,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "folder:folderTester",
+          "time": 1778240737998,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "folder:folderTester",
+          "time": 1778240738001,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "folder:folderTester",
+          "time": 1778240738002,
+          "allowed": false
+        }
+      ],
+      "folder:nestedTester": [
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "folder:nestedTester",
+          "time": 1778240720181,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "folder:nestedTester",
+          "time": 1778240720184,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "folder:nestedTester",
+          "time": 1778240720186,
+          "allowed": false
         }
       ]
     }

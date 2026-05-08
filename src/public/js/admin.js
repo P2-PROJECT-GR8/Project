@@ -1,5 +1,5 @@
 import { renderHeader } from "./navRenderer.js";
-import { createCustomRel, renderMembers, getCurrentUser } from "./dashboard.js";
+import { createCustomRel, renderMembers, getCurrentUser} from "./dashboard.js";
 import { saveAllChanges} from "./dashboard.js";
 import { tempMembers, selectedFile } from "./dashboard.js";
 
