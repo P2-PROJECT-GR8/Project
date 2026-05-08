@@ -281,6 +281,23 @@ document.addEventListener("DOMContentLoaded", async () => {
     if(!validateString(inviteInput.value)){
       alert("do not use special characters")
       return}
+    
+    const res = await fetch("/username", {
+    method: "POST",
+    headers: {
+    "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+    userName: inviteInput.value,
+    }),
+    });
+
+    const data = await res.json();
+
+    if (data.status === "404") {
+    errorMessage.innerText="User does not exist in the database"
+    return;
+    }
       
     const newId = `user:${inviteInput.value.toLowerCase()}`;
     if (!selectedFile) return;
@@ -436,7 +453,6 @@ const renderMembers = async (fileId) => {
         (rel) =>
           rel.relations.includes("owner") && rel.subjectId === currentUser.id,
       );
-      disableDelete();
       const canDelRel = delRel(currentUser, tempMembers, schema);
       const canManageRel = manageRel(currentUser, tempMembers, schema);
 
@@ -505,10 +521,10 @@ const renderMembers = async (fileId) => {
         member.appendChild(relationSel);
         // create an option for an owner to revoke acces from another member
         if (canDelRel && rel.subjectId !== currentUser.id) {
-          const deleteRel = document.createElement("a");
-          deleteRel.innerText = "X";
-          deleteRel.href = "#";
-          deleteRel.id = "delete-btn";
+          const deleteRel = document.createElement("button");
+          deleteRel.innerText = "Revoke";
+          deleteRel.className="btn-lift";
+          deleteRel.id = "revoke-btn";
           deleteRel.addEventListener("click", (event) => {
             event.preventDefault();
             console.log("knap trykket")
@@ -529,18 +545,18 @@ const renderMembers = async (fileId) => {
           });
           const helpDelete = document.createElement("span");
           helpDelete.className = "tooltip";
-          helpDelete.innerText = "Remove Access";
+          helpDelete.innerText = "Revoke this user's access";
           deleteRel.appendChild(helpDelete);
           member.appendChild(deleteRel);
         } else if (rel.subjectId === currentUser.id)
           // create an option to revoke own access
           {
-          const leaveSelectedFile = document.createElement("a")
+          const leaveSelectedFile = document.createElement("button")
           leaveSelectedFile.innerText = "Leave";
-          leaveSelectedFile.href = "#";
+          leaveSelectedFile.className="btn-lift";
           leaveSelectedFile.id="leave-file";
           const helpLeave = document.createElement("span");
-          helpLeave.className = "tooltip";
+          helpLeave.className = "tooltip-leave";
           helpLeave.innerText = "Revoke own access";
 
           leaveSelectedFile.addEventListener("click", async (event)=>{
@@ -551,31 +567,32 @@ const renderMembers = async (fileId) => {
           return;
           }
 
-        const res = await fetch("/api/leaveFile", {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ objectId: selectedFile }),
-        });
-
-        if (res.ok) {
-        document.getElementById("file-details").close();
-        location.reload();
-        } else {
-        const data = await res.json();
-        const errorMessage = document.getElementById("modalErrorMessage");
-        errorMessage.innerText = data.message;
-        }
+          const res = await fetch("/api/leaveFile", {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ objectId: selectedFile }),
           });
-          leaveSelectedFile.appendChild(helpLeave)
-          member.appendChild(leaveSelectedFile)
+
+          if (res.ok) {
+          document.getElementById("file-details").close();
+          location.reload();
+          } else {
+          const data = await res.json();
+          const errorMessage = document.getElementById("modalErrorMessage");
+          errorMessage.innerText = data.message;
+          }
+            });
+            leaveSelectedFile.appendChild(helpLeave)
+            member.appendChild(leaveSelectedFile)
       }
         membersList.appendChild(member);
       });
     }
   };
+
 
 // add eventlistener to the costum relations link/button
 const customBtn = document.getElementById("custom-btn")
