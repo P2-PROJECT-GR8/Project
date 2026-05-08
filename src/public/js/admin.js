@@ -157,7 +157,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       const list = document.createElement("ul");
       path.forEach((step) => {
         const item = document.createElement("li");
-        item.textContent = `${step.from} → (${step.relation}) → ${step.to}`;
+        if (mode.value === "bySubject") {
+          item.textContent = `${step.from} → (${step.relation}) → ${step.to}`;
+        } else if ((mode.value = "byObject")) {
+          item.textContent = `${step.from} ← (${step.relation}) ← ${step.to}`;
+        }
+
         list.appendChild(item);
       });
       relationContent.appendChild(list);
