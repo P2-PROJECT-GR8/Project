@@ -253,7 +253,7 @@ class AccessControl {
     } else
       console.error(
         "Tried to add a tupple to the byObject database that already exists",
-        { subjectId, relation, objectId }
+        { subjectId, relation, objectId },
       );
 
     // 2. Add tuple to the bySubject index, same method as step 1
@@ -306,84 +306,125 @@ class AccessControl {
     await this.db.write();
   }
 
-  async locatePaths(userId, objectId, maxDepth = 5) {
+  async locatePaths(subjectId, objectId, maxDepth = 5) {
     const paths = [];
     await this.db.read();
     const { bySubject } = this.db.data.tupleStore;
+    const { byObject } = this.db.data.tupleStore;
+    const type = subjectId.split(":")[0];
 
-    // dfs algortihm
-    function DFS(currentNode, path, visited, depth) {
-      // if depth exceeded return
-      if (depth > maxDepth) {
-        return;
+    // bySubject or byObject
+    if (type === "user" || type === "group") {
+      // dfs algortihm for bySubject (returns all paths from user to object)
+      function DFS(currentNode, path, visited, depth) {
+        // if depth exceeded return
+        if (depth > maxDepth) {
+          return;
+        }
+        // base case: target hit return path
+        if (currentNode === objectId) {
+          paths.push([...path]);
+          return;
+        }
+
+        // intialize edges for current node
+        const edges = bySubject[currentNode] || [];
+
+        // run through all edges at this node
+        for (const edge of edges) {
+          const nextNode = edge.objectId;
+
+          // prevent cycles
+          if (visited.has(nextNode)) continue;
+
+          // log nodes already visisted
+          visited.add(nextNode);
+          path.push({
+            from: currentNode,
+            relation: edge.relation,
+            to: nextNode,
+          });
+
+          // recursive call
+          DFS(nextNode, path, visited, depth + 1);
+
+          //backtracking
+          path.pop();
+          visited.delete(nextNode);
+        }
       }
-      // base case: target hit return path
-      if (currentNode === objectId) {
-        paths.push([...path]);
-        return;
+      DFS(subjectId, [], new Set([subjectId]), 0);
+    } else if (type === "file" || type === "folder") {
+      // dfs algortihm for byObject (returns all paths from an object)
+      function DFS(currentNode, path, visited, depth) {
+        // if depth exceeded return
+        if (depth > maxDepth) {
+          return;
+        }
+
+        // intialize edges for current node
+        const edges = byObject[currentNode] || [];
+
+        // base case: if no more edges found then push path
+        if (edges.length === 0) {
+          paths.push([...path]);
+          return;
+        }
+
+        // run through all edges at this node
+        for (const edge of edges) {
+          const nextNode = edge.subjectId;
+
+          // prevent cycles
+          if (visited.has(nextNode)) continue;
+
+          // log nodes already visisted
+          visited.add(nextNode);
+          path.push({
+            from: currentNode,
+            relation: edge.relation,
+            to: nextNode,
+          });
+
+          // recursive call
+          DFS(nextNode, path, visited, depth + 1);
+
+          //backtracking
+          path.pop();
+          visited.delete(nextNode);
+        }
       }
-
-      // intilize edges for current node
-      const edges = bySubject[currentNode] || [];
-
-      // run through all edges at this node
-      for (const edge of edges) {
-        const nextNode = edge.objectId;
-
-        // prevent cycles
-        if (visited.has(nextNode)) continue;
-
-        // log nodes already visisted
-        visited.add(nextNode);
-        path.push({
-          from: currentNode,
-          relation: edge.relation,
-          to: nextNode,
-        });
-
-        // recursive call
-        DFS(nextNode, path, visited, depth + 1);
-
-        //backtracking
-        path.pop();
-        visited.delete(nextNode);
-      }
+      DFS(subjectId, [], new Set([subjectId]), 0);
     }
 
-    DFS(userId, [], new Set([userId]), 0);
     return paths;
   }
 
-  async deleteFile(objectId){
+  async deleteFile(objectId) {
     await this.db.read();
 
     // Remove all relations to the file
     // The deleteTuple function delete when there are no more relations
     const objectType = objectId.split(":")[0];
-    if(objectType === "folder"){
-      const folderContent =
-      this.db.data.tupleStore.bySubject[objectId] || [];
+    if (objectType === "folder") {
+      const folderContent = this.db.data.tupleStore.bySubject[objectId] || [];
 
-    for (const content of [...folderContent]) {
-      // run recursively for  children
-      await this.deleteFile(content.objectId);
+      for (const content of [...folderContent]) {
+        // run recursively for  children
+        await this.deleteFile(content.objectId);
 
-      // remove relation
-      await this.deleteTuple(
-        content.subjectId,
-        content.relation,
-        content.objectId
-      );
+        // remove relation
+        await this.deleteTuple(
+          content.subjectId,
+          content.relation,
+          content.objectId,
+        );
+      }
     }
-  }
-  const tuples = this.db.data.tupleStore.byObject[objectId]
-  for (const tuple of [...tuples]) {
-    await this.deleteTuple(
-      tuple.subjectId,
-      tuple.relation,
-      objectId
-    );
-  }
+    const tuples = this.db.data.tupleStore.byObject[objectId];
+    for (const tuple of [...tuples]) {
+      await this.deleteTuple(tuple.subjectId, tuple.relation, objectId);
+    }
   }
 
   async log(subjectId, action, objectId, allowed) {
