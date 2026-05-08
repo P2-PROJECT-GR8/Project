@@ -776,6 +776,7 @@ const currentUser = await getCurrentUser();
   const canDelete = await userRelations.some(rel => 
   window.schema?.file?.relations?.[rel]?.includes("delete")|| currentUser.id === "user:admin"
   );
+  console.log(currentUser.id)
   console.log(canDelete)
   deleteFileBtn.disabled=!canDelete
 }

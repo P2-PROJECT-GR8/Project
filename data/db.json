@@ -56,18 +56,6 @@
           "relation": "owner"
         },
         {
-          "subjectId": "user:viktor",
-          "relation": "viewer"
-        },
-        {
-          "subjectId": "user:kasper",
-          "relation": "viewer"
-        },
-        {
-          "subjectId": "user:frederik",
-          "relation": "viewer"
-        },
-        {
           "subjectId": "user:emil",
           "relation": "viewer"
         }
@@ -266,24 +254,6 @@
         {
           "relation": "parent",
           "objectId": "file:deepTester"
-        }
-      ],
-      "user:viktor": [
-        {
-          "relation": "viewer",
-          "objectId": "file:Project.pdf"
-        }
-      ],
-      "user:kasper": [
-        {
-          "relation": "viewer",
-          "objectId": "file:Project.pdf"
-        }
-      ],
-      "user:frederik": [
-        {
-          "relation": "viewer",
-          "objectId": "file:Project.pdf"
         }
       ]
     }

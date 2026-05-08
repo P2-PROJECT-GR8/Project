@@ -274,8 +274,12 @@ async function editObjOptions(){
       });
 }
 
-async function loadObjectModal() {
+const schemaRes = await fetch("/api/schema", { credentials: "include" });
+const schema = await schemaRes.json();
+window.schema = schema
 
+async function loadObjectModal() {
+  
   const filedetails = document.getElementById("file-details");
 
   const userList = document.getElementById("data-users");
@@ -314,6 +318,12 @@ async function loadObjectModal() {
 
   fileDetailsModal.showModal();
 }
+
+const cancelModal = document
+.getElementById("cancel-modal")
+.addEventListener("click", () => {
+      fileDetailsModal.close();
+    });
 
 const saveChanges = document.getElementById("save-changes");
   saveChanges.addEventListener("click", async (e) => {
