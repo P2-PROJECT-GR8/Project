@@ -102,18 +102,6 @@
           "relation": "parent"
         }
       ],
-      "file:ny_fil": [
-        {
-          "subjectId": "user:alice",
-          "relation": "owner"
-        }
-      ],
-      "file:virkplz": [
-        {
-          "subjectId": "folder:foldertest",
-          "relation": "parent"
-        }
-      ],
       "folder:folderTester": [
         {
           "subjectId": "user:emil",

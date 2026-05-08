@@ -179,12 +179,12 @@ function showPage(pageId) {
   }
 }
 
-const getCurrentUser = async () => {
+export const getCurrentUser = async () => {
   const me = await fetch("/api/me", { credentials: "include" });
   return await me.json();
 };
 
-let selectedFile;
+export let selectedFile;
 
 // When the DOM is fully loaded, set up initial state and event listeners
 document.addEventListener("DOMContentLoaded", async () => {
@@ -390,18 +390,17 @@ if (!res.ok) {
 changedRelation.clear();
 addedUsers=[];
 deletedUsers=[];
-
-renderMembers(selectedFile);
 document.getElementById("file-details").close();
 
 };
 
-let tempMembers = [];
+export let tempMembers = [];
 let addedUsers = [];
 let deletedUsers = [];
 let changedRelation = new Map();
 
-const renderMembers = async (fileId) => {
+export const renderMembers = async (fileId) => {
+  console.log(fileId)
   const membersList = document.getElementById("members");
   const currentUser = await getCurrentUser();
   membersList.innerHTML = "";
@@ -425,6 +424,7 @@ const renderMembers = async (fileId) => {
     }
     const schemaRes = await fetch("/api/schema", { credentials: "include" });
       const schema = await schemaRes.json();
+    window.schema = schema;
 
       const inviteContainer = document.getElementById("invite-container")
       const canShare = shareObj(currentUser, tempMembers, schema);
@@ -478,7 +478,7 @@ const renderMembers = async (fileId) => {
         if (rel.subjectId === currentUser.id) {
           relationSel.disabled = true;
         }
-        if(rel.relations.includes("owner")){
+        if(rel.relations.includes("owner") && currentUser.id !== "user:admin"){
            relationSel.disabled = true;
         }
         // indicate which user you are
@@ -583,8 +583,13 @@ const renderMembers = async (fileId) => {
   };
 
 // add eventlistener to the costum relations link/button
-const customBtn = document.getElementById("custom-btn")
-customBtn.addEventListener("click", async (event)=>{
+const customBtn = document
+.getElementById("custom-btn")
+.addEventListener("click", async (event)=>{
+  createCustomRel(event);
+});
+  
+export const createCustomRel = async (event)=>{
   event.preventDefault();
 
   // create dialog for the creation of a new relation
@@ -737,7 +742,7 @@ createRelSubmit.addEventListener("click", async (e) => {
   customRelation.remove();
   });
 
-});
+};
 
 const deleteFileBtn = document.getElementById("delete-file");
 deleteFileBtn.addEventListener("click", async (event) =>{
@@ -773,8 +778,8 @@ const currentUser = await getCurrentUser();
   const userEntry = tempMembers.find(rel => rel.subjectId === currentUser.id);
   const userRelations = userEntry ? userEntry.relations : [];
 
-  const canDelete = await userRelations.some(rel => 
-  window.schema?.file?.relations?.[rel]?.includes("delete")|| currentUser.id === "user:admin"
+  const canDelete = await currentUser.id === "user:admin" || userRelations.some(rel => 
+  window.schema?.file?.relations?.[rel]?.includes("delete")
   );
   console.log(currentUser.id)
   console.log(canDelete)
@@ -785,24 +790,24 @@ const delRel = (currentUser, tempMembers, schema)=>{
   const userEntry = tempMembers.find(rel => rel.subjectId === currentUser.id);
   const userRelations = userEntry ? userEntry.relations : [];
 
-  return userRelations.some(rel => 
-  schema?.file?.relations?.[rel]?.includes("remove_relations")|| currentUser.id === "user:admin");
+  return currentUser.id === "user:admin" || userRelations.some(rel => 
+  schema?.file?.relations?.[rel]?.includes("remove_relations"));
 }
 
 const manageRel = (currentUser, tempMembers, schema)=>{
   const userEntry = tempMembers.find(rel => rel.subjectId === currentUser.id);
   const userRelations = userEntry ? userEntry.relations : [];
 
-  return userRelations.some(rel => 
-  schema?.file?.relations?.[rel]?.includes("manage_relations")|| currentUser.id === "user:admin")
+  return currentUser.id === "user:admin" || userRelations.some(rel => 
+  schema?.file?.relations?.[rel]?.includes("manage_relations"))
 }
 
 const shareObj = (currentUser, tempMembers, schema)=>{
   const userEntry = tempMembers.find(rel => rel.subjectId === currentUser.id);
   const userRelations = userEntry ? userEntry.relations : [];
 
-  return userRelations.some(rel => 
-  schema?.file?.relations?.[rel]?.includes("share")|| currentUser.id === "user:admin")
+  return currentUser.id === "user:admin" || userRelations.some(rel => 
+  schema?.file?.relations?.[rel]?.includes("share"))
 }
 // calculate weight of all roles and return "strongest"
 function dominance(files) {
@@ -834,8 +839,5 @@ function dominance(files) {
   console.log(strongest)
   return strongest;
 }
-
-export {renderMembers};
-export {getCurrentUser};
 export {saveAllChanges};
 

@@ -1,7 +1,7 @@
 import { renderHeader } from "./navRenderer.js";
-import { renderMembers } from "./dashboard.js";
-import { getCurrentUser } from "./dashboard.js";
+import { createCustomRel, renderMembers, getCurrentUser } from "./dashboard.js";
 import { saveAllChanges} from "./dashboard.js";
+import { tempMembers, selectedFile } from "./dashboard.js";
 
 // wait for DOM load before doing anything
 document.addEventListener("DOMContentLoaded", async () => {
@@ -278,18 +278,17 @@ const schemaRes = await fetch("/api/schema", { credentials: "include" });
 const schema = await schemaRes.json();
 window.schema = schema
 
+const userNamesRes = await fetch("/api/userNames", {
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+  });
+const { userNames } = await userNamesRes.json();
+
 async function loadObjectModal() {
   
   const filedetails = document.getElementById("file-details");
 
   const userList = document.getElementById("data-users");
-
-  const userNamesRes = await fetch("/api/userNames", {
-    credentials: "include",
-    headers: { "Content-Type": "application/json" },
-  });
-
-  const { userNames } = await userNamesRes.json();
 
   userList.innerHTML = "";
 
@@ -301,11 +300,11 @@ async function loadObjectModal() {
 
   const editOptions = document.getElementById("admin-edit");
 
-  selectedFile = editOptions.value;
+  fileId = editOptions.value;
 
-  console.log("selected file:", selectedFile);
+  console.log("selected file:", fileId);
 
-  tempMembers = [];
+  tempMembers.length = 0;
   addedUsers = [];
   deletedUsers = [];
   changedRelation.clear();
@@ -314,7 +313,7 @@ async function loadObjectModal() {
 
   inviteContainer.classList.remove("hidden");
 
-  renderMembers(selectedFile);
+  renderMembers(fileId);
 
   fileDetailsModal.showModal();
 }
@@ -331,9 +330,14 @@ const saveChanges = document.getElementById("save-changes");
     saveAllChanges(e);
 })
 
-let tempMembers=[];
+let fileId;
 let addedUsers=[];
 let deletedUsers=[];
 let changedRelation = new Map();
-let selectedFile
+
+const customBtn = document
+.getElementById("custom-btn")
+.addEventListener("click", async (event)=>{
+  createCustomRel(event);
+});
 
