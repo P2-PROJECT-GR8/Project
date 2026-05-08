@@ -484,31 +484,29 @@ app.get("/api/userNames", (req, res) => {
 
 // return the list of paths from given user to given object
 app.get("/api/adminRelations", async (req, res) => {
-  const token = req.cookies.sessionToken;
-  if (!token) {
-    return res.status(401).send({ message: "Unauthorized" });
-  }
-
+  // verify token
+  let currentUser;
   try {
-    const decoded = jwt.verify(token, SECRET_KEY);
-    // only allow admin to to utilize this endpoint.
-    if (getUser(req).id !== "user:admin") {
-      return res.status(403).send({ messeage: "request denied" });
-    }
-
-    // changes to be made
-
-    const userId = req.query.userId;
-    const objectId = req.query.objectId;
-
-    const paths = await accessControl.locatePaths(userId, objectId);
-    // console.log(userRelations);
-
-    res.json({ paths: paths });
+    currentUser = getUser(req);
   } catch (error) {
-    return res.status(401).send({ message: "Invalid session" });
+    console.error(error);
+    return res
+      .status(401)
+      .json({ message: "Unauthorized", error: error.message });
   }
+
+  // only allow admin to acces this endpoint
+  if (currentUser.id !== "user:admin") {
+    return res.status(401).json({ messeage: "currnet user is not admin" });
+  }
+
+  const userId = req.query.userId;
+  const objectId = req.query.objectId;
+
+  const paths = await accessControl.locatePaths(userId, objectId);
+  res.json({ paths: paths });
 });
+
 // Create a new folder
 app.post("/api/newFolder", async (req, res) => {
   let currentUser;
@@ -583,6 +581,17 @@ app.get("/api/adminLogs", async (req, res) => {
   let logs = Object.values(db.data.logs.bySubject).flat();
 
   res.json({ logs });
+});
+
+//delete me before commit
+app.get("/api/objects", async (req, res) => {
+  await db.read();
+  const validTypes = new Set(["folder", "file"]);
+  const objects = Object.entries(db.data?.tupleStore?.byObject || {})
+    .filter(([id]) => validTypes.has(id.split(":")[0]))
+    .map(([objectId, relations]) => ({ objectId, relations }));
+
+  res.send({ objects });
 });
 
 app.listen(3000, () => {

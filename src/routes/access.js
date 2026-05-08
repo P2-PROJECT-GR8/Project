@@ -282,51 +282,102 @@ class AccessControl {
     await this.db.write();
   }
 
-  async locatePaths(userId, objectId, maxDepth = 5) {
+  async locatePaths(subjectId, objectId, maxDepth = 5) {
     const paths = [];
     await this.db.read();
     const { bySubject } = this.db.data.tupleStore;
+    const { byObject } = this.db.data.tupleStore;
+    const type = subjectId.split(":")[0];
 
-    // dfs algortihm
-    function DFS(currentNode, path, visited, depth) {
-      // if depth exceeded return
-      if (depth > maxDepth) {
-        return;
+    console.log("i am in locatepaths");
+
+    // bySubject or byObject
+    if (type === "user" || type === "group") {
+      console.log("locate paths thinks i am a user / group");
+      // dfs algortihm for bySubject (returns all paths from user to object)
+      function DFS(currentNode, path, visited, depth) {
+        // if depth exceeded return
+        if (depth > maxDepth) {
+          return;
+        }
+        // base case: target hit return path
+        if (currentNode === objectId) {
+          paths.push([...path]);
+          return;
+        }
+
+        // intialize edges for current node
+        const edges = bySubject[currentNode] || [];
+
+        // run through all edges at this node
+        for (const edge of edges) {
+          const nextNode = edge.objectId;
+
+          // prevent cycles
+          if (visited.has(nextNode)) continue;
+
+          // log nodes already visisted
+          visited.add(nextNode);
+          path.push({
+            from: currentNode,
+            relation: edge.relation,
+            to: nextNode,
+          });
+
+          // recursive call
+          DFS(nextNode, path, visited, depth + 1);
+
+          //backtracking
+          path.pop();
+          visited.delete(nextNode);
+        }
       }
-      // base case: target hit return path
-      if (currentNode === objectId) {
-        paths.push([...path]);
-        return;
+      DFS(subjectId, [], new Set([subjectId]), 0);
+    } else if (type === "file" || type === "folder") {
+      console.log("locate paths thinks i am a file or folder");
+      // dfs algortihm for byObject (returns all paths from an object)
+      function DFS(currentNode, path, visited, depth) {
+        // if depth exceeded return
+        if (depth > maxDepth) {
+          return;
+        }
+
+        // intialize edges for current node
+        const edges = byObject[currentNode] || [];
+
+        // base case: if no more edges found then push path
+        if (edges.length === 0) {
+          paths.push([...path]);
+          return;
+        }
+
+        // run through all edges at this node
+        for (const edge of edges) {
+          const nextNode = edge.subjectId;
+
+          // prevent cycles
+          if (visited.has(nextNode)) continue;
+
+          // log nodes already visisted
+          visited.add(nextNode);
+          path.push({
+            from: currentNode,
+            relation: edge.relation,
+            to: nextNode,
+          });
+
+          // recursive call
+          DFS(nextNode, path, visited, depth + 1);
+
+          //backtracking
+          path.pop();
+          visited.delete(nextNode);
+        }
       }
-
-      // intilize edges for current node
-      const edges = bySubject[currentNode] || [];
-
-      // run through all edges at this node
-      for (const edge of edges) {
-        const nextNode = edge.objectId;
-
-        // prevent cycles
-        if (visited.has(nextNode)) continue;
-
-        // log nodes already visisted
-        visited.add(nextNode);
-        path.push({
-          from: currentNode,
-          relation: edge.relation,
-          to: nextNode,
-        });
-
-        // recursive call
-        DFS(nextNode, path, visited, depth + 1);
-
-        //backtracking
-        path.pop();
-        visited.delete(nextNode);
-      }
+      DFS(subjectId, [], new Set([subjectId]), 0);
     }
 
-    DFS(userId, [], new Set([userId]), 0);
+    console.log("locate paths returned something probably");
     return paths;
   }
 
