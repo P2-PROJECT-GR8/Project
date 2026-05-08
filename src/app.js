@@ -583,7 +583,6 @@ app.get("/api/adminLogs", async (req, res) => {
   res.json({ logs });
 });
 
-//delete me before commit
 app.get("/api/objects", async (req, res) => {
   await db.read();
   const validTypes = new Set(["folder", "file"]);
