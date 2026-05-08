@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log(data.message);
   });
 
-  export const registerBtn = document.getElementById("createUser");
+  const registerBtn = document.getElementById("createUser");
   registerBtn.addEventListener("click", async (e) => {
     e.preventDefault();
     const input = document.getElementById("registerUserNameInput").value ?? "";
