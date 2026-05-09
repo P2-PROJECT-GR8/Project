@@ -803,6 +803,17 @@ const manageRel = (currentUser, tempMembers, schema)=>{
   schema?.file?.relations?.[rel]?.includes("manage_relations"))
 }
 
+export function setSelectedFile(fileId) {
+  selectedFile = fileId;
+}
+
+export function resetChanges() {
+  tempMembers.length = 0;
+  addedUsers.length = 0;
+  deletedUsers.length = 0;
+  changedRelation.clear();
+}
+
 const shareObj = (currentUser, tempMembers, schema)=>{
   const userEntry = tempMembers.find(rel => rel.subjectId === currentUser.id);
   const userRelations = userEntry ? userEntry.relations : [];

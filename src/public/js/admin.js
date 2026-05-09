@@ -1,5 +1,5 @@
 import { renderHeader } from "./navRenderer.js";
-import { createCustomRel, renderMembers, getCurrentUser} from "./dashboard.js";
+import { createCustomRel, renderMembers, getCurrentUser, setSelectedFile, resetChanges} from "./dashboard.js";
 import { saveAllChanges} from "./dashboard.js";
 import { tempMembers, selectedFile } from "./dashboard.js";
 
@@ -300,20 +300,17 @@ async function loadObjectModal() {
 
   const editOptions = document.getElementById("admin-edit");
 
-  fileId = editOptions.value;
+  const selectedObjectId = editOptions.value
 
-  console.log("selected file:", fileId);
+  setSelectedFile(selectedObjectId);
 
-  tempMembers.length = 0;
-  addedUsers = [];
-  deletedUsers = [];
-  changedRelation.clear();
+  resetChanges();
 
   const inviteContainer = document.getElementById("invite-container");
 
   inviteContainer.classList.remove("hidden");
 
-  renderMembers(fileId);
+  renderMembers(selectedObjectId)
 
   fileDetailsModal.showModal();
 }
@@ -330,7 +327,6 @@ const saveChanges = document.getElementById("save-changes");
     saveAllChanges(e);
 })
 
-let fileId;
 let addedUsers=[];
 let deletedUsers=[];
 let changedRelation = new Map();

@@ -57,7 +57,7 @@
         },
         {
           "subjectId": "user:emil",
-          "relation": "viewer"
+          "relation": "editor"
         }
       ],
       "folder:admin": [
@@ -228,7 +228,7 @@
           "objectId": "file:newfile"
         },
         {
-          "relation": "viewer",
+          "relation": "editor",
           "objectId": "file:Project.pdf"
         }
       ],
@@ -368,6 +368,92 @@
           "time": 1778240738002,
           "allowed": false
         }
+      ],
+      "user:admin": [
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "file:Project.pdf",
+          "time": 1778327983281,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "file:Project.pdf",
+          "time": 1778327983285,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "file:Project.pdf",
+          "time": 1778327983290,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "file:Project.pdf",
+          "time": 1778328101477,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "file:Project.pdf",
+          "time": 1778328101481,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "file:Project.pdf",
+          "time": 1778328101484,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "file:Project.pdf",
+          "time": 1778328144695,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "file:Project.pdf",
+          "time": 1778328144699,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "file:Project.pdf",
+          "time": 1778328144703,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "file:Project.pdf",
+          "time": 1778328150460,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "file:Project.pdf",
+          "time": 1778328150463,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "file:Project.pdf",
+          "time": 1778328150466,
+          "allowed": false
+        }
       ]
     },
     "byObject": {
@@ -412,6 +498,90 @@
           "objectId": "file:Project.pdf",
           "time": 1778181563261,
           "allowed": true
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "file:Project.pdf",
+          "time": 1778327983281,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "file:Project.pdf",
+          "time": 1778327983285,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "file:Project.pdf",
+          "time": 1778327983290,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "file:Project.pdf",
+          "time": 1778328101477,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "file:Project.pdf",
+          "time": 1778328101481,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "file:Project.pdf",
+          "time": 1778328101484,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "file:Project.pdf",
+          "time": 1778328144695,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "file:Project.pdf",
+          "time": 1778328144699,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "file:Project.pdf",
+          "time": 1778328144703,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "file:Project.pdf",
+          "time": 1778328150460,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "file:Project.pdf",
+          "time": 1778328150463,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "file:Project.pdf",
+          "time": 1778328150466,
+          "allowed": false
         }
       ],
       "folder:folderTester": [
