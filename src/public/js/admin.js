@@ -1,11 +1,14 @@
 import { renderHeader } from "./navRenderer.js";
-import { createCustomRel, renderMembers, getCurrentUser, setSelectedFile, resetChanges} from "./dashboard.js";
+import { createCustomRel, renderMembers, 
+  getCurrentUser, setSelectedFile, 
+  resetChanges, inviteMember} from "./dashboard.js";
 import { saveAllChanges} from "./dashboard.js";
 import { tempMembers, selectedFile } from "./dashboard.js";
 
 // wait for DOM load before doing anything
+
+renderHeader();
 document.addEventListener("DOMContentLoaded", async () => {
-  renderHeader();
   const userSelect = document.getElementById("user-Select");
   const objectSelect = document.getElementById("object-Select");
   const display = document.getElementById("main-Display");
@@ -391,6 +394,12 @@ const saveChanges = document.getElementById("save-changes");
     e.preventDefault();
     saveAllChanges(e);
 })
+
+const inviteBtn = document.getElementById("invite-member");
+  inviteBtn.addEventListener("click", async (event) => {
+    event.preventDefault
+    inviteMember(event)
+  })
 
 let addedUsers=[];
 let deletedUsers=[];

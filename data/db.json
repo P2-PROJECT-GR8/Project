@@ -111,10 +111,6 @@
           "relation": "owner"
         },
         {
-          "subjectId": "user:jeff",
-          "relation": "sharer"
-        },
-        {
           "subjectId": "user:magnus",
           "relation": "viewer"
         },
@@ -162,7 +158,6 @@
         },
         {
           "relation": "owner",
-          "relation": "owner",
           "objectId": "file:Project.pdf"
         },
         {
@@ -171,10 +166,6 @@
         }
       ],
       "user:jeff": [
-        {
-          "relation": "sharer",
-          "objectId": "folder:folderTester"
-        },
         {
           "relation": "viewer",
           "objectId": "file:newfile"
@@ -471,6 +462,132 @@
           "objectId": "file:Project.pdf",
           "time": 1778328150466,
           "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "file:Project.pdf",
+          "time": 1778329293609,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "file:Project.pdf",
+          "time": 1778329293613,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "file:Project.pdf",
+          "time": 1778329293616,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "file:Project.pdf",
+          "time": 1778329309792,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "file:Project.pdf",
+          "time": 1778329309796,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "file:Project.pdf",
+          "time": 1778329309799,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "file:Project.pdf",
+          "time": 1778329321291,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "file:Project.pdf",
+          "time": 1778329321294,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "file:Project.pdf",
+          "time": 1778329321296,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "folder:folderTester",
+          "time": 1778329505257,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "folder:folderTester",
+          "time": 1778329505260,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "folder:folderTester",
+          "time": 1778329505262,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "folder:folderTester",
+          "time": 1778329531622,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "folder:folderTester",
+          "time": 1778329531626,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "folder:folderTester",
+          "time": 1778329531628,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "folder:folderTester",
+          "time": 1778329546557,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "folder:folderTester",
+          "time": 1778329546560,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "folder:folderTester",
+          "time": 1778329546563,
+          "allowed": false
         }
       ]
     },
@@ -628,6 +745,69 @@
           "objectId": "file:Project.pdf",
           "time": 1778328150466,
           "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "file:Project.pdf",
+          "time": 1778329293609,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "file:Project.pdf",
+          "time": 1778329293613,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "file:Project.pdf",
+          "time": 1778329293616,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "file:Project.pdf",
+          "time": 1778329309792,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "file:Project.pdf",
+          "time": 1778329309796,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "file:Project.pdf",
+          "time": 1778329309799,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "file:Project.pdf",
+          "time": 1778329321291,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "file:Project.pdf",
+          "time": 1778329321294,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "file:Project.pdf",
+          "time": 1778329321296,
+          "allowed": false
         }
       ],
       "folder:folderTester": [
@@ -664,6 +844,69 @@
           "action": "manage_relations",
           "objectId": "folder:folderTester",
           "time": 1778240738002,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "folder:folderTester",
+          "time": 1778329505257,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "folder:folderTester",
+          "time": 1778329505260,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "folder:folderTester",
+          "time": 1778329505262,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "folder:folderTester",
+          "time": 1778329531622,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "folder:folderTester",
+          "time": 1778329531626,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "folder:folderTester",
+          "time": 1778329531628,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "folder:folderTester",
+          "time": 1778329546557,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "folder:folderTester",
+          "time": 1778329546560,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "folder:folderTester",
+          "time": 1778329546563,
           "allowed": false
         }
       ],

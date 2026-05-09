@@ -271,10 +271,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     await renderFileListForUser();
   }
 
-  const inviteInput = document.getElementById("invite-field");
   const inviteBtn = document.getElementById("invite-member");
   inviteBtn.addEventListener("click", async (event) => {
     event.preventDefault
+
+  })
+  const inviteMember = async ()=>{
     const errorMessage = document.getElementById("modalErrorMessage");
     // Check the length of the input value, not the value itself.
     if (inviteInput.value.length >= 2 && inviteInput.value.length <= 10) {
@@ -324,7 +326,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     renderMembers(selectedFile);
       inviteInput.value = "";
       console.log(tempMembers);
-    }});
+    }};
 
   filesList.addEventListener("click", async (event) => {
     const btn = event.target.closest(".more-btn");
@@ -831,6 +833,59 @@ export function resetChanges() {
   deletedUsers.length = 0;
   changedRelation.clear();
 }
+
+export const inviteMember = async ()=>{
+    const errorMessage = document.getElementById("modalErrorMessage");
+    const inviteInput = document.getElementById("invite-field");
+    // Check the length of the input value, not the value itself.
+    if (inviteInput.value.length >= 2 && inviteInput.value.length <= 10) {
+    // validate input
+    if(!validateString(inviteInput.value)){
+      alert("do not use special characters")
+      return}
+    
+    const res = await fetch("/username", {
+    method: "POST",
+    headers: {
+    "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+    userName: inviteInput.value,
+    }),
+    });
+
+    const data = await res.json();
+
+    if (data.status === "404") {
+    errorMessage.innerText="User does not exist in the database"
+    return;
+    }
+      
+    const newId = `user:${inviteInput.value.toLowerCase()}`;
+    if (!selectedFile) return;
+
+    // check if they already have a relation
+    if (tempMembers.some(u => u.subjectId === newId)) {
+      alert("User is already related to this file")
+    return;}
+
+    // remove from deleted if re-added
+    deletedUsers = deletedUsers.filter(u => u.subjectId !== newId);
+
+    tempMembers.push({
+      subjectId: newId,
+      relations: ["viewer"]
+    });
+
+    addedUsers.push({
+      subjectId: newId,
+      relations: ["viewer"]
+    });
+
+    renderMembers(selectedFile);
+      inviteInput.value = "";
+      console.log(tempMembers);
+    }};
 
 const shareObj = (currentUser, tempMembers, schema)=>{
   const userEntry = tempMembers.find(rel => rel.subjectId === currentUser.id);
