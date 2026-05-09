@@ -9,23 +9,93 @@ document.addEventListener("DOMContentLoaded", async () => {
   const userSelect = document.getElementById("user-Select");
   const objectSelect = document.getElementById("object-Select");
   const display = document.getElementById("main-Display");
+  const userSelectLabel = document.getElementById("label-user-Select");
+  const objectSelectLabel = document.getElementById("label-object-Select");
+  const mode = document.getElementById("mode-Select");
 
-  const users = await fetch("/api/userNames", { credentials: "include" });
-  const { userNames } = await users.json();
-  console.log(userNames);
+  const locatePathsBtn = document.getElementById("paths-submit");
+  // hide input field until a traversal mode has been selected
+  userSelect.hidden = true;
+  objectSelect.hidden = true;
+  userSelectLabel.hidden = true;
+  objectSelectLabel.hidden = true;
 
-  userNames.forEach((user) => {
-    if (user === "Admin") {
-      return;
+  // dependent on traversal mode load files or users first:
+  mode.addEventListener("change", async () => {
+    objectSelect.innerHTML = "";
+    userSelect.hidden = false;
+    objectSelect.hidden = false;
+    userSelectLabel.hidden = false;
+    objectSelectLabel.hidden = false;
+    // if byObject
+    if (mode.value === "byObject") {
+      userSelect.hidden = true;
+      userSelectLabel.hidden = true;
+      // fetch objects to display in object select
+      const fileList = await fetch("/api/objects");
+      if (!fileList.ok) {
+        console.log("failed to load object list");
+      }
+      const { objects } = await fileList.json();
+      renderFiles(objects);
+    } else if (mode.value === "bySubject") {
+      const users = await fetch("/api/userNames", { credentials: "include" });
+      const { userNames } = await users.json();
+      console.log(userNames);
+
+      userNames.forEach((user) => {
+        if (user === "Admin") {
+          return;
+        }
+        let element = document.createElement("option");
+        element.value = user;
+        element.innerText = user;
+        console.log(element);
+        userSelect.appendChild(element);
+      });
     }
-    let element = document.createElement("option");
-    element.value = user;
-    element.innerText = user;
-    console.log(element);
-    userSelect.appendChild(element);
   });
 
-  // when admin inputs a new name change the  file selector to contain that users files
+  //locatepathsbtn handler
+  locatePathsBtn.addEventListener("click", async () => {
+    let subjectId = null;
+    let objectId = null;
+
+    if (mode.value === "bySubject") {
+      if (!userSelect.value || !objectSelect.value) {
+        console.log("missing user or object");
+        return;
+      }
+      subjectId = `user:${userSelect.value.toLowerCase()}`;
+      objectId = objectSelect.value;
+    }
+    if (mode.value === "byObject") {
+      if (!objectSelect.value) {
+        return;
+      }
+      subjectId = objectSelect.value;
+      objectId = null;
+    }
+
+    const res = await fetch(
+      `/api/adminRelations?userId=${subjectId}&objectId=${objectId}`,
+      { credentials: "include" },
+    );
+
+    if (!res.ok) {
+      console.log("paths fetch failed");
+    }
+    const { paths } = await res.json();
+
+    const titleSubject =
+      mode.value === "bySubject" ? subjectId : subjectId.split(":")[1];
+
+    const objectTitle = objectId ? objectId.split(":")[1] : "users";
+
+    renderPathToObject(paths, titleSubject, objectTitle);
+  });
+
+  // render files in object select based off of selected user
   userSelect.addEventListener("change", async () => {
     const filelist = await fetch(
       `/api/adminFiles?userId=user:${userSelect.value.toLowerCase()}`,
@@ -36,20 +106,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     const { files } = await filelist.json();
     renderFiles(files);
-  });
-  const locatePathsBtn = document.getElementById("paths-submit");
-  locatePathsBtn.addEventListener("click", async () => {
-    const userId = `user:${userSelect.value.toLowerCase()}`;
-    const objectId = objectSelect.value;
-    console.log(objectId);
-
-    const pathsres = await fetch(
-      `/api/adminRelations?userId=${userId}&objectId=${objectId}`,
-      { credentials: "include" },
-    );
-    const paths = await pathsres.json();
-    console.log(paths);
-    renderPathToObject(paths.paths, userId, objectId.split(":")[1]);
   });
 
   function renderFiles(files) {
@@ -67,7 +123,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     display.innerHTML = "";
     const Header = document.createElement("h1");
     Header.id = "relation-Overview-Header";
-    Header.innerText = `${user}'s relation paths to ${object}`;
+    if (mode.value === "bySubject") {
+      Header.innerText = `${user}'s relation paths to ${object}`;
+    } else if (mode.value === "byObject") {
+      Header.innerText = `${user}'s paths to all `;
+    }
     display.appendChild(Header);
 
     if (!paths || paths.length === 0) {
@@ -100,7 +160,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       const list = document.createElement("ul");
       path.forEach((step) => {
         const item = document.createElement("li");
-        item.textContent = `${step.from} → (${step.relation}) → ${step.to}`;
+        if (mode.value === "bySubject") {
+          item.textContent = `${step.from} → (${step.relation}) → ${step.to}`;
+        } else if ((mode.value = "byObject")) {
+          item.textContent = `${step.from} ← (${step.relation}) ← ${step.to}`;
+        }
+
         list.appendChild(item);
       });
       relationContent.appendChild(list);

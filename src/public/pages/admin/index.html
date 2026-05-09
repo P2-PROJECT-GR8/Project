@@ -15,19 +15,26 @@
                 <h1>Welcome to admin overview</h1>
                 <div id="input-Display" class="input-row"> 
                     <div class="field">
-                        <label for="user-Select">Select a user:</label>
+                        <label id="label-user-Select" for="user-Select">Select a user:</label>
                         <select id="user-Select">
                         
                         </select>
                     </div> 
                     <div class="field">
                     <!-- maybe split these up so that only objects related to selected user gets shown-->
-                        <label for="object-Select">Select a file or folder:</label>
+                        <label id="label-object-Select" for="object-Select">Select a file or folder:</label>
                         <select id="object-Select">
                             <option value="please select a user first"></option>
                         </select>
                     </div> 
                     <button id="paths-submit" type="button" class="btn-style btn-lift:hover btn-lift">Locate paths</button>
+                    <div class="field">
+                        <label for="mode-Select">select traversal mode:</label>
+                        <select id="mode-Select">
+                            <option value="bySubject">user to object</option>
+                            <option value="byObject">all paths from object</option>
+                        </select>
+                    </div>
                 </div>
                 <div id="main-Display">
                     <h1 id="relation-Overview-Header"></h1>

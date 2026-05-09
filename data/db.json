@@ -40,7 +40,10 @@
         "owner": [
           "view",
           "create_child",
-          "delete_folder"
+          "delete_folder",
+          "share",
+          "manage_relations",
+          "remove_relations"
         ],
         "viewer": [
           "view"
@@ -114,6 +117,10 @@
         {
           "subjectId": "user:magnus",
           "relation": "viewer"
+        },
+        {
+          "subjectId": "user:jeff",
+          "relation": "lastviewer"
         }
       ],
       "folder:nestedTester": [
@@ -155,6 +162,7 @@
         },
         {
           "relation": "owner",
+          "relation": "owner",
           "objectId": "file:Project.pdf"
         },
         {
@@ -170,6 +178,10 @@
         {
           "relation": "viewer",
           "objectId": "file:newfile"
+        },
+        {
+          "relation": "lastviewer",
+          "objectId": "folder:folderTester"
         }
       ],
       "user:admin": [
@@ -242,6 +254,12 @@
         {
           "relation": "parent",
           "objectId": "file:deepTester"
+        }
+      ],
+      "user:bob": [
+        {
+          "relation": "viewer",
+          "objectId": "file:Project.pdf"
         }
       ]
     }
@@ -463,6 +481,34 @@
           "action": "view",
           "objectId": "folder:admin",
           "time": 1778064059262,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "manage_relations",
+          "objectId": "folder:admin",
+          "time": 1778182837154,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "manage_relations",
+          "objectId": "folder:admin",
+          "time": 1778182875103,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "manage_relations",
+          "objectId": "folder:admin",
+          "time": 1778182993621,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "manage_relations",
+          "objectId": "folder:admin",
+          "time": 1778183133222,
           "allowed": true
         }
       ],

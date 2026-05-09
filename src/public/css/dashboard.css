@@ -181,7 +181,12 @@ dialog::backdrop {
 .modal-body #members {
   max-height: 300px;
   overflow-y: auto;
-  overflow-x: visible;
+  overflow-x: hidden;
+}
+
+.member {
+  overflow: visible !important;
+  position: relative;
 }
 
 .modal-body .member {
@@ -276,7 +281,7 @@ button {
   transition: all 0.2s ease;
 }
 
-.member #delete-btn {
+.member #revoke-btn {
   justify-self: end;
 }
 
@@ -287,8 +292,9 @@ button {
 .tooltip {
   position: absolute;
   bottom: 120%;
-  left: 50%;
-  transform: translateX(-50%) translateY(5px);
+  right: 0;
+
+  transform: translateY(5px);
 
   background-color: var(--primary);
   color: white;
@@ -304,14 +310,14 @@ button {
   visibility: hidden;
 
   transition: all 0.2s ease;
-  pointer-events: none; /* prevents flicker */
+  pointer-events: none;
   z-index: 10;
 }
 
-#delete-btn:hover .tooltip {
+#revoke-btn:hover .tooltip {
   opacity: 1;
   visibility: visible;
-  transform: translateX(-50%) translateY(0);
+  transform: translateY(0);
 }
 
 .modal-container {
@@ -436,4 +442,49 @@ button {
 
 .leave-btn{
   background-color: var(--primary);
+}
+
+#revoke-btn{
+  background-color: var(--on-secondary-container)
+}
+
+#leave-file{
+  background-color: rgb(192, 7, 44);
+  position: relative;
+}
+
+#delete-file{
+  background-color: rgb(192, 7, 44);
+  position: relative;
+}
+
+#leave-file:hover .tooltip-leave {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.tooltip-leave {
+  position: absolute;
+  bottom: 55%;
+  right: 105%;
+
+  transform: translateY(5px);
+
+  background-color: rgb(192, 7, 44);
+  color: white;
+
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+
+  opacity: 0;
+  visibility: hidden;
+
+  transition: all 0.2s ease;
+  pointer-events: none;
+  z-index: 10;
 }

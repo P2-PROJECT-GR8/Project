@@ -89,7 +89,7 @@ const redirectIfLoggedIn = (req, res, next) => {
   try {
     const decoded = jwt.verify(token, SECRET_KEY);
     db.read();
-if (decoded.userId === "user:admin") {
+    if (decoded.userId === "user:admin") {
       return res.redirect("/pages/admin");
     } else if (db.data.users.some((user) => user.id === decoded.userId)) {
       return res.redirect("/pages/dashboard");
@@ -498,32 +498,37 @@ app.post("/api/saveAllChanges", async (req, res) => {
         return res.status(403).send({ message: "Not authorized to share!" });
       }
     }
-    if(deleteRel.length > 0){
-      if(!canDelete){
-        return res.status(403).send({ message: "Not authorized to revoke users' access!" });
+    if (deleteRel.length > 0) {
+      if (!canDelete) {
+        return res
+          .status(403)
+          .send({ message: "Not authorized to revoke users' access!" });
       }
     }
-    if(updateRel.length > 0){
-      if(!canEdit){
-        return res.status(403).send({ message: "Not authorized to edit users' relations!" });
+    if (updateRel.length > 0) {
+      if (!canEdit) {
+        return res
+          .status(403)
+          .send({ message: "Not authorized to edit users' relations!" });
       }
     }
 
     //delete users
     for (const { subjectId } of deleteRel) {
-    const tuples = [...(db.data.tupleStore.bySubject[subjectId] || [])];
-    for (const tuple of tuples) {
-      if (tuple.objectId === objectId) {
-      await accessControl.deleteTuple(subjectId, tuple.relation, objectId);
-      console.log("true deleting:", tuple)
-      }}}
-  
+      const tuples = [...(db.data.tupleStore.bySubject[subjectId] || [])];
+      for (const tuple of tuples) {
+        if (tuple.objectId === objectId) {
+          await accessControl.deleteTuple(subjectId, tuple.relation, objectId);
+          console.log("true deleting:", tuple);
+        }
+      }
+    }
 
-     // add invited users
+    // add invited users
     for (const { subjectId, relations } of addRel) {
-      for (const rel of relations){
-      await accessControl.addTuple(subjectId, rel, objectId);
-      console.log("true, adding:", rel)
+      for (const rel of relations) {
+        await accessControl.addTuple(subjectId, rel, objectId);
+        console.log("true, adding:", rel);
       }
     }
 
@@ -543,33 +548,30 @@ app.post("/api/saveAllChanges", async (req, res) => {
 });
 
 app.get("/api/adminRelations", async (req, res) => {
-  const token = req.cookies.sessionToken;
-  if (!token) {
-    return res.status(401).send({ message: "Unauthorized" });
-  }
-
+  // verify token
+  let currentUser;
   try {
-    const decoded = jwt.verify(token, SECRET_KEY);
-    // only allow admin to to utilize this endpoint.
-    if (getUser(req).id !== "user:admin") {
-      return res.status(403).send({ messeage: "request denied" });
-    }
-
-    // changes to be made
-
-    const userId = req.query.userId;
-    const objectId = req.query.objectId;
-
-    const paths = await accessControl.locatePaths(userId, objectId);
-    // console.log(userRelations);
-
-    res.json({ paths: paths });
+    currentUser = getUser(req);
   } catch (error) {
-    return res.status(401).send({ message: "Invalid session" });
+    console.error(error);
+    return res
+      .status(401)
+      .json({ message: "Unauthorized", error: error.message });
   }
+
+  // only allow admin to acces this endpoint
+  if (currentUser.id !== "user:admin") {
+    return res.status(401).json({ messeage: "currnet user is not admin" });
+  }
+
+  const userId = req.query.userId;
+  const objectId = req.query.objectId;
+
+  const paths = await accessControl.locatePaths(userId, objectId);
+  res.json({ paths: paths });
 });
 
-app.post("/api/newRelationType", async (req, res)=>{
+app.post("/api/newRelationType", async (req, res) => {
   let currentUser;
   try {
     currentUser = getUser(req);
@@ -577,56 +579,56 @@ app.post("/api/newRelationType", async (req, res)=>{
     return res.status(401).send({ message: "User not authenticated" });
   }
 
-  const {name, privileges} = req.body;
+  const { name, privileges } = req.body;
 
-  // specify that the relation name and privilege array must 
+  // specify that the relation name and privilege array must
   // be stored in relations, and write it to the database
-  try{
-  db.data.schema.file.relations[name] = privileges;
+  try {
+    db.data.schema.file.relations[name] = privileges;
 
-  await db.write();
+    await db.write();
 
-  res.status(200).json({ message: "Custom relation created!", id: name});
+    res.status(200).json({ message: "Custom relation created!", id: name });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Did not create new relation" })
+    res.status(500).json({ message: "Did not create new relation" });
   }
 });
 
-app.post("/api/deleteFile", async (req, res) =>{
-  const {objectId} = req.body;
+app.post("/api/deleteFile", async (req, res) => {
+  const { objectId } = req.body;
   let currentUser;
   try {
     currentUser = getUser(req);
   } catch (err) {
     console.error(err);
     return res.status(401).send({ message: "User not authenticated" });
-    }
-  try{
+  }
+  try {
     await db.read();
     const objectType = objectId.split(":")[0];
     let canDelete;
-    if(objectType === "file"){
-    canDelete = await accessControl.can(
-    currentUser.id,
-    "delete",
-    objectId);
-    } else if (objectType === "folder"){
-    canDelete = await accessControl.can(
-    currentUser.id,
-    "delete_folder",
-    objectId);
+    if (objectType === "file") {
+      canDelete = await accessControl.can(currentUser.id, "delete", objectId);
+    } else if (objectType === "folder") {
+      canDelete = await accessControl.can(
+        currentUser.id,
+        "delete_folder",
+        objectId,
+      );
     }
-    console.log(canDelete)
+    console.log(canDelete);
 
-    if(!canDelete){
-    return res.status(403).send({message: "You are not authorized to delete this"})
+    if (!canDelete) {
+      return res
+        .status(403)
+        .send({ message: "You are not authorized to delete this" });
     }
     // call the deletefile function for this objectId
-    await accessControl.deleteFile(objectId)
+    await accessControl.deleteFile(objectId);
     await db.write();
-    res.status(200).send({message: "file deleted"});
-    } catch(err){
+    res.status(200).send({ message: "file deleted" });
+  } catch (err) {
     console.error("Delete Error:", err);
     return res.status(500).send({ message: "Internal server error" });
   }
@@ -645,26 +647,27 @@ app.post("/api/leaveFile", async (req, res) => {
   await db.read();
 
   const isOwner = db.data.tupleStore.byObject[objectId]?.some(
-    (tuple) => tuple.subjectId === currentUser.id && tuple.relation === "owner"
+    (tuple) => tuple.subjectId === currentUser.id && tuple.relation === "owner",
   );
 
   if (isOwner) {
     // Check if there are other owners(a new owner does not have to be assigned)
     const otherOwners = db.data.tupleStore.byObject[objectId]?.some(
-      (tuple) => tuple.subjectId !== currentUser.id && tuple.relation === "owner"
+      (tuple) =>
+        tuple.subjectId !== currentUser.id && tuple.relation === "owner",
     );
 
     if (!otherOwners) {
       return res.status(403).json({
-        message: "You must transfer ownership to another user before leaving"
+        message: "You must transfer ownership to another user before leaving",
       });
     }
   }
-const objectTuples = db.data.tupleStore.byObject[objectId] || [];
+  const objectTuples = db.data.tupleStore.byObject[objectId] || [];
 
   // Remove currentUsers relations from byObject and bySubject
-const userRelationsForObject = objectTuples.filter(
-    (t) => t.subjectId === currentUser.id
+  const userRelationsForObject = objectTuples.filter(
+    (t) => t.subjectId === currentUser.id,
   );
 
   userRelationsForObject.forEach((tuple) => {
@@ -750,7 +753,7 @@ app.get("/api/isAdmin", async (req, res) => {
   if (getUser(req).id !== "user:admin") {
     return res.status(403).send({ message: "not admin" });
   } else {
-    return (res.status(200).send({isAdmin: true}));
+    return res.status(200).send({ isAdmin: true });
   }
 });
 
@@ -771,6 +774,16 @@ app.get("/api/adminLogs", async (req, res) => {
   let logs = Object.values(db.data.logs.bySubject).flat();
 
   res.json({ logs });
+});
+
+app.get("/api/objects", async (req, res) => {
+  await db.read();
+  const validTypes = new Set(["folder", "file"]);
+  const objects = Object.entries(db.data?.tupleStore?.byObject || {})
+    .filter(([id]) => validTypes.has(id.split(":")[0]))
+    .map(([objectId, relations]) => ({ objectId, relations }));
+
+  res.send({ objects });
 });
 
 app.listen(3000, () => {
