@@ -261,6 +261,7 @@ app.get("/files", async (req, res) => {
     const userId = decoded.userId;
 
     const userRelations = await accessControl.getUserRelations(userId);
+    console.log("USER RELATIONS:", userRelations);
     // console.log(userRelations);
 
     res.json({ files: userRelations });
@@ -283,8 +284,7 @@ app.post("/api/createNew", async (req, res) => {
 
   if (
     objectType === "folder" ||
-    objectType === "file" ||
-    objectType === "group"
+    objectType === "file"
   ) {
     await db.read();
     if (Object.hasOwn(db.data.tupleStore.byObject, objectId)) {
@@ -316,12 +316,17 @@ app.post("/api/newTuple", async (req, res) => {
       .send({ message: "User is not authorized to perform this action" });
   }
   await db.read();
-  // check if the target user and object exist in the database
+  // check if the target user or group and object exist in the database
   const subjectType = subjectId.split(":")[0];
   if (subjectType === "user") {
     const userExists = db.data.users.some((user) => user.id === subjectId);
     if (!userExists) {
       return res.status(404).send({ message: "Invited user does not exist." });
+    }
+  } else if (subjectType === "group") {
+    const groupExists = db.data.groups.some((group) => group.id === subjectId);
+    if (!groupExists) {
+      return res.status(404).send({ message: "Invited group does not exist." });
     }
   } else if (subjectType === "folder" || subjectType === "file") {
     // Check if the folder/file exists as a subject or object in any tuple
@@ -422,6 +427,7 @@ app.get("/api/adminRelations", async (req, res) => {
     return res.status(401).send({ message: "Invalid session" });
   }
 }); 
+
 // Create a new folder
 app.post("/api/newFolder", async (req, res) => {
   let currentUser;

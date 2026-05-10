@@ -357,6 +357,34 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     renderMembers(selectedFile);
     fileDetailsModal.showModal();
+      
+            
+  });
+    
+  const groupDetailsModal = document.getElementById("group-details");
+
+  groupsList.addEventListener("click", async (event) => {
+    const btn = event.target.closest(".more-btn");
+    if (!btn) return;
+
+    event.preventDefault();
+
+    const item = btn.closest(".listitem");
+    const { fileId, relations } = item.dataset;
+    selectedFile = item.dataset.fileId;
+
+    const relationsArray = relations ? relations.split(",") : [];
+    const groupInviteContainer = document.getElementById("invite-container");
+
+    if (!relationsArray.some((el) => el === "owner")) {
+      groupInviteContainer.classList.add("hidden");
+    } else {
+      groupInviteContainer.classList.remove("hidden");
+    }
+
+    renderGroupMembers(selectedFile);
+    groupDetailsModal.showModal();
+      
   });
 });
 
@@ -422,6 +450,84 @@ const renderMembers = async (fileId) => {
             });
             if (res.ok) {
               renderMembers(fileId);
+            }
+          });
+          const helpDelete = document.createElement("span");
+          helpDelete.className = "tooltip";
+          helpDelete.innerText = "Remove Access";
+          deleteRel.appendChild(helpDelete);
+          member.appendChild(deleteRel);
+        }
+        membersList.appendChild(member);
+      });
+    }
+  } else {
+    // console.log(res.body);
+  }
+};
+
+const renderGroupMembers = async (fileId) => {
+  const membersList = document.getElementById("group-members");
+  const currentUser = await getCurrentUser();
+  const res = await fetch("/relatedUsers", {
+    method: "POST",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ objectId: fileId }),
+  });
+  if (res.ok) {
+    membersList.innerHTML = "";
+    const { relatedUsers } = await res.json();
+    if (relatedUsers && relatedUsers.length > 0) {
+      const ownFile = relatedUsers.some(
+        (rel) =>
+          rel.relations.includes("owner") && rel.subjectId === currentUser.id,
+      );
+      relatedUsers.forEach((rel) => {
+        // Create a member element in the dialog for every related user
+        // to provide an overview over users that have access
+        const member = document.createElement("div");
+        member.className = "member";
+        const user = document.createElement("p");
+        const userName = rel.subjectId.split(":")[1];
+        user.innerText = userName.charAt(0).toUpperCase() + userName.slice(1);
+        const relation = document.createElement("p");
+        const formattedRelations = rel.relations.map((str) => {
+          return str.charAt(0).toUpperCase() + str.slice(1);
+        });
+        relation.innerText = formattedRelations.join(", ");
+
+        if (rel.subjectId === currentUser.id) {
+          user.innerText += " (You)";
+          user.style.fontWeight = 600;
+          relation.style.fontWeight = 600;
+        }
+
+        member.appendChild(user);
+        member.appendChild(relation);
+
+        if (ownFile && rel.subjectId !== currentUser.id) {
+          const deleteRel = document.createElement("a");
+          deleteRel.innerText = "X";
+          deleteRel.href = "#";
+          deleteRel.id = "delete-btn";
+          deleteRel.addEventListener("click", async (event) => {
+            event.preventDefault();
+            if (!confirm("Remove this user?")) return;
+            const res = await fetch("/api/deleteTuple", {
+              method: "POST",
+              credentials: "include",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                objectId: fileId,
+                relations: rel.relations,
+                subjectId: rel.subjectId,
+              }),
+            });
+            if (res.ok) {
+              renderGroupMembers(fileId);
             }
           });
           const helpDelete = document.createElement("span");

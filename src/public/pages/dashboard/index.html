@@ -49,8 +49,9 @@
           </ul>
         </nav>
       </div>
-
       <main class="content">
+
+
         <div id="files" class="page">
           <h1 id="allFilesHeader">My Files</h1>
           <div class="pageHeader">
@@ -84,7 +85,7 @@
                 <div class="input-container">
                   <label for="invite-field">ADD USERS OR GROUPS</label>
                   <input
-                    list="data-users"
+                    list="data-users, data-group"
                     type="text"
                     id="invite-field"
                     placeholder="Write the name of a group or user"
@@ -97,6 +98,11 @@
                     <option value="Viktor"></option>
                     <option value="Ditte"></option>
                   </datalist>
+                  <datalist id="data-group">
+                    <option value="Group A"></option>
+                    <option value="Group B"></option>
+                    <option value="Group C"></option>
+                  </datalist>
                 </div>
                 <button id="invite-member" class="btn-lift">Invite</button>
               </div>
@@ -106,18 +112,6 @@
               ></p>
               <h3>Current Members</h3>
               <div id="members">
-                <div class="member">
-                  <p>Magnus</p>
-                  <p>Owner</p>
-                </div>
-                <div class="member">
-                  <p>Emil</p>
-                  <p>Viewer</p>
-                </div>
-                <div class="member">
-                  <p>Kasper</p>
-                  <p>Editor</p>
-                </div>
               </div>
               <div id="custom-access">
                 <i class="material-icons md-36">verified_user</i>
@@ -144,7 +138,7 @@
                 name="name"
                   type="text"
                   id="new-name-input"
-                  placeholder="Write the name of the file/foler/group"
+                  placeholder="Write the name of the file/foler"
                 />
                 <select name="type" id="new-type-select" class="select-new-type">
                   <option value="file">File</option>
@@ -215,19 +209,7 @@
                 style="color: red; text-align: center"
               ></p>
               <h3>Current Members</h3>
-              <div id="members">
-                <div class="member">
-                  <p>Magnus</p>
-                  <p>Owner</p>
-                </div>
-                <div class="member">
-                  <p>Emil</p>
-                  <p>Member</p>
-                </div>
-                <div class="member">
-                  <p>Kasper</p>
-                  <p>Member</p>
-                </div>
+              <div id="group-members">
               </div>
               <div id="modal-buttons">
                 <button id="cancel-modal" class="cancel-modal">Cancel</button>
