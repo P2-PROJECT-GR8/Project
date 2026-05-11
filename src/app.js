@@ -609,13 +609,16 @@ app.post("/api/deleteFile", async (req, res) => {
     const objectType = objectId.split(":")[0];
     let canDelete;
     if (objectType === "file") {
-      canDelete = await accessControl.can(currentUser.id, "delete", objectId);
+      canDelete = await accessControl.can(
+        currentUser.id, 
+        "delete", 
+        objectId)|| currentUser.id === "user:admin";
     } else if (objectType === "folder") {
       canDelete = await accessControl.can(
         currentUser.id,
         "delete_folder",
         objectId,
-      );
+      ) || currentUser.id === "user:admin";
     }
     console.log(canDelete);
 

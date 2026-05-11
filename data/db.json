@@ -138,12 +138,6 @@
           "subjectId": "user:alice",
           "relation": "viewer"
         }
-      ],
-      "file:newfile": [
-        {
-          "subjectId": "user:emil",
-          "relation": "owner"
-        }
       ]
     },
     "bySubject": {
@@ -219,10 +213,6 @@
           "objectId": "folder:folderTester"
         },
         {
-          "relation": "owner",
-          "objectId": "file:newfile"
-        },
-        {
           "relation": "editor",
           "objectId": "file:Project.pdf"
         }
@@ -271,6 +261,10 @@
     {
       "id": "user:bob",
       "name": "bob"
+    },
+    {
+      "id": "user:aau",
+      "name": "aau"
     }
   ],
   "logs": {
@@ -309,6 +303,27 @@
           "action": "manage_relations",
           "objectId": "file:Project.pdf",
           "time": 1778181563261,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "share",
+          "objectId": "file:Project.pdf",
+          "time": 1778488541636,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "remove_relations",
+          "objectId": "file:Project.pdf",
+          "time": 1778488541637,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "manage_relations",
+          "objectId": "file:Project.pdf",
+          "time": 1778488541638,
           "allowed": true
         }
       ],
@@ -747,6 +762,34 @@
           "action": "manage_relations",
           "objectId": "file:newfile",
           "time": 1778482807710,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "delete",
+          "objectId": "file:newfile",
+          "time": 1778497838359,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "delete",
+          "objectId": "file:newfile",
+          "time": 1778497841460,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "delete",
+          "objectId": "file:newfile",
+          "time": 1778497873611,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "delete",
+          "objectId": "file:newfile",
+          "time": 1778497958925,
           "allowed": false
         }
       ]
@@ -968,6 +1011,27 @@
           "objectId": "file:Project.pdf",
           "time": 1778329321296,
           "allowed": false
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "share",
+          "objectId": "file:Project.pdf",
+          "time": 1778488541636,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "remove_relations",
+          "objectId": "file:Project.pdf",
+          "time": 1778488541637,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "manage_relations",
+          "objectId": "file:Project.pdf",
+          "time": 1778488541638,
+          "allowed": true
         }
       ],
       "folder:folderTester": [
@@ -1260,6 +1324,34 @@
           "action": "manage_relations",
           "objectId": "file:newfile",
           "time": 1778482807710,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "delete",
+          "objectId": "file:newfile",
+          "time": 1778497838359,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "delete",
+          "objectId": "file:newfile",
+          "time": 1778497841460,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "delete",
+          "objectId": "file:newfile",
+          "time": 1778497873611,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "delete",
+          "objectId": "file:newfile",
+          "time": 1778497958925,
           "allowed": false
         }
       ]
