@@ -1,6 +1,11 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { validateRegName } from "../public/js/register.js";
 
+vi.mock("../public/js/navRenderer.js", () => ({
+  basicRenderHeader: () => {},
+  renderHeader: () => {},
+}));
+
 describe("Validate input when registering username", () => {
   test("Empty username", () => {
     expect(validateRegName("")).toBe("Please type desired username!");
@@ -27,7 +32,9 @@ describe("register button request", () => {
     document.body.innerHTML = `<input id="registerUserNameInput" />
         <button id="createUser"></button>
         <div id="ErrorMsg"></div>`;
+    // Arrange
 
+    // Act
     await import("../public/js/login.js");
 
     document.dispatchEvent(new Event("DOMContentLoaded"));
@@ -44,7 +51,8 @@ describe("register button request", () => {
 
     const button = document.getElementById("createUser");
     button.click();
-    1;
+
+    // Assert
     expect(fetch).toHaveBeenCalled();
 
     expect(fetch.mock.calls[0][0]).toBe("/register");
