@@ -176,8 +176,8 @@ class AccessControl {
       Object.keys(this.db.data.tupleStore.bySubject),
     );
     for (const subjectId of allSubjectIds) {
-      // We only care about users, not groups or other objects
-      if (!subjectId.startsWith("user:")) {
+      // We only care about users and groups, not other objects that might have relations to the object in question
+      if (!subjectId.startsWith("user:") && !subjectId.startsWith("group:")) {
         continue;
       }
 

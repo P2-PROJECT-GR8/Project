@@ -284,7 +284,8 @@ app.post("/api/createNew", async (req, res) => {
 
   if (
     objectType === "folder" ||
-    objectType === "file"
+    objectType === "file"   ||
+    objectType === "group" 
   ) {
     await db.read();
     if (Object.hasOwn(db.data.tupleStore.byObject, objectId)) {
@@ -324,7 +325,9 @@ app.post("/api/newTuple", async (req, res) => {
       return res.status(404).send({ message: "Invited user does not exist." });
     }
   } else if (subjectType === "group") {
-    const groupExists = db.data.groups.some((group) => group.id === subjectId);
+  const groupExists =
+      Object.prototype.hasOwnProperty.call(db.data.tupleStore.byObject, subjectId) ||
+      Object.prototype.hasOwnProperty.call(db.data.tupleStore.bySubject, subjectId);
     if (!groupExists) {
       return res.status(404).send({ message: "Invited group does not exist." });
     }
@@ -398,6 +401,14 @@ app.get("/api/userNames", (req, res) => {
     return user.name.charAt(0).toUpperCase() + user.name.slice(1);
   });
   res.send({ userNames: userNames });
+});
+
+app.get("/api/groupNames", (req, res) => {
+  db.read();
+  const groupNames = Object.keys(db.data.tupleStore.byObject)
+    .filter(id => id.startsWith("group:"))
+    .map(id => id.split(":")[1]);
+  res.send({ groupNames });
 });
 
 // return the list of paths from given user to given object

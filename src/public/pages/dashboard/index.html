@@ -143,7 +143,6 @@
                 <select name="type" id="new-type-select" class="select-new-type">
                   <option value="file">File</option>
                   <option value="folder">Folder</option>
-                  <option value="group">Group</option>
                 </select>
                 <div class="create-new-buttons">
                   <button id="create-new-cancel" class="cancel-modal">Cancel</button>
@@ -186,11 +185,11 @@
               </div>
               <div class="invite-container" id="invite-container">
                 <div class="input-container">
-                  <label for="invite-field">ADD USERS</label>
+                  <label for="invite-group-field">ADD USERS</label>
                   <input
                     list="data-users"
                     type="text"
-                    id="invite-field"
+                    id="invite-group-field"
                     placeholder="Write the name of a user"
                     minlength="2"
                   />
@@ -202,7 +201,7 @@
                     <option value="Ditte"></option>
                   </datalist>
                 </div>
-                <button id="invite-member" class="btn-lift">Invite</button>
+                <button id="invite-group-member" class="btn-lift">Invite</button>
               </div>
               <p
                 id="modalErrorMessage"

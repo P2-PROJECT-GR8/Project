@@ -124,7 +124,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         await renderFileListForUSer(currentUser.id);
       }
     } else {
-      createNewErrorMsg.innerText =
+      createNewGroupErrorMsg.innerText =
         'Please only use letters, numbers and symbols like: ".-_"';
     }
   }); 
@@ -284,6 +284,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     
     
   let selectedFile;
+  let selectedFileType;
+  let groupNames = [];
 
   const inviteInput = document.getElementById("invite-field");
   const inviteBtn = document.getElementById("invite-member");
@@ -294,21 +296,63 @@ document.addEventListener("DOMContentLoaded", async () => {
       const newMember = inviteInput.value.toLowerCase();
       try {
         if (!selectedFile) throw new Error("No selected file");
+        const isGroup = groupNames.some(g => g.toLowerCase() === newMember);
+        const subjectId = isGroup ? `group:${newMember}` : `user:${newMember}`;
         const res = await fetch("/api/newTuple", {
           method: "POST",
           credentials: "include",
           headers: { "Content-Type": "application/json" },
-
           body: JSON.stringify({
             objectId: selectedFile,
             relation: "viewer",
-            subjectId: `user:${newMember}`,
+            subjectId: subjectId,
           }),
         });
         if (res.ok) {
           errorMessage.innerText = "";
           inviteInput.value = "";
-          renderMembers(selectedFile);
+          if (selectedFileType === "group") {
+            renderGroupMembers(selectedFile);
+          } else {
+           renderMembers(selectedFile);
+        }                            
+      } else {
+        const data = await res.json();
+        errorMessage.innerText = data.message;
+      }
+      } catch (err) {
+        console.log(err);
+      }
+    } else {
+      errorMessage.innerText = "Username must be between 2 and 10 characters.";
+    }
+  });
+  const groupInviteInput = document.getElementById("invite-group-field");
+  const groupInviteBtn = document.getElementById("invite-group-member");
+  console.log("groupInviteBtn:", groupInviteBtn);
+  groupInviteBtn.addEventListener("click", async (event) => {
+    const errorMessage = document.getElementById("modalErrorMessage");
+    if (groupInviteInput.value.length >= 2 && groupInviteInput.value.length <= 10) {
+      const newMember = groupInviteInput.value.toLowerCase();
+      try {
+        if (!selectedFile) throw new Error("No selected file");
+        const isGroup = groupNames.some(g => g.toLowerCase() === newMember);
+        const subjectId = isGroup ? `group:${newMember}` : `user:${newMember}`;
+        const relation = isGroup ? "subgroup" : "member";
+        const res = await fetch("/api/newTuple", {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            objectId: selectedFile,
+            relation: relation,
+            subjectId: subjectId,
+          }),
+        });
+        if (res.ok) {
+          errorMessage.innerText = "";
+          groupInviteInput.value = "";
+          renderGroupMembers(selectedFile);
         } else {
           const data = await res.json();
           errorMessage.innerText = data.message;
@@ -320,6 +364,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       errorMessage.innerText = "Username must be between 2 and 10 characters.";
     }
   });
+
 
   filesList.addEventListener("click", async (event) => {
     const btn = event.target.closest(".more-btn");
@@ -342,10 +387,24 @@ document.addEventListener("DOMContentLoaded", async () => {
       userList.appendChild(option);
     });
 
+    const groupNamesRes = await fetch("/api/groupNames", {
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    });
+    const { groupNames: fetchedGroups } = await groupNamesRes.json();
+    groupNames = fetchedGroups;
+    const groupList = document.getElementById("data-group");
+    groupList.innerHTML = "";
+    groupNames.forEach((group) => {
+    const option = document.createElement("option");
+    option.value = group;
+    groupList.appendChild(option);
+    });
+
     const item = btn.closest(".listitem");
     const { fileId, relations } = item.dataset;
     selectedFile = item.dataset.fileId;
-
+    selectedFileType = "file";
     const relationsArray = relations ? relations.split(",") : [];
     const inviteContainer = document.getElementById("invite-container");
     console.log(relationsArray);
@@ -362,16 +421,27 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
     
   const groupDetailsModal = document.getElementById("group-details");
+  groupDetailsModal.querySelector(".cancel-modal").addEventListener("click", () => {
+  groupDetailsModal.close();
+});
 
-  groupsList.addEventListener("click", async (event) => {
+    groupsList.addEventListener("click", async (event) => {
     const btn = event.target.closest(".more-btn");
     if (!btn) return;
 
     event.preventDefault();
 
+    const groupNamesRes = await fetch("/api/groupNames", {
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+    });
+    const { groupNames: fetchedGroups } = await groupNamesRes.json();
+    groupNames = fetchedGroups;
+
     const item = btn.closest(".listitem");
     const { fileId, relations } = item.dataset;
     selectedFile = item.dataset.fileId;
+    selectedFileType = "group";
 
     const relationsArray = relations ? relations.split(",") : [];
     const groupInviteContainer = document.getElementById("invite-container");
@@ -413,15 +483,17 @@ const renderMembers = async (fileId) => {
         const member = document.createElement("div");
         member.className = "member";
         const user = document.createElement("p");
-        const userName = rel.subjectId.split(":")[1];
-        user.innerText = userName.charAt(0).toUpperCase() + userName.slice(1);
+        const subjectType = rel.subjectId.split(":")[0];
+        const subjectName = rel.subjectId.split(":")[1];
+        const displayName = subjectName.charAt(0).toUpperCase() + subjectName.slice(1);
+        user.innerText = subjectType === "group" ? `👥 ${displayName} (Group)` : displayName;
         const relation = document.createElement("p");
         const formattedRelations = rel.relations.map((str) => {
           return str.charAt(0).toUpperCase() + str.slice(1);
         });
         relation.innerText = formattedRelations.join(", ");
 
-        if (rel.subjectId === currentUser.id) {
+        if (rel.subjectId === currentUser.id && subjectType === "user") {
           user.innerText += " (You)";
           user.style.fontWeight = 600;
           relation.style.fontWeight = 600;

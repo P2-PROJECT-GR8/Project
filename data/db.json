@@ -35,6 +35,23 @@
           "view"
         ]
       }
+    },
+    "group": {
+      "relations": {
+        "owner": [
+          "view",
+          "delete",
+          "share",
+          "add_member",
+          "remove_member"
+        ],
+        "member": [
+          "view"
+        ],
+        "subgroup": [
+          "view"
+        ]
+      }
     }
   },
   "tupleStore": {
@@ -45,8 +62,8 @@
           "relation": "owner"
         },
         {
-          "subjectId": "user:emil",
-          "relation": "viewer"
+          "subjectId": "group:group_a",
+          "relation": "editor"
         }
       ],
       "file:1": [
@@ -76,6 +93,34 @@
           "subjectId": "user:magnus",
           "relation": "owner"
         }
+      ],
+      "group:kasper": [
+        {
+          "subjectId": "user:magnus",
+          "relation": "owner"
+        },
+        {
+          "subjectId": "user:magnus",
+          "relation": "member"
+        },
+        {
+          "subjectId": "user:emil",
+          "relation": "member"
+        },
+        {
+          "subjectId": "group:group_a",
+          "relation": "subgroup"
+        }
+      ],
+      "group:group_a": [
+        {
+          "subjectId": "user:magnus",
+          "relation": "owner"
+        },
+        {
+          "subjectId": "user:emil",
+          "relation": "member"
+        }
       ]
     },
     "bySubject": {
@@ -91,6 +136,18 @@
         {
           "relation": "owner",
           "objectId": "file:test"
+        },
+        {
+          "relation": "owner",
+          "objectId": "group:kasper"
+        },
+        {
+          "relation": "member",
+          "objectId": "group:kasper"
+        },
+        {
+          "relation": "owner",
+          "objectId": "group:group_a"
         }
       ],
       "user:jeff": [
@@ -105,14 +162,28 @@
       ],
       "user:emil": [
         {
-          "relation": "viewer",
-          "objectId": "file:Project.pdf"
+          "relation": "member",
+          "objectId": "group:kasper"
+        },
+        {
+          "relation": "member",
+          "objectId": "group:group_a"
         }
       ],
       "user:admin": [
         {
           "relation": "owner",
           "objectId": "folder:tester"
+        }
+      ],
+      "group:group_a": [
+        {
+          "relation": "editor",
+          "objectId": "file:Project.pdf"
+        },
+        {
+          "relation": "subgroup",
+          "objectId": "group:kasper"
         }
       ]
     }
