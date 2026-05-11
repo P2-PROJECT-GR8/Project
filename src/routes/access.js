@@ -6,6 +6,15 @@
  */
 
 /**
+ * @typedef {object} LogEntry
+ * @property {string} subjectId
+ * @property {string} action
+ * @property {string} objectId
+ * @property {number} time
+ * @property {boolean} allowed
+ */
+
+/**
  * @typedef {Object.<string, { relations: Object.<string, string[]> }>} Schema
  * The schema defines the types of objects and the possible relations between them.
  * The keys are object types (e.g., 'file', 'folder').
@@ -44,24 +53,28 @@ class AccessControl {
 
   /**
    * Checks if a user can perform a specific action on an object.
-   * @param {string} userName - The name of the user (e.g., 'alice').
+   * @param {string} userId - The ID of the user (e.g., 'user:alice').
    * @param {string} action - The action to be performed (e.g., 'read', 'write').
    * @param {string} objectId - The ID of the object (e.g., 'file:1').
    * @returns {Promise<boolean>} - Whether a user can perform an action.
    * @memberof AccessControl
    */
-  async can(userName, action, objectId) {
-    const userId = `user:${userName}`;
+  async can(userId, action, objectId) {
+    await this.db.read();
     // Get all relations this user has to an object
     const relations = await this.expandUserRelations(userId, objectId);
     // Find the type of object the user is trying to access
     const type = objectId.split(":")[0];
 
     // return whether the set of permissions based on the relation includes the requested action
-    return relations.some((rel) => {
+    const allowed = relations.some((rel) => {
       const permissions = this.db.data.schema[type]?.relations[rel];
       return permissions && permissions.includes(action);
     });
+    // log access attempt
+    await this.log(userId, action, objectId, allowed);
+
+    return allowed;
   }
 
   // recursively check all the relations a user has to an object and return them as a set
@@ -86,55 +99,78 @@ class AccessControl {
   /**
    * Recursively expands relations between a subject and an object.
    * @private
-   * @param {string} subjectId - The ID of the subject (user, group, etc.).
-   * @param {string} objectId - The ID of the object.
-   * @param {Set<string>} visited - A set to track visited subject-object pairs to prevent cycles.
+   * @param {string} subjectId - The ID of the subject (e.g., 'user:alice').
+   * @param {string} objectId - The ID of the object (e.g., 'file:1').
    * @returns {Promise<string[]>} - An array of discovered relations.
    * @memberof AccessControl
    */
   async _expand(subjectId, objectId) {
     await this.db.read();
-    const { byObject, bySubject } = this.db.data.tupleStore;
+    const { byObject } = this.db.data.tupleStore;
+
+    // 1. Find all groups the subject belongs to, transitively.
+    const subjectAndGroups = this._getSubjectGroups(subjectId);
+    subjectAndGroups.add(subjectId);
 
     const discoveredRelations = new Set();
-    const visited = new Set();
+    const visitedObjects = new Set();
     const queue = [objectId];
 
+    // 2. Traverse up the object hierarchy from the target object.
     while (queue.length > 0) {
       const currentTarget = queue.shift();
 
-      if (visited.has(currentTarget)) continue;
-      visited.add(currentTarget);
+      if (visitedObjects.has(currentTarget)) continue;
+      visitedObjects.add(currentTarget);
 
       const tuples = byObject[currentTarget] || [];
 
       for (const tuple of tuples) {
-        // Case A: Direct relation
-        if (tuple.subjectId === subjectId) {
-          discoveredRelations.add(tuple.relation);
-        }
-
-        // Case B: Indirect relation via Folder/Parent inheritance
-        else if (tuple.relation === "parent") {
+        // If the tuple defines a parent, add the parent to the queue to check it next.
+        if (tuple.relation === "parent") {
           queue.push(tuple.subjectId);
-        }
-
-        // Case C: Indirect relation via Group inheritance
-        else {
-          const userRelations = bySubject[subjectId] || [];
-          const isMember = userRelations.some(
-            (r) => r.objectId === tuple.subjectId && r.relation === "member",
-          );
-
-          if (isMember) {
-            discoveredRelations.add(tuple.relation);
-          }
+        } else if (subjectAndGroups.has(tuple.subjectId)) {
+          // For any other relation, if the subject is the user or one of their groups,
+          // they inherit the relation.
+          discoveredRelations.add(tuple.relation);
         }
       }
     }
 
     discoveredRelations.delete("parent");
     return Array.from(discoveredRelations);
+  }
+
+  /**
+   * Finds all groups a subject is a member of, transitively.
+   * @private
+   * @param {string} subjectId The ID of the subject (e.g., 'user:alice').
+   * @returns {Set<string>} A set of group IDs.
+   * @memberof AccessControl
+   */
+  _getSubjectGroups(subjectId) {
+    const { bySubject } = this.db.data.tupleStore;
+    const groups = new Set();
+    const queue = [subjectId];
+    const visited = new Set([subjectId]);
+
+    while (queue.length > 0) {
+      const current = queue.shift();
+      const memberships = bySubject[current] || [];
+      for (const tuple of memberships) {
+        if (
+          tuple.relation === "member" &&
+          tuple.objectId.startsWith("group:")
+        ) {
+          if (!visited.has(tuple.objectId)) {
+            visited.add(tuple.objectId);
+            groups.add(tuple.objectId);
+            queue.push(tuple.objectId);
+          }
+        }
+      }
+    }
+    return groups;
   }
 
   /**
@@ -213,6 +249,7 @@ class AccessControl {
     } else
       console.error(
         "Tried to add a tupple to the byObject database that already exists",
+        { subjectId, relation, objectId },
       );
 
     // 2. Add tuple to the bySubject index, same method as step 1
@@ -265,52 +302,176 @@ class AccessControl {
     await this.db.write();
   }
 
-  locatePaths(userId, objectId, maxDepth = 5) {
+  async locatePaths(subjectId, objectId, maxDepth = 5) {
     const paths = [];
-    this.db.read();
+    await this.db.read();
     const { bySubject } = this.db.data.tupleStore;
+    const { byObject } = this.db.data.tupleStore;
+    const type = subjectId.split(":")[0];
 
-    function DFS(currentNode, path, visited, depth) {
-      // if depth exceeded return
-      if (depth > maxDepth) {
-        return;
+    // bySubject or byObject
+    if (type === "user" || type === "group") {
+      // dfs algortihm for bySubject (returns all paths from user to object)
+      function DFS(currentNode, path, visited, depth) {
+        // if depth exceeded return
+        if (depth > maxDepth) {
+          return;
+        }
+        // base case: target hit return path
+        if (currentNode === objectId) {
+          paths.push([...path]);
+          return;
+        }
+
+        // intialize edges for current node
+        const edges = bySubject[currentNode] || [];
+
+        // run through all edges at this node
+        for (const edge of edges) {
+          const nextNode = edge.objectId;
+
+          // prevent cycles
+          if (visited.has(nextNode)) continue;
+
+          // log nodes already visisted
+          visited.add(nextNode);
+          path.push({
+            from: currentNode,
+            relation: edge.relation,
+            to: nextNode,
+          });
+
+          // recursive call
+          DFS(nextNode, path, visited, depth + 1);
+
+          //backtracking
+          path.pop();
+          visited.delete(nextNode);
+        }
       }
-      // base case: target hit return path
-      if (currentNode === objectId) {
-        paths.push([...path]);
-        return;
+      DFS(subjectId, [], new Set([subjectId]), 0);
+    } else if (type === "file" || type === "folder") {
+      // dfs algortihm for byObject (returns all paths from an object)
+      function DFS(currentNode, path, visited, depth) {
+        // if depth exceeded return
+        if (depth > maxDepth) {
+          return;
+        }
+
+        // intialize edges for current node
+        const edges = byObject[currentNode] || [];
+
+        // base case: if no more edges found then push path
+        if (edges.length === 0) {
+          paths.push([...path]);
+          return;
+        }
+
+        // run through all edges at this node
+        for (const edge of edges) {
+          const nextNode = edge.subjectId;
+
+          // prevent cycles
+          if (visited.has(nextNode)) continue;
+
+          // log nodes already visisted
+          visited.add(nextNode);
+          path.push({
+            from: currentNode,
+            relation: edge.relation,
+            to: nextNode,
+          });
+
+          // recursive call
+          DFS(nextNode, path, visited, depth + 1);
+
+          //backtracking
+          path.pop();
+          visited.delete(nextNode);
+        }
       }
-
-      // intilize edges for current node
-      const edges = bySubject[currentNode] || [];
-
-      // run through all edges at this node
-      for (const edge of edges) {
-        const nextNode = edge.objectId;
-
-        // prevent cycles
-        if (visited.has(nextNode)) continue;
-
-        // log nodes already visisted
-        visited.add(nextNode);
-        path.push({
-          from: currentNode,
-          relation: edge.relation,
-          to: nextNode,
-        });
-
-        // recursive call
-        DFS(nextNode, path, visited, depth + 1);
-
-        //backtracking
-        path.pop();
-        visited.delete(nextNode);
-      }
+      DFS(subjectId, [], new Set([subjectId]), 0);
     }
 
-    DFS(userId, [], new Set([userId]), 0);
     return paths;
-    // DFS algortihm
+  }
+
+  async deleteFile(objectId) {
+    await this.db.read();
+
+    // Remove all relations to the file
+    // The deleteTuple function delete when there are no more relations
+    const objectType = objectId.split(":")[0];
+    if (objectType === "folder") {
+      const folderContent = this.db.data.tupleStore.bySubject[objectId] || [];
+
+      for (const content of [...folderContent]) {
+        // run recursively for  children
+        await this.deleteFile(content.objectId);
+
+        // remove relation
+        await this.deleteTuple(
+          content.subjectId,
+          content.relation,
+          content.objectId,
+        );
+      }
+    }
+    const tuples = this.db.data.tupleStore.byObject[objectId];
+    for (const tuple of [...tuples]) {
+      await this.deleteTuple(tuple.subjectId, tuple.relation, objectId);
+    }
+  }
+
+  async log(subjectId, action, objectId, allowed) {
+    const now = Date.now();
+    const retainDurationMS = 30 * 24 * 60 * 60 * 1000;
+
+    const entry = {
+      subjectId: subjectId,
+      action: action,
+      objectId: objectId,
+      time: now,
+      allowed: allowed,
+    };
+
+    const store = this.db.data.logs;
+
+    store.bySubject[subjectId] ??= [];
+    store.byObject[objectId] ??= [];
+
+    store.bySubject[subjectId].push(entry);
+    store.byObject[objectId].push(entry);
+
+    // filter for old logs
+    this.filterLogs(retainDurationMS);
+
+    await this.db.write();
+  }
+
+  filterLogs(retainDurationMS) {
+    const now = Date.now();
+
+    for (const subjectId in this.db.data.logs.bySubject) {
+      this.db.data.logs.bySubject[subjectId] = this.db.data.logs.bySubject[
+        subjectId
+      ].filter((e) => {
+        return now - e.time <= retainDurationMS;
+      });
+      if (this.db.data.logs.bySubject[subjectId].length === 0) {
+        delete this.db.data.logs.bySubject[subjectId];
+      }
+    }
+    for (const objectId in this.db.data.logs.byObject) {
+      this.db.data.logs.byObject[objectId] = this.db.data.logs.byObject[
+        objectId
+      ].filter((e) => {
+        return now - e.time <= retainDurationMS;
+      });
+      if (this.db.data.logs.byObject[objectId].length === 0) {
+        delete this.db.data.logs.byObject[objectId];
+      }
+    }
   }
 }
 

@@ -156,7 +156,8 @@ dialog {
   border: 0px solid;
   border-radius: var(--radius-lg);
   padding: 2rem;
-  overflow: visible;
+  overflow-x: visible;
+  overflow-y: auto;
 }
 
 dialog::backdrop {
@@ -180,14 +181,20 @@ dialog::backdrop {
 .modal-body #members {
   max-height: 300px;
   overflow-y: auto;
-  overflow-x: visible;
+  overflow-x: hidden;
+}
+
+.member {
+  overflow: visible !important;
+  position: relative;
 }
 
 .modal-body .member {
   display: grid;
-  grid-template-columns: 1fr auto auto;
+  grid-template-columns: 1fr auto auto auto;
   margin: 5px;
   gap: 0.5rem;
+  overflow: visible;
 }
 
 .modal-body input {
@@ -225,7 +232,7 @@ dialog::backdrop {
 
 .modal-body #modal-buttons {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto 1fr auto auto;
   gap: 1rem;
   margin: 1rem;
 }
@@ -255,9 +262,27 @@ button {
 }
 
 #delete-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+
+  width: 32px;
+  height: 32px;
+
+  border-radius: var(--radius-lg);
+  background-color: #ecf0f1;
+
   color: crimson;
   text-decoration: none;
-  font-weight: bolder;
+  font-weight: 700;
+
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.member #revoke-btn {
+  justify-self: end;
 }
 
 #delete-btn:hover {
@@ -265,18 +290,34 @@ button {
 }
 
 .tooltip {
-  visibility: hidden;
-  width: 130px;
-  color: rgba(var(--primary-rgb), 0.8);
-  text-align: center;
-  border-radius: 6px;
-  padding: 0 0;
   position: absolute;
-  z-index: 0;
+  bottom: 120%;
+  right: 0;
+
+  transform: translateY(5px);
+
+  background-color: var(--primary);
+  color: white;
+
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+
+  opacity: 0;
+  visibility: hidden;
+
+  transition: all 0.2s ease;
+  pointer-events: none;
+  z-index: 10;
 }
 
-#delete-btn:hover .tooltip {
+#revoke-btn:hover .tooltip {
+  opacity: 1;
   visibility: visible;
+  transform: translateY(0);
 }
 
 .modal-container {
@@ -300,12 +341,33 @@ button {
 
 .modal2 {
   background-color: white;
-  border-radius: 5px;
-  box-shadow: rgba(0, 0, 0, 0.205);
-  padding: 30px 50px;
-  width: 600px;
-  max-width: 100%;
-  text-align: center;
+}
+
+.changeRelation {
+  padding: 0.8rem 1rem;
+  border: none;
+  border-radius: var(--radius-lg);
+  background-color: #ecf0f1;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--on-surface-variant);
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.changeRelation:hover {
+  background-color: var(--secondary-container);
+}
+
+.changeRelation:focus {
+  box-shadow: 0 0 0 2px var(--primary);
+  background-color: white;
+}
+
+.changeRelation:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 #folder-name-input {
@@ -315,6 +377,11 @@ button {
   padding: 10px 25px;
   font-size: 14px;
 }
+
+.modal2 {
+  visibility: hidden;
+}
+
 .modal2 div {
   display: flex;
   justify-content: space-between;
@@ -395,4 +462,49 @@ button {
   color: var(--on-surface-variant) !important;
   border: 0px;
   text-decoration: underline;
+}
+
+#revoke-btn{
+  background-color: var(--on-secondary-container)
+}
+
+#leave-file{
+  background-color: rgb(192, 7, 44);
+  position: relative;
+}
+
+#delete-file{
+  background-color: rgb(192, 7, 44);
+  position: relative;
+}
+
+#leave-file:hover .tooltip-leave {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.tooltip-leave {
+  position: absolute;
+  bottom: 55%;
+  right: 105%;
+
+  transform: translateY(5px);
+
+  background-color: rgb(192, 7, 44);
+  color: white;
+
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+
+  opacity: 0;
+  visibility: hidden;
+
+  transition: all 0.2s ease;
+  pointer-events: none;
+  z-index: 10;
 }
