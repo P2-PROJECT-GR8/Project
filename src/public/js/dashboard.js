@@ -353,9 +353,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     const item = btn.closest(".listitem");
     const { fileId, relations } = item.dataset;
     selectedFile = fileId;
+    console.log("selected:", selectedFile)
+    
+    document.getElementById("manage-header").innerText = `Manage Acces For ${selectedFile.split(":")[1]}`
 
     tempMembers = [];
-
     addedUsers = [];
     deletedUsers = [];
     changedRelation.clear();
