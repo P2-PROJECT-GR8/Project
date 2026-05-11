@@ -143,10 +143,6 @@
         {
           "subjectId": "user:emil",
           "relation": "owner"
-        },
-        {
-          "subjectId": "user:jeff",
-          "relation": "viewer"
         }
       ]
     },
@@ -166,10 +162,6 @@
         }
       ],
       "user:jeff": [
-        {
-          "relation": "viewer",
-          "objectId": "file:newfile"
-        },
         {
           "relation": "lastviewer",
           "objectId": "folder:folderTester"
@@ -376,6 +368,69 @@
           "objectId": "folder:folderTester",
           "time": 1778240738002,
           "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "file:newfile",
+          "time": 1778349516515,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "file:newfile",
+          "time": 1778349516519,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "file:newfile",
+          "time": 1778349516520,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "file:newfile",
+          "time": 1778482769189,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "file:newfile",
+          "time": 1778482769198,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "file:newfile",
+          "time": 1778482769201,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "file:newfile",
+          "time": 1778482778519,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "file:newfile",
+          "time": 1778482778521,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "file:newfile",
+          "time": 1778482778523,
+          "allowed": true
         }
       ],
       "user:admin": [
@@ -587,6 +642,111 @@
           "action": "manage_relations",
           "objectId": "folder:folderTester",
           "time": 1778329546563,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "folder:folderTester",
+          "time": 1778349616800,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "folder:folderTester",
+          "time": 1778349616804,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "folder:folderTester",
+          "time": 1778349616808,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "folder:folderTester",
+          "time": 1778365072561,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "folder:folderTester",
+          "time": 1778365072565,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "folder:folderTester",
+          "time": 1778365072567,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "file:newfile",
+          "time": 1778482794019,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "file:newfile",
+          "time": 1778482794023,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "file:newfile",
+          "time": 1778482794026,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "file:newfile",
+          "time": 1778482802870,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "file:newfile",
+          "time": 1778482802874,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "file:newfile",
+          "time": 1778482802876,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "file:newfile",
+          "time": 1778482807704,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "file:newfile",
+          "time": 1778482807707,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "file:newfile",
+          "time": 1778482807710,
           "allowed": false
         }
       ]
@@ -908,6 +1068,48 @@
           "objectId": "folder:folderTester",
           "time": 1778329546563,
           "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "folder:folderTester",
+          "time": 1778349616800,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "folder:folderTester",
+          "time": 1778349616804,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "folder:folderTester",
+          "time": 1778349616808,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "folder:folderTester",
+          "time": 1778365072561,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "folder:folderTester",
+          "time": 1778365072565,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "folder:folderTester",
+          "time": 1778365072567,
+          "allowed": false
         }
       ],
       "folder:nestedTester": [
@@ -930,6 +1132,134 @@
           "action": "manage_relations",
           "objectId": "folder:nestedTester",
           "time": 1778240720186,
+          "allowed": false
+        }
+      ],
+      "file:newfile": [
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "file:newfile",
+          "time": 1778349516515,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "file:newfile",
+          "time": 1778349516519,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "file:newfile",
+          "time": 1778349516520,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "file:newfile",
+          "time": 1778482769189,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "file:newfile",
+          "time": 1778482769198,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "file:newfile",
+          "time": 1778482769201,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "file:newfile",
+          "time": 1778482778519,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "file:newfile",
+          "time": 1778482778521,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "file:newfile",
+          "time": 1778482778523,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "file:newfile",
+          "time": 1778482794019,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "file:newfile",
+          "time": 1778482794023,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "file:newfile",
+          "time": 1778482794026,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "file:newfile",
+          "time": 1778482802870,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "file:newfile",
+          "time": 1778482802874,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "file:newfile",
+          "time": 1778482802876,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "file:newfile",
+          "time": 1778482807704,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "file:newfile",
+          "time": 1778482807707,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "file:newfile",
+          "time": 1778482807710,
           "allowed": false
         }
       ]

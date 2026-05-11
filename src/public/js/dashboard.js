@@ -273,9 +273,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const inviteBtn = document.getElementById("invite-member");
   inviteBtn.addEventListener("click", async (event) => {
-    event.preventDefault
-
+    event.preventDefault();
+    inviteMember(event);
   })
+
   const inviteMember = async ()=>{
     const errorMessage = document.getElementById("modalErrorMessage");
     // Check the length of the input value, not the value itself.
@@ -834,9 +835,10 @@ export function resetChanges() {
   changedRelation.clear();
 }
 
+const inviteInput = document.getElementById("invite-field");
+
 export const inviteMember = async ()=>{
     const errorMessage = document.getElementById("modalErrorMessage");
-    const inviteInput = document.getElementById("invite-field");
     // Check the length of the input value, not the value itself.
     if (inviteInput.value.length >= 2 && inviteInput.value.length <= 10) {
     // validate input
