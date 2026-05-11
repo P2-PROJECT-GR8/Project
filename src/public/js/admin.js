@@ -6,8 +6,6 @@ import { saveAllChanges} from "./dashboard.js";
 import { tempMembers, selectedFile } from "./dashboard.js";
 
 // wait for DOM load before doing anything
-
-renderHeader();
 document.addEventListener("DOMContentLoaded", async () => {
   const userSelect = document.getElementById("user-Select");
   const objectSelect = document.getElementById("object-Select");

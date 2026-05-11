@@ -643,7 +643,17 @@ customRelForm.appendChild(inputTitle);
 customRelForm.appendChild(customRelationName);
 customRelForm.appendChild(message);
 
-const privilegeOptions = window.schema?.file?.relations?.owner || [];
+const privOptionsFile = window.schema?.file?.relations?.owner || [];
+const privOptionsFolder = window.schema?.folder?.relations?.owner || [];
+const privilegeOptions = [...privOptionsFile];
+
+privOptionsFolder.forEach((pF) => {
+  const exists = privilegeOptions.some((pO) => pO === pF);
+  if (!exists) {
+    privilegeOptions.push(pF);
+  }
+});
+
 privilegeOptions.forEach((p) => {
   const privilegeList = document.createElement("div");
   const privilege = document.createElement("input");
