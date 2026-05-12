@@ -115,7 +115,7 @@ describe("can functions", () => {
 });
 
 // Tests for the expandUserRelations function
-describe("test cases for expandUserRelations", () => {
+describe("expandUserRelations", () => {
   it("return _expand", async () => {
     // arrange
     const fakeDb = {
