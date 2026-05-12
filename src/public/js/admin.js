@@ -98,6 +98,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     else if (mode.value === "pathsFromTargetObject"){
       objectSelect.hidden = false;
       objectSelectLabel.hidden = false;
+      userSelect.hidden = true;
+      userSelectLabel.hidden = true;
 
       // get objects to display in select
       const fileList = await fetch("/api/objects");
@@ -113,6 +115,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     else if (mode.value==="pathsFromTargetUser") {
       userSelect.hidden = false;
       userSelectLabel.hidden = false;
+      objectSelect.hidden = true;
+      objectSelectLabel.hidden = true;
 
       //get usernames
       const users = await fetch("/api/userNames", { credentials: "include" });
@@ -214,6 +218,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     } else {
       subjectid = `user:${userSelect.value.toLowerCase()}`;
     }
+    if(mode.value==="pathsToTarget"){
     const filelist = await fetch(
       `/api/adminFiles?userId=${subjectid}`,
       { credentials: "include" },
@@ -223,6 +228,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     const { files } = await filelist.json();
     renderFiles(files);
+  }
   });
 
   function renderFiles(files) {
