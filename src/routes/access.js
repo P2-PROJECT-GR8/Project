@@ -60,6 +60,9 @@ class AccessControl {
    * @memberof AccessControl
    */
   async can(userId, action, objectId) {
+    if(!objectId){
+      console.log("no objectId")
+    }
     await this.db.read();
     // Get all relations this user has to an object
     const relations = await this.expandUserRelations(userId, objectId);

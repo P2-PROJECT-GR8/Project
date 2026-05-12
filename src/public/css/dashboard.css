@@ -291,8 +291,8 @@ button {
 
 .tooltip {
   position: absolute;
-  bottom: 120%;
-  right: 0;
+  bottom: 55%;
+  right: 105%;
 
   transform: translateY(5px);
 
@@ -438,6 +438,10 @@ button {
   color: var(--on-surface-variant) !important;
   border: 0px;
   text-decoration: underline;
+}
+
+.leave-btn{
+  background-color: var(--primary);
 }
 
 #revoke-btn{
