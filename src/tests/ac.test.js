@@ -4,7 +4,6 @@ import { fileURLToPath } from "url";
 import { JSONFilePreset } from "lowdb/node";
 import { AccessControl } from "../routes/access.js";
 
-
 // can function
 describe("can functions", () => {
   it("returns true when a user has permission", async () => {
@@ -240,22 +239,20 @@ describe("locatePaths", () => {
     expect(paths).toBeInstanceOf(Array);
     expect(paths[0]).toBeTypeOf("object");
 
-
-  expect(paths).toEqual([
-    [
-      {
-        from: "user:testUser",
-        relation: "owner",
-        to: "folder:testfolder",
-      },
-      {
-        from: "folder:testfolder",
-        relation: "parent",
-        to: "file:testfile",
-      },
-    ],
-  ]);
-
+    expect(paths).toEqual([
+      [
+        {
+          from: "user:testUser",
+          relation: "owner",
+          to: "folder:testfolder",
+        },
+        {
+          from: "folder:testfolder",
+          relation: "parent",
+          to: "file:testfile",
+        },
+      ],
+    ]);
   });
 
   it("returns an array all paths from an object to users that are related to it", async () => {
@@ -268,20 +265,19 @@ describe("locatePaths", () => {
             "file:testfile": [
               {
                 subjectId: "folder:testfolder",
-                relation: "parent"
+                relation: "parent",
               },
               {
                 subjectId: "user:testuser",
-                relation: "viewer"
+                relation: "viewer",
               },
             ],
-            "folder:testfolder": 
-          [
-            {
-              subjectId: "user:testuser",
-              relation: "owner"
-            }
-          ]
+            "folder:testfolder": [
+              {
+                subjectId: "user:testuser",
+                relation: "owner",
+              },
+            ],
           },
         },
       },
@@ -295,7 +291,6 @@ describe("locatePaths", () => {
     expect(paths).toBeInstanceOf(Array);
     expect(paths[0]).toBeTypeOf("object");
 
-    
     expect(paths).toEqual([
       [
         {
@@ -325,19 +320,18 @@ describe("locatePaths", () => {
       data: {
         tupleStore: {
           bySubject: {},
-          byObject: {}
+          byObject: {},
         },
       },
     };
-  
 
-  const ac = new AccessControl(fakeDb);
+    const ac = new AccessControl(fakeDb);
 
-  const paths = await ac.locatePaths("user:testuser", "file:testfile");
+    const paths = await ac.locatePaths("user:testuser", "file:testfile");
 
-  expect(paths.length).toEqual(0);
-  expect(paths).toBeInstanceOf(Array);
-  expect(paths).toEqual([]);
+    expect(paths.length).toEqual(0);
+    expect(paths).toBeInstanceOf(Array);
+    expect(paths).toEqual([]);
   });
 
   it("if called without proper prefix should return empty array", async () => {
@@ -346,18 +340,137 @@ describe("locatePaths", () => {
       data: {
         tupleStore: {
           bySubject: {},
-          byObject: {}
+          byObject: {},
         },
       },
     };
 
     const ac = new AccessControl(fakeDb);
 
-    const paths = await ac.locatePaths("testuser", "testfile" )
+    const paths = await ac.locatePaths("testuser", "testfile");
 
     expect(paths.length).toEqual(0);
     expect(paths).toBeInstanceOf(Array);
     expect(paths).toEqual([]);
+  });
+});
 
+// _getSubjectGroups
+
+describe("_getSubjectGroups functions", () => {
+  it("should return a set of groups that a user is part of", () => {
+    const fakeDb = {
+      read: vi.fn(),
+      data: {
+        tupleStore: {
+          bySubject: {
+            "user:testuser": [
+              {
+                relation: "member",
+                objectId: "group:group1",
+              },
+              {
+                relation: "member",
+                objectId: "group:group2",
+              },
+            ],
+          },
+          byObject: {},
+        },
+      },
+    };
+
+    const ac = new AccessControl(fakeDb);
+
+    const groups = ac._getSubjectGroups("user:testuser");
+
+    expect(groups.size).toBeGreaterThan(0);
+    expect(groups).toBeDefined();
+    expect(groups).toBeInstanceOf(Set);
+    expect(groups).toEqual(new Set(["group:group1", "group:group2"]));
+  });
+  it("should return an empty set if no groups are found", () => {
+    const fakeDb = {
+      read: vi.fn(),
+      data: {
+        tupleStore: {
+          bySubject: {},
+          byObject: {},
+        },
+      },
+    };
+
+    const ac = new AccessControl(fakeDb);
+
+    const groups = ac._getSubjectGroups("user:testuser");
+
+    expect(groups).toBeDefined();
+    expect(groups).toBeInstanceOf(Set);
+    expect(groups.size).toEqual(0);
+    expect(groups).toEqual(new Set([]));
+  });
+  it("should return an empty set if it recieves invaid arguments", () => {
+    const fakeDb = {
+      read: vi.fn(),
+      data: {
+        tupleStore: {
+          bySubject: {
+            "user:testuser": [
+              {
+                relation: "member",
+                objectId: "group:group1",
+              },
+            ],
+          },
+          byObject: {},
+        },
+      },
+    };
+
+    const ac = new AccessControl(fakeDb);
+
+    const groups = ac._getSubjectGroups("testuser");
+
+    expect(groups).toBeDefined();
+    expect(groups.size).toEqual(0);
+    expect(groups).toBeInstanceOf(Set);
+    expect(groups).toEqual(new Set([]));
+  });
+  it("should return a list of groups that group is member of", () => {
+    const fakeDb = {
+      read: vi.fn(),
+      data: {
+        tupleStore: {
+          bySubject: {
+            "group:testgroup": [
+              {
+                relation: "member",
+                objectId: "group:group2",
+              },
+              {
+                relation: "member",
+                objectId: "group:testgroup",
+              },
+            ],
+            "group:group2": [
+              {
+                relation: "member",
+                objectId: "group:group3",
+              },
+            ],
+          },
+          byObject: {},
+        },
+      },
+    };
+
+    const ac = new AccessControl(fakeDb);
+
+    const groups = ac._getSubjectGroups("group:testgroup");
+
+    expect(groups).toBeDefined();
+    expect(groups.size).toBeGreaterThan(0);
+    expect(groups).toBeInstanceOf(Set);
+    expect(groups).toEqual(new Set(["group:group2", "group:group3"]));
   });
 });
