@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { AccessControl } from "../routes/access.js";
 
 //Creating a false database
@@ -8,8 +8,8 @@ function testDb() {
       tupleStore: { byObject: {}, bySubject: {} },
       schema: {},
     },
-    read: async () => {},
-    write: async () => {},
+    read: vi.fn(),
+    write: vi.fn(),
   };
 }
 
@@ -24,7 +24,7 @@ describe("addTuple", () => {
   });
 
   it("adds tuple to byObject", async () => {
-    //act
+    //Act
     await ac.addTuple("user:alice", "owner", "file:1");
 
     //Assert
@@ -34,7 +34,7 @@ describe("addTuple", () => {
   });
 
   it("adds tuple to bySubject", async () => {
-    //act
+    //Act
     await ac.addTuple("user:alice", "owner", "file:1");
 
     //Assert

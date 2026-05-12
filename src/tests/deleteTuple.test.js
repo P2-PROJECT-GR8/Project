@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { AccessControl } from "../routes/access.js";
 
 function testDb() {
@@ -7,8 +7,8 @@ function testDb() {
       tupleStore: { byObject: {}, bySubject: {} },
       schema: {},
     },
-    read: async () => {},
-    write: async () => {},
+    read: vi.fn(),
+    write: vi.fn(),
   };
 }
 
