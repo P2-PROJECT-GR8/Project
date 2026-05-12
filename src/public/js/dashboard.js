@@ -196,8 +196,24 @@ document.addEventListener("DOMContentLoaded", async () => {
   const createNewErrorMsg = document.getElementById("create-new-error");
   const filesList = document.getElementById("filesList");
   const uploadNewBtn = document.getElementById("UploadNewbtn");
-  uploadNewBtn.addEventListener("click", () => {
+
+  uploadNewBtn.addEventListener("click", async () => {
     createNewErrorMsg.innerText = "";
+
+    const ownerSelect = document.getElementById("new-owner-select");
+    ownerSelect.innerHTML = '<option value="">Me (personal)</option>';
+
+    // Use the new endpoint instead of filtering /api/files
+    const res = await fetch("/api/ownedGroups", { credentials: "include" });
+    const { ownedGroups } = await res.json();
+
+    ownedGroups.forEach((group) => {
+      const option = document.createElement("option");
+      option.value = `group:${group}`;
+      option.innerText = `Group: ${group.charAt(0).toUpperCase() + group.slice(1)}`;
+      ownerSelect.appendChild(option);
+    });
+
     createNewModal.showModal();
   });
     
@@ -225,6 +241,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         body: JSON.stringify({
           objectId: `${formObject.type}:${formObject.name}`,
           parentFolder: parentFolder,
+          ownerId: formObject.owner || "",
         }),
       });
       const resData = await res.json();
@@ -328,6 +345,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const { files } = await res.json();
     renderMyFiles(files);
     renderGroups(files);
+    renderSharedFiles(files);
   }
 
   // renders received filelist to dahsboard
@@ -394,7 +412,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     
     
-         function renderGroups(files) {
+  function renderGroups(files) {
   console.log("renderGroups called with:", files);
   const groupsList = document.getElementById("GroupsList");
   console.log("GroupsList element:", groupsList);
@@ -402,49 +420,97 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const groups = files.filter(file => file.objectId.startsWith("group:"));
 
-  if (groups.length > 0) {
-    groups.forEach((file) => {
-      const listItem = document.createElement("div");
-      listItem.className = "listitem";
-      listItem.dataset.fileId = file.objectId;
-      listItem.dataset.relations = file.relations;
+          if (groups.length > 0) {
+          groups.forEach((file) => {
+          const listItem = document.createElement("div");
+          listItem.className = "listitem";
+          listItem.dataset.fileId = file.objectId;
+          listItem.dataset.relations = file.relations;
 
-      const icon = document.createElement("i");
-      icon.className = "material-icons type";
-      icon.innerText = "people";
+          const icon = document.createElement("i");
+          icon.className = "material-icons type";
+          icon.innerText = "people";
 
-      const itemTitle = document.createElement("div");
-      itemTitle.className = "item-title";
+          const itemTitle = document.createElement("div");
+          itemTitle.className = "item-title";
 
-      const h3 = document.createElement("h3");
-      h3.innerText = file.objectId.split(":")[1];
+          const h3 = document.createElement("h3");
+          h3.innerText = file.objectId.split(":")[1];
 
-      const p = document.createElement("p");
-      p.innerText = "Updated by User - 2 Hours ago";
+          const p = document.createElement("p");
+          p.innerText = "Updated by User - 2 Hours ago";
 
-      itemTitle.appendChild(h3);
-      itemTitle.appendChild(p);
+          itemTitle.appendChild(h3);
+          itemTitle.appendChild(p);
 
-      const relation = document.createElement("div");
-      relation.className = "relation";
-      relation.innerText = file.relations.join(", ").toUpperCase();
+          const relation = document.createElement("div");
+          relation.className = "relation";
+          relation.innerText = file.relations.join(", ").toUpperCase();
 
-      const moreLink = document.createElement("a");
-      moreLink.href = "#";
-      const moreIcon = document.createElement("i");
-      moreIcon.className = "material-icons more-btn";
-      moreIcon.innerText = "more_vert";
-      moreLink.appendChild(moreIcon);
+          const moreLink = document.createElement("a");
+          moreLink.href = "#";
+          const moreIcon = document.createElement("i");
+          moreIcon.className = "material-icons more-btn";
+          moreIcon.innerText = "more_vert";
+          moreLink.appendChild(moreIcon);
 
-      listItem.appendChild(icon);
-      listItem.appendChild(itemTitle);
-      listItem.appendChild(relation);
-      listItem.appendChild(moreLink);
+          listItem.appendChild(icon);
+          listItem.appendChild(itemTitle);
+          listItem.appendChild(relation);
+          listItem.appendChild(moreLink);
 
-      groupsList.appendChild(listItem);
-    });
-  }
-}
+          groupsList.appendChild(listItem);
+        });
+      }
+    }
+
+  function renderSharedFiles(files) {
+    const sharedList = document.getElementById("SharedList");
+    sharedList.innerHTML = "";
+
+      const sharedFiles = files.filter(file =>
+        !file.relations.includes("owner") && !file.objectId.startsWith("group:")
+      );
+
+        if (sharedFiles.length === 0) {
+          sharedList.innerHTML = "<p style='padding: 1rem;'>No files have been shared with you.</p>";
+          return;
+        }
+
+          sharedFiles.forEach((file) => {
+          const listItem = document.createElement("div");
+          listItem.className = "listitem";
+          listItem.dataset.fileId = file.objectId;
+          listItem.dataset.relations = file.relations;
+
+          const fileType = file.objectId.split(":")[0];
+          const icon = document.createElement("i");
+          icon.className = "material-icons type";
+          icon.innerText = fileType === "folder" ? "folder" : "article";
+
+          const itemTitle = document.createElement("div");
+          itemTitle.className = "item-title";
+
+          const h3 = document.createElement("h3");
+          h3.innerText = file.objectId.split(":")[1];
+
+          const p = document.createElement("p");
+          p.innerText = "Shared with you";
+
+          itemTitle.appendChild(h3);
+          itemTitle.appendChild(p);
+
+          const relation = document.createElement("div");
+          relation.className = "relation";
+          relation.innerText = file.relations.join(", ").toUpperCase();
+
+          listItem.appendChild(icon);
+          listItem.appendChild(itemTitle);
+          listItem.appendChild(relation);
+
+          sharedList.appendChild(listItem);
+        });
+      }
 
     
     

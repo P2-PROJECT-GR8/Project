@@ -359,35 +359,37 @@ app.post("/api/createNew", async (req, res) => {
     return res.status(401).send({ message: "User not authenticated" });
   }
 
-  const { objectId, parentFolder } = req.body;
+  const { objectId, parentFolder, ownerId } = req.body;
   const objectType = objectId.split(":")[0];
 
   await db.read();
   if (Object.hasOwn(db.data.tupleStore.byObject, objectId)) {
-    return res
-      .status(409)
-      .send({ message: "An object with this ID already exists." });
+    return res.status(409).send({ message: "An object with this ID already exists." });
   }
 
-  if (
-    objectType === "folder" ||
-    objectType === "file"   ||
-    objectType === "group" 
-  ) {
+  // Validate ownerId if provided and check if the user has permission to create under that owner
+  let resolvedOwner = currentUser.id;
+  if (ownerId && ownerId.startsWith("group:")) {
+    const userRelationsToGroup = await accessControl.expandUserRelations(currentUser.id, ownerId);
+    if (!userRelationsToGroup.includes("owner")) {
+      return res.status(403).send({ message: "You must be an owner of this group to create files on its behalf." });
+    }
+    resolvedOwner = ownerId;
+  }
+
+  //checks for valid object types and permissions to create in the parent folder if specified
+  if (objectType === "folder" || objectType === "file" || objectType === "group") {
     if (parentFolder) {
-      if (accessControl.can(currentUser.id, "create_child", parentFolder)) {
+      const canCreate = await accessControl.can(currentUser.id, "create_child", parentFolder);
+      if (canCreate) {
         await accessControl.addTuple(parentFolder, "parent", objectId);
-        return res
-          .status(201)
-          .send({ message: "Object created successfully!" });
+        return res.status(201).send({ message: "Object created successfully!" });
       } else {
-        return res.status(403).send({
-          message:
-            "User does not have permission to create objects within this folder",
-        });
+        return res.status(403).send({ message: "User does not have permission to create objects within this folder" });
       }
     } else {
-      await accessControl.addTuple(currentUser.id, "owner", objectId);
+
+      await accessControl.addTuple(resolvedOwner, "owner", objectId);
       return res.status(201).send({ message: "Object created successfully!" });
     }
   } else {
@@ -575,6 +577,30 @@ app.get("/api/groupNames", (req, res) => {
     .filter(id => id.startsWith("group:"))
     .map(id => id.split(":")[1]);
   res.send({ groupNames });
+});
+
+app.get("/api/ownedGroups", async (req, res) => {
+  let currentUser;
+  try {
+    currentUser = getUser(req);
+  } catch {
+    return res.status(401).send({ message: "User not authenticated" });
+  }
+
+  await db.read();
+
+  const allGroups = Object.keys(db.data.tupleStore.byObject)
+    .filter(id => id.startsWith("group:"));
+
+  const ownedGroups = [];
+  for (const groupId of allGroups) {
+    const relations = await accessControl.expandUserRelations(currentUser.id, groupId);
+    if (relations.includes("owner")) {
+      ownedGroups.push(groupId.split(":")[1]);
+    }
+  }
+
+  res.json({ ownedGroups });
 });
 
 // return the list of paths from given user to given object

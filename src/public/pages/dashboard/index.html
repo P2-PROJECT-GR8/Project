@@ -136,15 +136,22 @@
               <h2>Create a new file</h2>
               <form id="create-new-form">
                 <input
-                name="name"
+                  name="name"
                   type="text"
                   id="new-name-input"
-                  placeholder="Write the name of the file/foler"
+                  placeholder="Write the name of the file/folder"
                 />
                 <select name="type" id="new-type-select" class="select-new-type">
                   <option value="file">File</option>
                   <option value="folder">Folder</option>
                 </select>
+
+                a
+                <label for="new-owner-select">Owner</label>
+                <select name="owner" id="new-owner-select">
+                  <option value="">Me (personal)</option>
+                </select>
+
                 <div class="create-new-buttons">
                   <button id="create-new-cancel" class="cancel-modal">Cancel</button>
                   <span></span>
@@ -243,13 +250,11 @@
 
         <div id="shared" class="page">
           <h1>Here are all Files shared with you</h1>
-            <p id="allFIlesHeaderText">
-              Here you will find an overview of all files shared with you
-            </p>
-
-          </div>
-          <div id="SharedList">      
-          </div>
+          <p id="allFIlesHeaderText">
+            Here you will find an overview of all files shared with you
+          </p>
+          <div id="SharedList"></div>
+        </div>
           <dialog id="shared-details">
             <div class="modal-body">
               <div>
