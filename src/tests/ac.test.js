@@ -204,6 +204,114 @@ describe("test cases for expandUserRelations", () => {
     expect(result).toEqual([]);
   });
 });
+
+describe("expand function", () => {
+  it("Direct relation to an object", async () => {
+    // arrange
+    const fakeDb = {
+      read: vi.fn(),
+      data: {
+        tupleStore: {
+          byObject: {
+            "file:1": [{ subjectId: "user:1", relation: "owner" }],
+          },
+          file: {
+            relations: {
+              owner: ["read", "write", "viewer"],
+            },
+          },
+        },
+      },
+    };
+    const ac = new AccessControl(fakeDb);
+    // act
+    ac._getSubjectGroups = vi.fn().mockReturnValue(new Set());
+    const result = await ac._expand("user:1", "file:1");
+    // assert
+    expect(result).toEqual(["owner"]);
+  });
+
+  it("Inherited via a parent", async () => {
+    // arrange
+    const fakeDb = {
+      read: vi.fn(),
+      data: {
+        tupleStore: {
+          byObject: {
+            "file:1": [{ subjectId: "folder:1", relation: "parent" }],
+            "folder:1": [{ subjectId: "user:1", relation: "viewer" }],
+          },
+          file: {
+            relations: {
+              owner: ["read", "write", "viewer"],
+            },
+          },
+        },
+      },
+    };
+    const ac = new AccessControl(fakeDb);
+    // act
+    ac._getSubjectGroups = vi.fn().mockReturnValue(new Set());
+    const result = await ac._expand("user:1", "file:1");
+    // assert
+    expect(result).toEqual(["viewer"]);
+  });
+
+  it("Ignore unrealted users", async () => {
+    // arrange
+    const fakeDb = {
+      read: vi.fn(),
+      data: {
+        tupleStore: {
+          byObject: {
+            "file:1": [{ subjectId: "user:2", relation: "owner" }],
+          },
+          file: {
+            relations: {
+              owner: ["read", "write", "viewer"],
+            },
+          },
+        },
+      },
+    };
+    const ac = new AccessControl(fakeDb);
+    // act
+    ac._getSubjectGroups = vi.fn().mockReturnValue(new Set());
+    const result = await ac._expand(["user:1", "file:1"]);
+    // assert
+    expect(result).toEqual([]);
+  });
+
+  it("Prevent infinite loops", async () => {
+    // arrange
+    const fakeDb = {
+      read: vi.fn(),
+      data: {
+        tupleStore: {
+          byObject: {
+            "file:1": [{ subjectId: "folder:1", relation: "parent" }],
+            "folder:1": [
+              { subjectId: "user:1", relation: "viewer" },
+              { subjectId: "file:1", relation: "parent" },
+            ],
+          },
+          file: {
+            relations: {
+              owner: ["read", "write", "viewer"],
+            },
+          },
+        },
+      },
+    };
+    const ac = new AccessControl(fakeDb);
+    // act
+    ac._getSubjectGroups = vi.fn().mockReturnValue(new Set());
+    const result = await ac._expand("user:1", "file:1");
+    // assert
+    expect(result).toEqual(["viewer"]);
+  });
+});
+
 // locatePaths
 describe("locatePaths", () => {
   it("returns an array of paths from user to object if paths are found", async () => {
@@ -354,6 +462,7 @@ describe("locatePaths", () => {
     expect(paths).toEqual([]);
   });
 });
+<<<<<<< Updated upstream
 
 // _getSubjectGroups
 
@@ -474,3 +583,5 @@ describe("_getSubjectGroups functions", () => {
     expect(groups).toEqual(new Set(["group:group2", "group:group3"]));
   });
 });
+=======
+>>>>>>> Stashed changes
