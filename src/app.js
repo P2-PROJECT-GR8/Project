@@ -567,7 +567,7 @@ app.get("/api/adminRelations", async (req, res) => {
   const userId = req.query.userId;
   const objectId = req.query.objectId;
   const mode = req.query.mode;
-
+  console.log("adminraltions was called i now call locate paths with " + userId + " " + objectId + " " + mode );
   const paths = await accessControl.locatePaths(userId, objectId, mode);
   res.json({ paths: paths });
 });

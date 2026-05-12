@@ -309,12 +309,20 @@ class AccessControl {
     await this.db.write();
   }
 
-  async locatePaths(subjectId, objectId, maxDepth = 5, mode) {
+  async locatePaths(subjectId, objectId, mode, maxDepth = 5) {
     const paths = [];
     await this.db.read();
     const { bySubject } = this.db.data.tupleStore;
     const { byObject } = this.db.data.tupleStore;
-    const type = subjectId.split(":")[0];
+    
+    const rootId = mode === "pathsFromTarget" && subjectId === "null" ? objectId : subjectId;
+
+    if (!rootId) {
+      return [];
+    }
+
+    const type = rootId.split(":")[0];
+
     let adjacency;
     let idType;
 
@@ -325,6 +333,8 @@ class AccessControl {
     } else if (type === "file" || type === "folder"){
       adjacency = this.db.data.tupleStore.byObject;
       idType = "subjectId";
+    } else {
+      return [];
     }
 
 
@@ -368,7 +378,7 @@ class AccessControl {
           visited.delete(nextNode);
         }
       }
-      DFS(subjectId, [], new Set([subjectId]), 0);
+      DFS(rootId, [], new Set([rootId]), 0);
     } else if (mode === "pathsFromTarget") {
       // all paths from subject/object
       function DFS(currentNode, path, visited, depth) {
@@ -380,14 +390,20 @@ class AccessControl {
         // intialize edges for current node
         const edges = adjacency[currentNode] || [];
 
-        // base case: if no more edges found then push path
-        if (currentNode.startsWith("file") || currentNode.startsWith("folder")) {
+        // base case        
+
+        // Case 1: root is user/group → push path on every file/folder hit
+        if ((type === "user" || type === "group") && (currentNode.startsWith("file:") || currentNode.startsWith("folder:")) && path.length > 0) {
           paths.push([...path]);
         }
-        // stop once no more edges exist
-        if (edges.length === 0){
-            return;
-          }
+
+        // Case 2: root is file/folder → push path when traversal ends
+        if ((type === "file" || type === "folder") && edges.length === 0 && path.length > 0) {
+          paths.push([...path]);
+          return; 
+        }
+
+
 
         // run through all edges at this node
         for (const edge of edges) {
@@ -412,7 +428,7 @@ class AccessControl {
           visited.delete(nextNode);
         }
       }
-      DFS(subjectId, [], new Set([subjectId]), 0);
+      DFS(rootId, [], new Set([rootId]), 0);
     }
 
     return paths;

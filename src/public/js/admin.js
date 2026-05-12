@@ -15,34 +15,60 @@ document.addEventListener("DOMContentLoaded", async () => {
   const mode = document.getElementById("mode-Select");
 
   const locatePathsBtn = document.getElementById("paths-submit");
-  // hide input field until a traversal mode has been selected
-  userSelect.hidden = true;
+
+  // default state
+  userSelect.hidden = false;
   objectSelect.hidden = true;
-  userSelectLabel.hidden = true;
+  userSelectLabel.hidden = false;
   objectSelectLabel.hidden = true;
+  mode.value = "pathsToTarget"
+
+  //get usernames
+  const users = await fetch("/api/userNames", { credentials: "include" });
+  const { userNames } = await users.json();
+
+  userNames.forEach((user) => {
+    if (user === "Admin") {
+      return;
+      }
+    let element = document.createElement("option");
+    element.value = user;
+    element.innerText = user;
+    console.log(element);
+    userSelect.appendChild(element);
+  });
+
+  // get groups
+  const groups = await fetch("/api/adminGetGroups", {credentials: "include"});
+  const { groups: groupNames } = await groups.json();
+
+  groupNames.forEach((group) => {
+    let element = document.createElement("option");
+    element.value = group
+    element.innerText = group.split(":")[1] + " - group";
+    console.log(element);
+    userSelect.appendChild(element);
+  });
 
   // dependent on traversal mode load files or users first:
   mode.addEventListener("change", async () => {
+    userSelect.innerHTML = "";
     objectSelect.innerHTML = "";
     userSelect.hidden = false;
     objectSelect.hidden = false;
     userSelectLabel.hidden = false;
     objectSelectLabel.hidden = false;
-    // if byObject
-    if (mode.value === "byObject") {
-      userSelect.hidden = true;
-      userSelectLabel.hidden = true;
-      // fetch objects to display in object select
-      const fileList = await fetch("/api/objects");
-      if (!fileList.ok) {
-        console.log("failed to load object list");
-      }
-      const { objects } = await fileList.json();
-      renderFiles(objects);
-    } else if (mode.value === "bySubject") {
+    
+    // new logic
+
+    // user to object
+    if (mode.value === "pathsToTarget"){
+      objectSelect.hidden = true;
+      objectSelectLabel.hidden = true;
+
+      //get usernames
       const users = await fetch("/api/userNames", { credentials: "include" });
       const { userNames } = await users.json();
-      console.log(userNames);
 
       userNames.forEach((user) => {
         if (user === "Admin") {
@@ -54,6 +80,66 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.log(element);
         userSelect.appendChild(element);
       });
+
+      // get groups
+      const groups = await fetch("/api/adminGetGroups", {credentials: "include"});
+      const { groups: groupNames } = await groups.json();
+
+      groupNames.forEach((group) => {
+        let element = document.createElement("option");
+        element.value = group
+        element.innerText = group.split(":")[1] + " - group";
+        console.log(element);
+        userSelect.appendChild(element);
+      });
+
+    } 
+    // all paths from an object
+    else if (mode.value === "pathsFromTargetObject"){
+      objectSelect.hidden = false;
+      objectSelectLabel.hidden = false;
+
+      // get objects to display in select
+      const fileList = await fetch("/api/objects");
+      if (!fileList.ok) {
+        console.log("failed to load object list");
+      }
+      const { objects } = await fileList.json();
+      renderFiles(objects);
+      
+
+    } 
+    // all paths from a user / group
+    else if (mode.value==="pathsFromTargetUser") {
+      userSelect.hidden = false;
+      userSelectLabel.hidden = false;
+
+      //get usernames
+      const users = await fetch("/api/userNames", { credentials: "include" });
+      const { userNames } = await users.json();
+
+      userNames.forEach((user) => {
+        if (user === "Admin") {
+          return;
+        }
+        let element = document.createElement("option");
+        element.value = user;
+        element.innerText = user;
+        console.log(element);
+        userSelect.appendChild(element);
+      });
+
+      // get groups
+      const groups = await fetch("/api/adminGetGroups", {credentials: "include"});
+      const { groups: groupNames } = await groups.json();
+
+      groupNames.forEach((group) => {
+        let element = document.createElement("option");
+        element.value = group
+        element.innerText = group.split(":")[1] + " - group";
+        console.log(element);
+        userSelect.appendChild(element);
+      });
     }
   });
 
@@ -61,25 +147,38 @@ document.addEventListener("DOMContentLoaded", async () => {
   locatePathsBtn.addEventListener("click", async () => {
     let subjectId = null;
     let objectId = null;
+    let traversalMode = null;
 
-    if (mode.value === "bySubject") {
-      if (!userSelect.value || !objectSelect.value) {
-        console.log("missing user or object");
-        return;
+    // paths from subject to target
+    if (mode.value === "pathsToTarget") {
+      if (!userSelect.value || !objectSelect.value) return;
+
+      if (userSelect.value.startsWith("group:")){
+        subjectId = userSelect.value;
+      } else {
+        subjectId = `user:${userSelect.value.toLowerCase()}`;
       }
-      subjectId = `user:${userSelect.value.toLowerCase()}`;
       objectId = objectSelect.value;
-    }
-    if (mode.value === "byObject") {
-      if (!objectSelect.value) {
-        return;
+      traversalMode = "pathsToTarget"
+
+    } 
+    // all paths from object
+    else if (mode.value === "pathsFromTargetObject") {
+      objectId = objectSelect.value;
+      traversalMode = "pathsFromTarget";
+    } 
+    // all paths from user
+    else if (mode.value === "pathsFromTargetUser") {
+      if (userSelect.value.startsWith("group:")){
+        subjectId = userSelect.value;
+      } else {
+        subjectId = `user:${userSelect.value.toLowerCase()}`;
       }
-      subjectId = objectSelect.value;
-      objectId = null;
+      traversalMode = "pathsFromTarget";
     }
 
     const res = await fetch(
-      `/api/adminRelations?userId=${subjectId}&objectId=${objectId}`,
+      `/api/adminRelations?userId=${subjectId}&objectId=${objectId}&mode=${traversalMode}`,
       { credentials: "include" },
     );
 
@@ -87,19 +186,36 @@ document.addEventListener("DOMContentLoaded", async () => {
       console.log("paths fetch failed");
     }
     const { paths } = await res.json();
+    console.log("paths to follow");
+    console.log(paths);
+    
+  
+  renderPathToObject(
+    paths,
+    subjectId ? subjectId.split(":")[1] : objectId.split(":")[1],
+    objectId ? objectId.split(":")[1] : "all"
+  );
 
-    const titleSubject =
-      mode.value === "bySubject" ? subjectId : subjectId.split(":")[1];
-
-    const objectTitle = objectId ? objectId.split(":")[1] : "users";
-
-    renderPathToObject(paths, titleSubject, objectTitle);
+ 
+  
   });
 
   // render files in object select based off of selected user
   userSelect.addEventListener("change", async () => {
+    if(mode.value==="pathsToTarget"){
+      objectSelect.hidden = false;
+      objectSelectLabel.hidden = false;
+    } 
+
+    let subjectid;
+
+    if (userSelect.value.startsWith("group:")) {
+      subjectid = userSelect.value;
+    } else {
+      subjectid = `user:${userSelect.value.toLowerCase()}`;
+    }
     const filelist = await fetch(
-      `/api/adminFiles?userId=user:${userSelect.value.toLowerCase()}`,
+      `/api/adminFiles?userId=${subjectid}`,
       { credentials: "include" },
     );
     if (!filelist.ok) {
@@ -120,22 +236,29 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // render paths
-  function renderPathToObject(paths, user, object) {
+  function renderPathToObject(paths, subjectLabel, objectLabel) {
     display.innerHTML = "";
-    const Header = document.createElement("h1");
-    Header.id = "relation-Overview-Header";
-    if (mode.value === "bySubject") {
-      Header.innerText = `${user}'s relation paths to ${object}`;
-    } else if (mode.value === "byObject") {
-      Header.innerText = `${user}'s paths to all `;
-    }
-    display.appendChild(Header);
+    
+    const header = document.createElement("h1");
+    header.id = "relation-Overview-Header";
 
+    if (mode.value === "pathsToTarget") {
+      header.innerText = `${subjectLabel}'s relation paths to ${objectLabel}`;
+    } else if (mode.value === "pathsFromTargetObject") {
+      header.innerText = `All paths from ${objectLabel}`;
+    } else if (mode.value === "pathsFromTargetUser") {
+      header.innerText = `All paths from ${subjectLabel}`;
+    }
+
+    display.appendChild(header);
+
+    // no paths found
     if (!paths || paths.length === 0) {
-      Header.innerText = `no paths found to ${object}`;
+      header.innerText = `no paths found`;
       return;
     }
 
+    // render each path
     paths.forEach((path, index) => {
       const pathcontainer = document.createElement("div");
       pathcontainer.className = "path";
@@ -161,9 +284,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       const list = document.createElement("ul");
       path.forEach((step) => {
         const item = document.createElement("li");
-        if (mode.value === "bySubject") {
+        if (mode.value === "pathsToTarget") {
           item.textContent = `${step.from} → (${step.relation}) → ${step.to}`;
-        } else if ((mode.value = "byObject")) {
+        } else {
           item.textContent = `${step.from} ← (${step.relation}) ← ${step.to}`;
         }
 
