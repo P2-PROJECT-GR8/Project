@@ -462,7 +462,6 @@ describe("locatePaths", () => {
     expect(paths).toEqual([]);
   });
 });
-<<<<<<< Updated upstream
 
 // _getSubjectGroups
 
@@ -583,5 +582,3 @@ describe("_getSubjectGroups functions", () => {
     expect(groups).toEqual(new Set(["group:group2", "group:group3"]));
   });
 });
-=======
->>>>>>> Stashed changes
