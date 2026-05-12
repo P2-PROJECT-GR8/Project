@@ -266,10 +266,26 @@ document.addEventListener("DOMContentLoaded", async () => {
   const createNewGroupErrorMsg = document.getElementById("create-new-group-error");
   const groupsList = document.getElementById("GroupsList");
   const newGroupBtn = document.getElementById("newGroupBtn");
-  newGroupBtn.addEventListener("click", () => {
-      createNewGroupErrorMsg.innerText = "";
-      createNewGroupModal.showModal();
+  newGroupBtn.addEventListener("click", async () => {
+    createNewGroupErrorMsg.innerText = "";
+
+    const ownerSelect = document.getElementById("new-group-owner-select");
+    ownerSelect.innerHTML = '<option value="">Me (personal)</option>';
+
+    // Use the new endpoint instead of filtering /api/files
+    const res = await fetch("/api/ownedGroups", { credentials: "include" });
+    const { ownedGroups } = await res.json();
+
+    ownedGroups.forEach((group) => {
+      const option = document.createElement("option");
+      option.value = `group:${group}`;
+      option.innerText = `Group: ${group.charAt(0).toUpperCase() + group.slice(1)}`;
+      ownerSelect.appendChild(option);
+    });
+
+    createNewGroupModal.showModal();
   });
+  
 
   const createNewGroupCancelBtn = document.getElementById("create-new-group-cancel");
   createNewGroupCancelBtn.addEventListener("click", (e) => {

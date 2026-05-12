@@ -404,10 +404,29 @@ button {
   gap: 1rem;
   grid-template-areas:
     "input-cn input-cn input-cn select-cn"
-    "buttons-cn buttons-cn buttons-cn buttons-cn";
+    "label-owner label-owner label-owner label-owner"
+    "owner-cn owner-cn owner-cn owner-cn"
+    "buttons-cn buttons-cn buttons-cn buttons-cn"
 }
 
-#create-new-form select {
+#create-new-form label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--primary);
+  grid-area: label-owner;
+}
+
+#new-owner-select {
+  grid-area: owner-cn;
+  border-radius: var(--radius-lg);
+  background-color: #ecf0f1;
+  border: 0px solid;
+  padding: 1rem;
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+#create-new-type-form select {
   grid-area: select-cn;
   border-radius: var(--radius-lg);
   background-color: #ecf0f1;
@@ -438,6 +457,8 @@ button {
   gap: 1rem;
   grid-template-areas:
     "input-cn input-cn input-cn input-cn"
+    "label-owner label-owner label-owner label-owner"
+    "owner-cn owner-cn owner-cn owner-cn"
     "buttons-cn buttons-cn buttons-cn buttons-cn";
 }
 
@@ -456,6 +477,24 @@ button {
   grid-template-columns: auto 1fr auto;
   grid-area: buttons-cn;
 }
+
+#create-new-group-form label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--primary);
+  grid-area: label-owner;
+}
+
+#create-new-group-form select {
+  grid-area: owner-cn;
+  border-radius: var(--radius-lg);
+  background-color: #ecf0f1;
+  border: 0px solid;
+  padding: 1rem;
+  font-weight: 500;
+  font-size: 1rem;
+}
+
 
 .cancel-modal {
   background-color: transparent !important;
