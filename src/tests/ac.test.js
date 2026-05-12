@@ -27,7 +27,7 @@ const db = await JSONFilePreset(path.join(__dirname, "..", "data", "db.json"), {
     expect(path[0].relation).toBe("owner");
   });
 });*/
-
+// Tests for the can function
 describe("can functions", () => {
   it("returns true when a user has permission", async () => {
     // arrange
@@ -51,7 +51,7 @@ describe("can functions", () => {
     ac.expandUserRelations = vi.fn().mockResolvedValue(["owner"]);
     ac.log = vi.fn();
 
-    const result = await ac.can("user1", "write", "file:1");
+    const result = await ac.can("user1", "write", "file:1", true);
 
     //assert
     expect(result).toBe(true);
@@ -132,5 +132,102 @@ describe("can functions", () => {
 
     const result = await ac.can("viewer", "write", "file:1", true);
     // assert
+    expect(result).toBe(true);
+    expect(ac.log).toHaveBeenCalledWith("viewer", "write", "file:1", true);
   });
+});
+
+// Tests for the expandUserRelations function
+describe("test cases for expandUserRelations", () => {
+  it("return _expand", async () => {
+    // arrange
+    const fakeDb = {
+      read: vi.fn(),
+      data: {
+        schema: {
+          file: {
+            relations: {
+              owner: ["read", "write"],
+            },
+          },
+        },
+      },
+    };
+    const ac = new AccessControl(fakeDb);
+    // act
+    ac._expand = vi.fn().mockResolvedValue(["owner"]);
+    const result = await ac.expandUserRelations("user1", "file:1");
+    //assert
+    expect(result).toEqual(["owner"]);
+  });
+
+  it("remove duplicates", async () => {
+    // arrange
+    const fakeDb = {
+      read: vi.fn(),
+      data: {
+        schema: {
+          file: {
+            relations: {
+              owner: ["read", "write"],
+            },
+          },
+        },
+      },
+    };
+    const ac = new AccessControl(fakeDb);
+    // act
+    ac._expand = vi.fn().mockResolvedValue(["owner", "owner", "viewer"]);
+    const result = await ac.expandUserRelations("user1", "file:1");
+    // assert
+    expect(result).toEqual(["owner", "viewer"]);
+  });
+
+  it("call _expand correctly", async () => {
+    // arrange
+    const fakeDb = {
+      read: vi.fn(),
+      data: {
+        schema: {
+          file: {
+            relations: {
+              owner: ["read", "write"],
+            },
+          },
+        },
+      },
+    };
+    const ac = new AccessControl(fakeDb);
+    // act
+    ac._expand = vi.fn().mockResolvedValue(["owner"]);
+    const result = await ac.expandUserRelations("user1", "file:1");
+    // assert
+    expect(ac._expand).toHaveBeenCalledWith("user1", "file:1");
+  });
+
+  it("Test for en empty set", async () => {
+    // arrange
+    const fakeDb = {
+      read: vi.fn(),
+      data: {
+        schema: {
+          file: {
+            relations: {
+              owner: ["read", "write"],
+            },
+          },
+        },
+      },
+    };
+    const ac = new AccessControl(fakeDb);
+    // act
+    ac._expand = vi.fn().mockResolvedValue([]);
+    const result = await ac.expandUserRelations("user1", "file:1");
+    // assert
+    expect(result).toEqual([]);
+  });
+});
+
+describe ("", () => {
+
 });

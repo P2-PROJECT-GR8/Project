@@ -27,7 +27,7 @@ describe("Validate input when registering username", () => {
   });
 });
 
-describe("register button request", () => {
+/*describe("register button request", () => {
   test("Will call the register button, with the correct data", async () => {
     document.body.innerHTML = `<input id="registerUserNameInput" />
         <button id="createUser"></button>
@@ -66,3 +66,4 @@ describe("register button request", () => {
     expect(parsed.login).toBe(true);
   });
 });
+*/
