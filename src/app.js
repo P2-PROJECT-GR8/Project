@@ -577,7 +577,7 @@ app.get("/api/adminRelations", async (req, res) => {
 
   // only allow admin to acces this endpoint
   if (currentUser.id !== "user:admin") {
-    return res.status(401).json({ messeage: "currnet user is not admin" });
+    return res.status(401).json({ messeage: "current user is not admin" });
   }
 
   const userId = req.query.userId;
