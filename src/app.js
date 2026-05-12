@@ -498,11 +498,19 @@ app.post("/api/saveAllChanges", async (req, res) => {
     return res.status(401).send({ message: "User not authenticated" });
   }
   try {
-    const canShare = await accessControl.can(currentUser.id, "share", objectId) || currentUser.id === "user:admin"
-    const canDelete = await accessControl.can(currentUser.id, "remove_relations", objectId) || currentUser.id === "user:admin"
-    const canEdit = await accessControl.can(currentUser.id, "manage_relations", objectId) || currentUser.id === "user:admin"
-    if(addRel.length>0){
-      if(!canShare){
+    const canShare = await accessControl.can(currentUser.id, "share", objectId);
+    const canDelete = await accessControl.can(
+      currentUser.id,
+      "remove_relations",
+      objectId,
+    );
+    const canEdit = await accessControl.can(
+      currentUser.id,
+      "manage_relations",
+      objectId,
+    );
+    if (addRel.length > 0) {
+      if (!canShare) {
         return res.status(403).send({ message: "Not authorized to share!" });
       }
     }
@@ -520,6 +528,14 @@ app.post("/api/saveAllChanges", async (req, res) => {
           .send({ message: "Not authorized to edit users' relations!" });
       }
     }
+    /*
+    const isOwner = db.data.tupleStore.byObject[objectId]?.some(
+    (tuple) => tuple.subjectId === currentUser.id && tuple.relation === "owner"
+    );
+    if (!isOwner) {
+      return res.status(403).send({ message: "Not authorized" });
+    }
+      */
 
     //delete users
     for (const { subjectId } of deleteRel) {
@@ -650,16 +666,13 @@ app.post("/api/deleteFile", async (req, res) => {
     const objectType = objectId.split(":")[0];
     let canDelete;
     if (objectType === "file") {
-      canDelete = await accessControl.can(
-        currentUser.id, 
-        "delete", 
-        objectId)|| currentUser.id === "user:admin";
+      canDelete = await accessControl.can(currentUser.id, "delete", objectId);
     } else if (objectType === "folder") {
       canDelete = await accessControl.can(
         currentUser.id,
         "delete_folder",
         objectId,
-      ) || currentUser.id === "user:admin";
+      );
     }
     console.log(canDelete);
 
@@ -732,16 +745,6 @@ app.get("/api/userNames", (req, res) => {
     return user.name.charAt(0).toUpperCase() + user.name.slice(1);
   });
   res.send({ userNames: userNames });
-});
-
-app.get("/api/objects", async (req, res) => {
-  await db.read();
-  const validTypes = new Set(["folder", "file"]);
-    const objects = Object.entries(db.data?.tupleStore?.byObject || {})
-    .filter(([id]) => validTypes.has(id.split(":")[0]))
-    .map(([objectId, relations]) => ({ objectId, relations }));
-
-  res.send({ objects })
 });
 
 // Create a new folder

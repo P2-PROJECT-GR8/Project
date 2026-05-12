@@ -1,12 +1,8 @@
 import { renderHeader } from "./navRenderer.js";
-import { createCustomRel, renderMembers, 
-  getCurrentUser, setSelectedFile, 
-  resetChanges, inviteMember} from "./dashboard.js";
-import { saveAllChanges} from "./dashboard.js";
-import { tempMembers, selectedFile } from "./dashboard.js";
 
 // wait for DOM load before doing anything
 document.addEventListener("DOMContentLoaded", async () => {
+  renderHeader();
   const userSelect = document.getElementById("user-Select");
   const objectSelect = document.getElementById("object-Select");
   const display = document.getElementById("main-Display");
@@ -201,8 +197,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  editObjOptions();
-
   // logs section
   const logsUserSearch = document.getElementById("logs-user-search");
   const logsObjectSearch = document.getElementById("logs-object-search");
@@ -307,105 +301,3 @@ document.addEventListener("DOMContentLoaded", async () => {
     logsDisplay.appendChild(ul);
   }
 });
-
-const currentUser = await getCurrentUser();
-const canDelRel=true;
-const canManageRel=true;
-const canShare=true;
-
-const editObjectSubmit = document.getElementById("admin-edit-submit")
-editObjectSubmit.addEventListener("click", ()=>{
-loadObjectModal();
-})
-
-const fileDetailsModal = document.getElementById("file-details")
-
-async function editObjOptions(){
-    const editOptions = document.getElementById("admin-edit")
-    const res = await fetch("/api/objects");
-    if (!res.ok) {
-    const text = await res.text();
-    console.error("Error response:", text);
-    throw new Error("Request failed");
-    }
-    const {objects} = await res.json();
-    console.log(objects)
-      objects.forEach((o) => {
-          const option = document.createElement("option");
-          const name = o.objectId.split(":")[1];
-          console.log(name)
-          option.value = o.objectId;
-          option.innerText = name.charAt(0).toUpperCase() + name.slice(1);
-          editOptions.appendChild(option);
-      });
-}
-
-const schemaRes = await fetch("/api/schema", { credentials: "include" });
-const schema = await schemaRes.json();
-window.schema = schema
-
-const userNamesRes = await fetch("/api/userNames", {
-    credentials: "include",
-    headers: { "Content-Type": "application/json" },
-  });
-const { userNames } = await userNamesRes.json();
-
-async function loadObjectModal() {
-  
-  const filedetails = document.getElementById("file-details");
-
-  const userList = document.getElementById("data-users");
-
-  userList.innerHTML = "";
-
-  userNames.forEach((user) => {
-    const option = document.createElement("option");
-    option.innerText = user;
-    userList.appendChild(option);
-  });
-
-  const editOptions = document.getElementById("admin-edit");
-
-  const selectedObjectId = editOptions.value
-
-  setSelectedFile(selectedObjectId);
-
-  resetChanges();
-
-  const inviteContainer = document.getElementById("invite-container");
-
-  inviteContainer.classList.remove("hidden");
-
-  renderMembers(selectedObjectId)
-
-  fileDetailsModal.showModal();
-}
-
-const cancelModal = document
-.getElementById("cancel-modal")
-.addEventListener("click", () => {
-      fileDetailsModal.close();
-    });
-
-const saveChanges = document.getElementById("save-changes");
-  saveChanges.addEventListener("click", async (e) => {
-    e.preventDefault();
-    saveAllChanges(e);
-})
-
-const inviteBtn = document.getElementById("invite-member");
-  inviteBtn.addEventListener("click", async (event) => {
-    event.preventDefault
-    inviteMember(event)
-  })
-
-let addedUsers=[];
-let deletedUsers=[];
-let changedRelation = new Map();
-
-const customBtn = document
-.getElementById("custom-btn")
-.addEventListener("click", async (event)=>{
-  createCustomRel(event);
-});
-

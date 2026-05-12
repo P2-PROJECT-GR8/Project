@@ -6,7 +6,6 @@
     <link rel="stylesheet" href="../../css/main.css" />
     <link rel="stylesheet" href="../../css/header.css" />
     <link rel="stylesheet" href="../../css/adminDash.css" />
-    <link rel="stylesheet" href="../../css/dashboard.css" />
     <title>Document</title>
 </head>
     <body>
@@ -40,13 +39,6 @@
                     <h1 id="relation-Overview-Header"></h1>
                     
                 </div>
-                <div>
-                    <label for="admin-edit">select object to edit relations</label>
-                    <select id="admin-edit">
-                        <option value="noObject">please select file</option>
-                    </select>
-                    <button id="admin-edit-submit" type="button" class="btn-style btn-lift:hover btn-lift">Edit object relations</button>
-                </div>
                 <div id="logs">
                     <h2>Overview of access logs</h2>
 
@@ -67,69 +59,6 @@
                     </div>
                 </div>
             </div>
-            <dialog id="file-details">
-            <div class="modal-body">
-              <div>
-                <h2>Manage Access</h2>
-                <p>Define who can view, edit, or manage this file or folder</p>
-              </div>
-              <div class="invite-container" id="invite-container">
-                <div class="input-container">
-                  <label for="invite-field">ADD USERS OR GROUPS</label>
-                  <input
-                    list="data-users"
-                    type="text"
-                    id="invite-field"
-                    placeholder="Write the name of a group or user"
-                    minlength="2"
-                  />
-                  <datalist id="data-users">
-                    <option value="Magnus"></option>
-                    <option value="Emil"></option>
-                    <option value="Admin"></option>
-                    <option value="Viktor"></option>
-                    <option value="Ditte"></option>
-                  </datalist>
-                </div>
-                <button id="invite-member" class="btn-lift">Invite</button>
-              </div>
-              <p
-                id="modalErrorMessage"
-                style="color: red; text-align: center"
-              ></p>
-              <h3>Current Members</h3>
-              <div id="members">
-                <div class="member">
-                  <p>Magnus</p>
-                  <p>Owner</p>
-                </div>
-                <div class="member">
-                  <p>Emil</p>
-                  <p>Viewer</p>
-                </div>
-                <div class="member">
-                  <p>Kasper</p>
-                  <p>Editor</p>
-                </div>
-              </div>
-              <div id="custom-access">
-                <i class="material-icons md-36">verified_user</i>
-                <div class="custom-info">
-                  <h2>Custom Access Roles</h2>
-                  <p>
-                    If you need more granular control, create a 'Custom' role.
-                  </p>
-                  <a href="" id="custom-btn">Configure Custom Role</a>
-                </div>
-              </div>
-              <div id="modal-buttons">
-                <button id="cancel-modal" class="cancel-modal">Cancel</button>
-                <div></div>
-                <button class="btn-lift" id="delete-file">Delete file</button>
-                <button class="btn-lift" id="save-changes">Save Changes</button>
-              </div>
-            </div>
-          </dialog>
         </div>
     </body>
     <script src="../../js/admin.js" type="module"></script>
