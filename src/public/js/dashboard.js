@@ -101,7 +101,7 @@ function renderFiles(files) {
       const relation = document.createElement("div");
       relation.className = "relation";
       // display only strongest relation to user
-      relation.innerText = dominance(file).toUpperCase();
+      
 
       const moreLink = document.createElement("a");
       moreLink.href = "#";
@@ -281,7 +281,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       } else {
         createNewGroupForm.reset();
         createNewGroupModal.close();
-        await renderFileListForUSer(currentUser.id);
+        await renderFileListForUser(currentUser.id);
       }
     } else {
       createNewGroupErrorMsg.innerText =
@@ -321,8 +321,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   }  
 
   // renders all of a users files
-  async function renderFileListForUSer(userId) {
-    const res = await fetch("/files", {
+  async function renderFileListForUser(userId) {
+    const res = await fetch("/api/files", {
       credentials: "include",
     });
     const { files } = await res.json();
@@ -823,15 +823,14 @@ const renderMembers = async (fileId) => {
         membersList.appendChild(member);
       });
     }
-  } else {
-    // console.log(res.body);
-  }
-};
+  };
 
 const renderGroupMembers = async (fileId) => {
   const membersList = document.getElementById("group-members");
   const currentUser = await getCurrentUser();
-  const res = await fetch("/relatedUsers", {
+  const schemaRes = await fetch("/api/schema", { credentials: "include" });
+  const schema = await schemaRes.json();
+  const res = await fetch("/relatedUsers", {  
     method: "POST",
     credentials: "include",
     headers: {
@@ -842,11 +841,14 @@ const renderGroupMembers = async (fileId) => {
   if (res.ok) {
     membersList.innerHTML = "";
     const { relatedUsers } = await res.json();
+    console.log("relatedUsers:", relatedUsers); 
     if (relatedUsers && relatedUsers.length > 0) {
       const ownFile = relatedUsers.some(
         (rel) =>
           rel.relations.includes("owner") && rel.subjectId === currentUser.id,
       );
+      const canDelRel = delRel(currentUser, relatedUsers, schema);
+      const canManageRel = manageRel(currentUser, relatedUsers, schema);
       relatedUsers.forEach((rel) => {
         // Create a member element in the dialog for every related user
         // to provide an overview over users that have access
@@ -917,7 +919,7 @@ const renderGroupMembers = async (fileId) => {
           deleteRel.innerText = "Revoke";
           deleteRel.className="btn-lift";
           deleteRel.id = "revoke-btn";
-          deleteRel.addEventListener("click", (event) => {
+          deleteRel.addEventListener("click", async (event) => {
             event.preventDefault();
             if (!confirm("Remove this user?")) return;
             const res = await fetch("/api/deleteTuple", {
@@ -947,6 +949,7 @@ const renderGroupMembers = async (fileId) => {
             }
 
             renderMembers(fileId);
+          }
           });
           const helpDelete = document.createElement("span");
           helpDelete.className = "tooltip";
@@ -1196,8 +1199,11 @@ const currentUser = await getCurrentUser();
   console.log(canDelete)
   deleteFileBtn.disabled=!canDelete
 }
+}
 
-const delRel = (currentUser, tempMembers, schema)=>{
+// calculate weight of all roles and return "strongest"
+  //  weights for individual actions
+function delRel(currentUser, tempMembers, schema) {
   const userEntry = tempMembers.find(rel => rel.subjectId === currentUser.id);
   const userRelations = userEntry ? userEntry.relations : [];
 
@@ -1205,7 +1211,7 @@ const delRel = (currentUser, tempMembers, schema)=>{
   schema?.file?.relations?.[rel]?.includes("remove_relations"));
 }
 
-const manageRel = (currentUser, tempMembers, schema)=>{
+function manageRel(currentUser, tempMembers, schema) {
   const userEntry = tempMembers.find(rel => rel.subjectId === currentUser.id);
   const userRelations = userEntry ? userEntry.relations : [];
 
@@ -1213,16 +1219,14 @@ const manageRel = (currentUser, tempMembers, schema)=>{
   schema?.file?.relations?.[rel]?.includes("manage_relations"))
 }
 
-const shareObj = (currentUser, tempMembers, schema)=>{
+function shareObj(currentUser, tempMembers, schema) {
   const userEntry = tempMembers.find(rel => rel.subjectId === currentUser.id);
   const userRelations = userEntry ? userEntry.relations : [];
 
   return userRelations.some(rel => 
   schema?.file?.relations?.[rel]?.includes("share"))
-}
-// calculate weight of all roles and return "strongest"
+}  
 function dominance(files) {
-  //  weights for individual actions
   const actionWeights = {
     view: 1,
     comment: 2,
@@ -1250,3 +1254,4 @@ function dominance(files) {
   console.log(strongest)
   return strongest;
 }
+

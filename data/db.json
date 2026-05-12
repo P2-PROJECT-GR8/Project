@@ -82,12 +82,28 @@
         {
           "subjectId": "user:bob",
           "relation": "viewer"
+        },
+        {
+          "subjectId": "group:group_a",
+          "relation": "viewer"
         }
       ],
       "folder:admin": [
         {
           "subjectId": "user:magnus",
           "relation": "owner"
+        },
+        {
+          "subjectId": "user:emil",
+          "relation": "viewer"
+        },
+        {
+          "subjectId": "group:group_a",
+          "relation": "viewer"
+        },
+        {
+          "subjectId": "group:kasper",
+          "relation": "viewer"
         }
       ],
       "folder:tester": [
@@ -213,6 +229,42 @@
           "subjectId": "user:emil",
           "relation": "member"
         }
+      ],
+      "file:aughah": [
+        {
+          "subjectId": "user:magnus",
+          "relation": "owner"
+        }
+      ],
+      "group:augh": [
+        {
+          "subjectId": "user:magnus",
+          "relation": "owner"
+        }
+      ],
+      "group:jasdea": [
+        {
+          "subjectId": "user:magnus",
+          "relation": "owner"
+        }
+      ],
+      "group:asd": [
+        {
+          "subjectId": "user:magnus",
+          "relation": "owner"
+        }
+      ],
+      "group:gg": [
+        {
+          "subjectId": "user:magnus",
+          "relation": "owner"
+        }
+      ],
+      "group:ggsas": [
+        {
+          "subjectId": "user:magnus",
+          "relation": "owner"
+        }
       ]
     },
     "bySubject": {
@@ -228,6 +280,34 @@
         {
           "relation": "viewer",
           "objectId": "folder:folderTester"
+        },
+        {
+          "relation": "owner",
+          "objectId": "file:aughah"
+        },
+        {
+          "relation": "owner",
+          "objectId": "group:augh"
+        },
+        {
+          "relation": "owner",
+          "objectId": "group:jasdea"
+        },
+        {
+          "relation": "owner",
+          "objectId": "group:asd"
+        },
+        {
+          "relation": "owner",
+          "objectId": "group:gg"
+        },
+        {
+          "relation": "member",
+          "objectId": "group:kasper"
+        },
+        {
+          "relation": "owner",
+          "objectId": "group:ggsas"
         }
       ],
       "user:jeff": [
@@ -302,6 +382,14 @@
         {
           "relation": "owner",
           "objectId": "file:newfile"
+        },
+        {
+          "relation": "member",
+          "objectId": "group:kasper"
+        },
+        {
+          "relation": "viewer",
+          "objectId": "folder:admin"
         }
       ],
       "folder:folderTester": [
@@ -330,6 +418,20 @@
         {
           "relation": "subgroup",
           "objectId": "group:kasper"
+        },
+        {
+          "relation": "viewer",
+          "objectId": "folder:admin"
+        },
+        {
+          "relation": "viewer",
+          "objectId": "file:Project.pdf"
+        }
+      ],
+      "group:kasper": [
+        {
+          "relation": "viewer",
+          "objectId": "folder:admin"
         }
       ]
     }
@@ -509,6 +611,90 @@
           "objectId": "file:Project.pdf",
           "time": 1778224422836,
           "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "share",
+          "objectId": "group:kasper",
+          "time": 1778498839286,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "share",
+          "objectId": "group:kasper",
+          "time": 1778498845221,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "share",
+          "objectId": "group:kasper",
+          "time": 1778498848929,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "share",
+          "objectId": "group:kasper",
+          "time": 1778498943167,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "share",
+          "objectId": "group:kasper",
+          "time": 1778499095803,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "share",
+          "objectId": "folder:admin",
+          "time": 1778499922726,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "share",
+          "objectId": "folder:admin",
+          "time": 1778500598552,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "share",
+          "objectId": "folder:admin",
+          "time": 1778500604917,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "share",
+          "objectId": "group:kasper",
+          "time": 1778500627772,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "share",
+          "objectId": "group:kasper",
+          "time": 1778500634888,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "share",
+          "objectId": "file:Project.pdf",
+          "time": 1778501073144,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "share",
+          "objectId": "file:Project.pdf",
+          "time": 1778501086257,
+          "allowed": true
         }
       ],
       "user:emil": [
@@ -570,6 +756,27 @@
           "action": "manage_relations",
           "objectId": "folder:admin",
           "time": 1778183133222,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "share",
+          "objectId": "folder:admin",
+          "time": 1778499922726,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "share",
+          "objectId": "folder:admin",
+          "time": 1778500598552,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "share",
+          "objectId": "folder:admin",
+          "time": 1778500604917,
           "allowed": true
         }
       ],
@@ -698,6 +905,20 @@
           "objectId": "file:Project.pdf",
           "time": 1778224422836,
           "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "share",
+          "objectId": "file:Project.pdf",
+          "time": 1778501073144,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "share",
+          "objectId": "file:Project.pdf",
+          "time": 1778501086257,
+          "allowed": true
         }
       ],
       "file:newfile": [
@@ -713,6 +934,57 @@
           "action": "share",
           "objectId": "file:newfile",
           "time": 1778224154754,
+          "allowed": true
+        }
+      ],
+      "group:kasper": [
+        {
+          "subjectId": "user:magnus",
+          "action": "share",
+          "objectId": "group:kasper",
+          "time": 1778498839286,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "share",
+          "objectId": "group:kasper",
+          "time": 1778498845221,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "share",
+          "objectId": "group:kasper",
+          "time": 1778498848929,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "share",
+          "objectId": "group:kasper",
+          "time": 1778498943167,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "share",
+          "objectId": "group:kasper",
+          "time": 1778499095803,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "share",
+          "objectId": "group:kasper",
+          "time": 1778500627772,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "share",
+          "objectId": "group:kasper",
+          "time": 1778500634888,
           "allowed": true
         }
       ]

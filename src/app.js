@@ -5,7 +5,6 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { JSONFilePreset } from "lowdb/node";
 import { AccessControl } from "./routes/access.js";
-import { send } from "process";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -279,7 +278,6 @@ app.get("/api/folderContent", async (req, res) => {
     return res.status(401).send({ message: "Invalid session" });
   }
 
-  const userRelations = await accessControl.getUserRelations(userId);
   const folderId = req.query.folderId || "";
   let userRelations = [];
 
@@ -695,8 +693,7 @@ app.post("/api/leaveFile", async (req, res) => {
         message: "You must transfer ownership to another user before leaving",
       });
     }
-  }
-}); 
+  } 
   const objectTuples = db.data.tupleStore.byObject[objectId] || [];
 
   // Remove currentUsers relations from byObject and bySubject
