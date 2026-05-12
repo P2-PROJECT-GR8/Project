@@ -179,12 +179,12 @@ function showPage(pageId) {
   }
 }
 
-const getCurrentUser = async () => {
+export const getCurrentUser = async () => {
   const me = await fetch("/api/me", { credentials: "include" });
   return await me.json();
 };
 
-let selectedFile;
+export let selectedFile;
 
 // When the DOM is fully loaded, set up initial state and event listeners
 document.addEventListener("DOMContentLoaded", async () => {
@@ -538,6 +538,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   const inviteInput = document.getElementById("invite-field");
   const inviteBtn = document.getElementById("invite-member");
   inviteBtn.addEventListener("click", async (event) => {
+    event.preventDefault();
+    inviteMember(event);
+  })
+
+  const inviteMember = async ()=>{
     const errorMessage = document.getElementById("modalErrorMessage");
     // Check the length of the input value, not the value itself.
     if (inviteInput.value.length >= 2 && inviteInput.value.length <= 10) {
@@ -662,7 +667,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     renderMembers(selectedFile);
       inviteInput.value = "";
       console.log(tempMembers);
-    }});
+    }};
 
 
   filesList.addEventListener("click", async (event) => {
@@ -705,8 +710,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     selectedFile = fileId;
     selectedFileType = "file";
     
-    tempMembers = [];
+    console.log("selected:", selectedFile)
+    
+    document.getElementById("manage-header").innerText = `Manage Acces For ${selectedFile.split(":")[1]}`
 
+    tempMembers = [];
     addedUsers = [];
     deletedUsers = [];
     changedRelation.clear();
@@ -763,10 +771,15 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
   
   // fetch the server when saving all changes
-  const saveChanges = document.getElementById("save-changes");
-      saveChanges.addEventListener("click", async (e) => {
-      const changes = Array.from(changedRelation.entries()).map(
-    ([subjectId, { oldRel, newRel }]) => ({
+const saveChanges = document.getElementById("save-changes");
+  saveChanges.addEventListener("click", async (e) => {
+    e.preventDefault();
+    saveAllChanges(e);
+})
+
+const saveAllChanges = async (event)=>{
+  const changes = Array.from(changedRelation.entries()).map(
+      ([subjectId, { oldRel, newRel }]) => ({
       subjectId,
       oldRel,
       newRel
@@ -796,18 +809,17 @@ if (!res.ok) {
 changedRelation.clear();
 addedUsers=[];
 deletedUsers=[];
-
-renderMembers(selectedFile);
 document.getElementById("file-details").close();
 
-})
+};
 
-let tempMembers = [];
+export let tempMembers = [];
 let addedUsers = [];
 let deletedUsers = [];
 let changedRelation = new Map();
 
-const renderMembers = async (fileId) => {
+export const renderMembers = async (fileId) => {
+  console.log(fileId)
   const membersList = document.getElementById("members");
   const currentUser = await getCurrentUser();
   membersList.innerHTML = "";
@@ -831,6 +843,7 @@ const renderMembers = async (fileId) => {
     }
     const schemaRes = await fetch("/api/schema", { credentials: "include" });
       const schema = await schemaRes.json();
+    window.schema = schema;
 
       const inviteContainer = document.getElementById("invite-container")
       const canShare = shareObj(currentUser, tempMembers, schema);
@@ -965,7 +978,7 @@ const renderGroupMembers = async (fileId) => {
         if (rel.subjectId === currentUser.id) {
           relationSel.disabled = true;
         }
-        if(rel.relations.includes("owner")){
+        if(rel.relations.includes("owner") && currentUser.id !== "user:admin"){
            relationSel.disabled = true;
         }
         // indicate which user you are
@@ -1045,6 +1058,7 @@ const renderGroupMembers = async (fileId) => {
           leaveSelectedFile.innerText = "Leave";
           leaveSelectedFile.className="btn-lift";
           leaveSelectedFile.id="leave-file";
+          leaveSelectedFile.classList="btn-lift"
           const helpLeave = document.createElement("span");
           helpLeave.className = "tooltip-leave";
           helpLeave.innerText = "Revoke own access";
@@ -1085,8 +1099,13 @@ const renderGroupMembers = async (fileId) => {
 
 
 // add eventlistener to the costum relations link/button
-const customBtn = document.getElementById("custom-btn")
-customBtn.addEventListener("click", async (event)=>{
+const customBtn = document
+.getElementById("custom-btn")
+.addEventListener("click", async (event)=>{
+  createCustomRel(event);
+});
+  
+export const createCustomRel = async (event)=>{
   event.preventDefault();
 
   // create dialog for the creation of a new relation
@@ -1116,7 +1135,17 @@ customRelForm.appendChild(inputTitle);
 customRelForm.appendChild(customRelationName);
 customRelForm.appendChild(message);
 
-const privilegeOptions = window.schema?.file?.relations?.owner || [];
+const privOptionsFile = window.schema?.file?.relations?.owner || [];
+const privOptionsFolder = window.schema?.folder?.relations?.owner || [];
+const privilegeOptions = [...privOptionsFile];
+
+privOptionsFolder.forEach((pF) => {
+  const exists = privilegeOptions.some((pO) => pO === pF);
+  if (!exists) {
+    privilegeOptions.push(pF);
+  }
+});
+
 privilegeOptions.forEach((p) => {
   const privilegeList = document.createElement("div");
   const privilege = document.createElement("input");
@@ -1239,7 +1268,7 @@ createRelSubmit.addEventListener("click", async (e) => {
   customRelation.remove();
   });
 
-});
+};
 
 const deleteFileBtn = document.getElementById("delete-file");
 deleteFileBtn.addEventListener("click", async (event) =>{
@@ -1275,9 +1304,10 @@ const currentUser = await getCurrentUser();
   const userEntry = tempMembers.find(rel => rel.subjectId === currentUser.id);
   const userRelations = userEntry ? userEntry.relations : [];
 
-  const canDelete = await userRelations.some(rel => 
+  const canDelete = await currentUser.id === "user:admin" || userRelations.some(rel => 
   window.schema?.file?.relations?.[rel]?.includes("delete")
   );
+  console.log(currentUser.id)
   console.log(canDelete)
   deleteFileBtn.disabled=!canDelete
 }
@@ -1289,7 +1319,7 @@ function delRel(currentUser, tempMembers, schema) {
   const userEntry = tempMembers.find(rel => rel.subjectId === currentUser.id);
   const userRelations = userEntry ? userEntry.relations : [];
 
-  return userRelations.some(rel => 
+  return currentUser.id === "user:admin" || userRelations.some(rel => 
   schema?.file?.relations?.[rel]?.includes("remove_relations"));
 }
 
@@ -1297,15 +1327,80 @@ function manageRel(currentUser, tempMembers, schema) {
   const userEntry = tempMembers.find(rel => rel.subjectId === currentUser.id);
   const userRelations = userEntry ? userEntry.relations : [];
 
-  return userRelations.some(rel => 
+  return currentUser.id === "user:admin" || userRelations.some(rel => 
   schema?.file?.relations?.[rel]?.includes("manage_relations"))
 }
 
-function shareObj(currentUser, tempMembers, schema) {
+export function setSelectedFile(fileId) {
+  selectedFile = fileId;
+}
+
+export function resetChanges() {
+  tempMembers.length = 0;
+  addedUsers.length = 0;
+  deletedUsers.length = 0;
+  changedRelation.clear();
+}
+
+const inviteInput = document.getElementById("invite-field");
+
+export const inviteMember = async ()=>{
+    const errorMessage = document.getElementById("modalErrorMessage");
+    // Check the length of the input value, not the value itself.
+    if (inviteInput.value.length >= 2 && inviteInput.value.length <= 10) {
+    // validate input
+    if(!validateString(inviteInput.value)){
+      alert("do not use special characters")
+      return}
+    
+    const res = await fetch("/username", {
+    method: "POST",
+    headers: {
+    "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+    userName: inviteInput.value,
+    }),
+    });
+
+    const data = await res.json();
+
+    if (data.status === "404") {
+    errorMessage.innerText="User does not exist in the database"
+    return;
+    }
+      
+    const newId = `user:${inviteInput.value.toLowerCase()}`;
+    if (!selectedFile) return;
+
+    // check if they already have a relation
+    if (tempMembers.some(u => u.subjectId === newId)) {
+      alert("User is already related to this file")
+    return;}
+
+    // remove from deleted if re-added
+    deletedUsers = deletedUsers.filter(u => u.subjectId !== newId);
+
+    tempMembers.push({
+      subjectId: newId,
+      relations: ["viewer"]
+    });
+
+    addedUsers.push({
+      subjectId: newId,
+      relations: ["viewer"]
+    });
+
+    renderMembers(selectedFile);
+      inviteInput.value = "";
+      console.log(tempMembers);
+    }};
+
+const shareObj = (currentUser, tempMembers, schema)=>{
   const userEntry = tempMembers.find(rel => rel.subjectId === currentUser.id);
   const userRelations = userEntry ? userEntry.relations : [];
 
-  return userRelations.some(rel => 
+  return currentUser.id === "user:admin" || userRelations.some(rel => 
   schema?.file?.relations?.[rel]?.includes("share"))
 }  
 function dominance(files) {
@@ -1336,4 +1431,5 @@ function dominance(files) {
   console.log(strongest)
   return strongest;
 }
+export {saveAllChanges};
 
