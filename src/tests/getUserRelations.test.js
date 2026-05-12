@@ -44,4 +44,19 @@ describe("getUserRelations", () => {
     //Assert
     expect(result).toEqual([]);
   });
+
+  it("returns correct relations for each object", async () => {
+    //Arrange
+    await ac.addTuple("user:alice", "owner", "file:1");
+    await ac.addTuple("user:alice", "viewer", "file:2");
+
+    // Act
+    const result = await ac.getUserRelations("user:alice");
+
+    //Assert
+    expect(result).toEqual([
+      { objectId: "file:1", relations: ["owner"] },
+      { objectId: "file:2", relations: ["viewer"] },
+    ]);
+  });
 });
