@@ -1,33 +1,11 @@
-import { describe, test, expect, it, vi } from "vitest";
+import { describe, test, expect, it, vi, expectTypeOf } from "vitest";
 import path, { relative } from "path";
 import { fileURLToPath } from "url";
 import { JSONFilePreset } from "lowdb/node";
 import { AccessControl } from "../routes/access.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
-// import current database
-const db = await JSONFilePreset(path.join(__dirname, "..", "data", "db.json"), {
-  users: [{ id: "", name: "" }],
-  tupleStore: {
-    byObject: {},
-    bySubject: {},
-  },
-  schema: { definitions: {} },
-  logs: {
-    byObject: {},
-    bySubject: {},
-  },
-});
-
-/*describe("locatePaths", () => {
-  test("returns an array of object descirbing a path from user to object", async () => {
-    const path = await AccessControl.locatePaths("user:magnus", "folder:admin");
-    expect(path[0].relation).toBe("owner");
-  });
-});*/
-// Tests for the can function
+// can function
 describe("can functions", () => {
   it("returns true when a user has permission", async () => {
     // arrange
@@ -227,7 +205,159 @@ describe("test cases for expandUserRelations", () => {
     expect(result).toEqual([]);
   });
 });
+// locatePaths
+describe("locatePaths", () => {
+  it("returns an array of paths from user to object if paths are found", async () => {
+    const fakeDb = {
+      read: vi.fn(),
+      data: {
+        tupleStore: {
+          bySubject: {
+            "user:testUser": [
+              {
+                relation: "owner",
+                objectId: "folder:testfolder",
+              },
+            ],
+            "folder:testfolder": [
+              {
+                relation: "parent",
+                objectId: "file:testfile",
+              },
+            ],
+          },
+          byObject: {},
+        },
+      },
+    };
 
-describe ("", () => {
+    const ac = new AccessControl(fakeDb);
 
+    const paths = await ac.locatePaths("user:testUser", "file:testfile");
+
+    // assert
+    expect(paths.length).toBeGreaterThan(0);
+    expect(paths).toBeInstanceOf(Array);
+    expect(paths[0]).toBeTypeOf("object");
+
+
+  expect(paths).toEqual([
+    [
+      {
+        from: "user:testUser",
+        relation: "owner",
+        to: "folder:testfolder",
+      },
+      {
+        from: "folder:testfolder",
+        relation: "parent",
+        to: "file:testfile",
+      },
+    ],
+  ]);
+
+  });
+
+  it("returns an array all paths from an object to users that are related to it", async () => {
+    const fakeDb = {
+      read: vi.fn(),
+      data: {
+        tupleStore: {
+          bySubject: {},
+          byObject: {
+            "file:testfile": [
+              {
+                subjectId: "folder:testfolder",
+                relation: "parent"
+              },
+              {
+                subjectId: "user:testuser",
+                relation: "viewer"
+              },
+            ],
+            "folder:testfolder": 
+          [
+            {
+              subjectId: "user:testuser",
+              relation: "owner"
+            }
+          ]
+          },
+        },
+      },
+    };
+
+    const ac = new AccessControl(fakeDb);
+
+    const paths = await ac.locatePaths("file:testfile", null);
+
+    expect(paths.length).toBeGreaterThan(0);
+    expect(paths).toBeInstanceOf(Array);
+    expect(paths[0]).toBeTypeOf("object");
+
+    
+    expect(paths).toEqual([
+      [
+        {
+          from: "file:testfile",
+          relation: "parent",
+          to: "folder:testfolder",
+        },
+        {
+          from: "folder:testfolder",
+          relation: "owner",
+          to: "user:testuser",
+        },
+      ],
+      [
+        {
+          from: "file:testfile",
+          relation: "viewer",
+          to: "user:testuser",
+        },
+      ],
+    ]);
+  });
+
+  it("returns an empty array if no path is able to be located", async () => {
+    const fakeDb = {
+      read: vi.fn(),
+      data: {
+        tupleStore: {
+          bySubject: {},
+          byObject: {}
+        },
+      },
+    };
+  
+
+  const ac = new AccessControl(fakeDb);
+
+  const paths = await ac.locatePaths("user:testuser", "file:testfile");
+
+  expect(paths.length).toEqual(0);
+  expect(paths).toBeInstanceOf(Array);
+  expect(paths).toEqual([]);
+  });
+
+  it("if called without proper prefix should return empty array", async () => {
+    const fakeDb = {
+      read: vi.fn(),
+      data: {
+        tupleStore: {
+          bySubject: {},
+          byObject: {}
+        },
+      },
+    };
+
+    const ac = new AccessControl(fakeDb);
+
+    const paths = await ac.locatePaths("testuser", "testfile" )
+
+    expect(paths.length).toEqual(0);
+    expect(paths).toBeInstanceOf(Array);
+    expect(paths).toEqual([]);
+
+  });
 });
