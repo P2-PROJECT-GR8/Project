@@ -10,7 +10,7 @@ import { send } from "process";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-export const app = express();
+const app = express();
 
 const db = await JSONFilePreset(path.join(__dirname, "..", "data", "db.json"), {
   users: [{ id: "", name: "" }],
@@ -31,6 +31,8 @@ const SECRET_KEY = "rtKaslL6w4B9in";
 
 app.use(express.json());
 app.use(cookieParser());
+
+export { app };
 
 const isAuthenticated = (req, res, next) => {
   const token = req.cookies.sessionToken;
@@ -207,15 +209,17 @@ app.post("/relatedUsers", async (req, res) => {
 
 // JWT sender for when a new user logs in
 app.post("/login", (req, res) => {
-  const userName = req.body.userName.toLowerCase();
+  let userName = req.body.userName;
+
+  if (!userName)
+    return res.status(400).send({ message: "Username is missing" });
+
+  userName = userName.toLowerCase();
 
   // Check if a user is in the users db (JSON file) and return an error if not.
   if (!db.data.users.some((user) => user.name === userName)) {
     return res.status(404).send({ message: "Username not found" });
   }
-
-  if (!userName)
-    return res.status(400).send({ message: "Username is missing" });
 
   const token = jwt.sign({ userId: `user:${userName}` }, SECRET_KEY, {
     expiresIn: "1h",
