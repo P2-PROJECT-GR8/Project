@@ -1,8 +1,13 @@
 import { renderHeader } from "./navRenderer.js";
-import { createCustomRel, renderMembers, 
-  getCurrentUser, setSelectedFile, 
-  resetChanges, inviteMember} from "./dashboard.js";
-import { saveAllChanges} from "./dashboard.js";
+import {
+  createCustomRel,
+  renderMembers,
+  getCurrentUser,
+  setSelectedFile,
+  resetChanges,
+  inviteMember,
+} from "./dashboard.js";
+import { saveAllChanges } from "./dashboard.js";
 import { tempMembers, selectedFile } from "./dashboard.js";
 
 // wait for DOM load before doing anything
@@ -21,7 +26,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   objectSelect.hidden = true;
   userSelectLabel.hidden = false;
   objectSelectLabel.hidden = true;
-  mode.value = "pathsToTarget"
+  mode.value = "pathsToTarget";
 
   //get usernames
   const users = await fetch("/api/userNames", { credentials: "include" });
@@ -30,7 +35,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   userNames.forEach((user) => {
     if (user === "Admin") {
       return;
-      }
+    }
     let element = document.createElement("option");
     element.value = user;
     element.innerText = user;
@@ -39,12 +44,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   // get groups
-  const groups = await fetch("/api/adminGetGroups", {credentials: "include"});
+  const groups = await fetch("/api/adminGetGroups", { credentials: "include" });
   const { groups: groupNames } = await groups.json();
 
   groupNames.forEach((group) => {
     let element = document.createElement("option");
-    element.value = group
+    element.value = group;
     element.innerText = group.split(":")[1] + " - group";
     console.log(element);
     userSelect.appendChild(element);
@@ -58,11 +63,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     objectSelect.hidden = false;
     userSelectLabel.hidden = false;
     objectSelectLabel.hidden = false;
-    
+
     // new logic
 
     // user to object
-    if (mode.value === "pathsToTarget"){
+    if (mode.value === "pathsToTarget") {
       objectSelect.hidden = true;
       objectSelectLabel.hidden = true;
 
@@ -82,20 +87,21 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
 
       // get groups
-      const groups = await fetch("/api/adminGetGroups", {credentials: "include"});
+      const groups = await fetch("/api/adminGetGroups", {
+        credentials: "include",
+      });
       const { groups: groupNames } = await groups.json();
 
       groupNames.forEach((group) => {
         let element = document.createElement("option");
-        element.value = group
+        element.value = group;
         element.innerText = group.split(":")[1] + " - group";
         console.log(element);
         userSelect.appendChild(element);
       });
-
-    } 
+    }
     // all paths from an object
-    else if (mode.value === "pathsFromTargetObject"){
+    else if (mode.value === "pathsFromTargetObject") {
       objectSelect.hidden = false;
       objectSelectLabel.hidden = false;
       userSelect.hidden = true;
@@ -108,11 +114,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
       const { objects } = await fileList.json();
       renderFiles(objects);
-      
-
-    } 
+    }
     // all paths from a user / group
-    else if (mode.value==="pathsFromTargetUser") {
+    else if (mode.value === "pathsFromTargetUser") {
       userSelect.hidden = false;
       userSelectLabel.hidden = false;
       objectSelect.hidden = true;
@@ -134,12 +138,14 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
 
       // get groups
-      const groups = await fetch("/api/adminGetGroups", {credentials: "include"});
+      const groups = await fetch("/api/adminGetGroups", {
+        credentials: "include",
+      });
       const { groups: groupNames } = await groups.json();
 
       groupNames.forEach((group) => {
         let element = document.createElement("option");
-        element.value = group
+        element.value = group;
         element.innerText = group.split(":")[1] + " - group";
         console.log(element);
         userSelect.appendChild(element);
@@ -157,23 +163,22 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (mode.value === "pathsToTarget") {
       if (!userSelect.value || !objectSelect.value) return;
 
-      if (userSelect.value.startsWith("group:")){
+      if (userSelect.value.startsWith("group:")) {
         subjectId = userSelect.value;
       } else {
         subjectId = `user:${userSelect.value.toLowerCase()}`;
       }
       objectId = objectSelect.value;
-      traversalMode = "pathsToTarget"
-
-    } 
+      traversalMode = "pathsToTarget";
+    }
     // all paths from object
     else if (mode.value === "pathsFromTargetObject") {
       objectId = objectSelect.value;
       traversalMode = "pathsFromTarget";
-    } 
+    }
     // all paths from user
     else if (mode.value === "pathsFromTargetUser") {
-      if (userSelect.value.startsWith("group:")){
+      if (userSelect.value.startsWith("group:")) {
         subjectId = userSelect.value;
       } else {
         subjectId = `user:${userSelect.value.toLowerCase()}`;
@@ -192,24 +197,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     const { paths } = await res.json();
     console.log("paths to follow");
     console.log(paths);
-    
-  
-  renderPathToObject(
-    paths,
-    subjectId ? subjectId.split(":")[1] : objectId.split(":")[1],
-    objectId ? objectId.split(":")[1] : "all"
-  );
 
- 
-  
+    renderPathToObject(
+      paths,
+      subjectId ? subjectId.split(":")[1] : objectId.split(":")[1],
+      objectId ? objectId.split(":")[1] : "all",
+    );
   });
 
   // render files in object select based off of selected user
   userSelect.addEventListener("change", async () => {
-    if(mode.value==="pathsToTarget"){
+    if (mode.value === "pathsToTarget") {
       objectSelect.hidden = false;
       objectSelectLabel.hidden = false;
-    } 
+    }
 
     let subjectid;
 
@@ -218,17 +219,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     } else {
       subjectid = `user:${userSelect.value.toLowerCase()}`;
     }
-    if(mode.value==="pathsToTarget"){
-    const filelist = await fetch(
-      `/api/adminFiles?userId=${subjectid}`,
-      { credentials: "include" },
-    );
-    if (!filelist.ok) {
-      console.error("failed to fetch files");
+    if (mode.value === "pathsToTarget") {
+      const filelist = await fetch(`/api/adminFiles?userId=${subjectid}`, {
+        credentials: "include",
+      });
+      if (!filelist.ok) {
+        console.error("failed to fetch files");
+      }
+      const { files } = await filelist.json();
+      renderFiles(files);
     }
-    const { files } = await filelist.json();
-    renderFiles(files);
-  }
   });
 
   function renderFiles(files) {
@@ -244,7 +244,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // render paths
   function renderPathToObject(paths, subjectLabel, objectLabel) {
     display.innerHTML = "";
-    
+
     const header = document.createElement("h1");
     header.id = "relation-Overview-Header";
 
@@ -292,8 +292,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         const item = document.createElement("li");
         if (mode.value === "pathsToTarget") {
           item.textContent = `${step.from} → (${step.relation}) → ${step.to}`;
-        } else {
+        } else if (mode.value === "pathsFromTargetObject") {
           item.textContent = `${step.from} ← (${step.relation}) ← ${step.to}`;
+        } else {
+          item.textContent = `${step.from} → (${step.relation}) → ${step.to}`;
         }
 
         list.appendChild(item);
@@ -438,49 +440,48 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 const currentUser = await getCurrentUser();
-const canDelRel=true;
-const canManageRel=true;
-const canShare=true;
+const canDelRel = true;
+const canManageRel = true;
+const canShare = true;
 
-const editObjectSubmit = document.getElementById("admin-edit-submit")
-editObjectSubmit.addEventListener("click", ()=>{
-loadObjectModal();
-})
+const editObjectSubmit = document.getElementById("admin-edit-submit");
+editObjectSubmit.addEventListener("click", () => {
+  loadObjectModal();
+});
 
-const fileDetailsModal = document.getElementById("file-details")
+const fileDetailsModal = document.getElementById("file-details");
 
-async function editObjOptions(){
-    const editOptions = document.getElementById("admin-edit")
-    const res = await fetch("/api/objects");
-    if (!res.ok) {
+async function editObjOptions() {
+  const editOptions = document.getElementById("admin-edit");
+  const res = await fetch("/api/objects");
+  if (!res.ok) {
     const text = await res.text();
     console.error("Error response:", text);
     throw new Error("Request failed");
-    }
-    const {objects} = await res.json();
-    console.log(objects)
-      objects.forEach((o) => {
-          const option = document.createElement("option");
-          const name = o.objectId.split(":")[1];
-          console.log(name)
-          option.value = o.objectId;
-          option.innerText = name.charAt(0).toUpperCase() + name.slice(1);
-          editOptions.appendChild(option);
-      });
+  }
+  const { objects } = await res.json();
+  console.log(objects);
+  objects.forEach((o) => {
+    const option = document.createElement("option");
+    const name = o.objectId.split(":")[1];
+    console.log(name);
+    option.value = o.objectId;
+    option.innerText = name.charAt(0).toUpperCase() + name.slice(1);
+    editOptions.appendChild(option);
+  });
 }
 
 const schemaRes = await fetch("/api/schema", { credentials: "include" });
 const schema = await schemaRes.json();
-window.schema = schema
+window.schema = schema;
 
 const userNamesRes = await fetch("/api/userNames", {
-    credentials: "include",
-    headers: { "Content-Type": "application/json" },
-  });
+  credentials: "include",
+  headers: { "Content-Type": "application/json" },
+});
 const { userNames } = await userNamesRes.json();
 
 async function loadObjectModal() {
-  
   const filedetails = document.getElementById("file-details");
 
   const userList = document.getElementById("data-users");
@@ -495,7 +496,7 @@ async function loadObjectModal() {
 
   const editOptions = document.getElementById("admin-edit");
 
-  const selectedObjectId = editOptions.value
+  const selectedObjectId = editOptions.value;
 
   setSelectedFile(selectedObjectId);
 
@@ -505,36 +506,35 @@ async function loadObjectModal() {
 
   inviteContainer.classList.remove("hidden");
 
-  renderMembers(selectedObjectId)
+  renderMembers(selectedObjectId);
 
   fileDetailsModal.showModal();
 }
 
 const cancelModal = document
-.getElementById("cancel-modal")
-.addEventListener("click", () => {
-      fileDetailsModal.close();
-    });
+  .getElementById("cancel-modal")
+  .addEventListener("click", () => {
+    fileDetailsModal.close();
+  });
 
 const saveChanges = document.getElementById("save-changes");
-  saveChanges.addEventListener("click", async (e) => {
-    e.preventDefault();
-    saveAllChanges(e);
-})
+saveChanges.addEventListener("click", async (e) => {
+  e.preventDefault();
+  saveAllChanges(e);
+});
 
 const inviteBtn = document.getElementById("invite-member");
-  inviteBtn.addEventListener("click", async (event) => {
-    event.preventDefault
-    inviteMember(event)
-  })
+inviteBtn.addEventListener("click", async (event) => {
+  event.preventDefault;
+  inviteMember(event);
+});
 
-let addedUsers=[];
-let deletedUsers=[];
+let addedUsers = [];
+let deletedUsers = [];
 let changedRelation = new Map();
 
 const customBtn = document
-.getElementById("custom-btn")
-.addEventListener("click", async (event)=>{
-  createCustomRel(event);
-});
-
+  .getElementById("custom-btn")
+  .addEventListener("click", async (event) => {
+    createCustomRel(event);
+  });
