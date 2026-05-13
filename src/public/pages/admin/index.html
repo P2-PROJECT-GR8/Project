@@ -24,15 +24,15 @@
                     <!-- maybe split these up so that only objects related to selected user gets shown-->
                         <label id="label-object-Select" for="object-Select">Select a file or folder:</label>
                         <select id="object-Select">
-                            <option value="please select a user first"></option>
                         </select>
                     </div> 
                     <button id="paths-submit" type="button" class="btn-style btn-lift:hover btn-lift">Locate paths</button>
                     <div class="field">
                         <label for="mode-Select">select traversal mode:</label>
                         <select id="mode-Select">
-                            <option value="bySubject">user to object</option>
-                            <option value="byObject">all paths from object</option>
+                            <option value="pathsToTarget">subject to target</option>
+                            <option value="pathsFromTargetObject">all paths from object</option>
+                            <option value="pathsFromTargetUser">all paths from user</option>
                         </select>
                     </div>
                 </div>
