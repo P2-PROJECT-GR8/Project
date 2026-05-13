@@ -623,9 +623,57 @@ app.get("/api/adminRelations", async (req, res) => {
 
   const userId = req.query.userId;
   const objectId = req.query.objectId;
-
-  const paths = await accessControl.locatePaths(userId, objectId);
+  const mode = req.query.mode;
+  console.log("adminraltions was called i now call locate paths with " + userId + " " + objectId + " " + mode );
+  const paths = await accessControl.locatePaths(userId, objectId, mode);
   res.json({ paths: paths });
+});
+
+app.get("/api/adminGetGroups", async (req, res) => {
+  // verify token
+  let currentUser;
+  try {
+    currentUser = getUser(req);
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(401)
+      .json({ message: "Unauthorized", error: error.message });
+  }
+
+  // only allow admin to acces this endpoint
+  if (currentUser.id !== "user:admin") {
+    return res.status(403).json({ messeage: "currnet user is not admin" });
+  }
+
+  try {
+    await db.read();
+
+  
+
+  const groups = new Set();
+
+  // groups as keys
+  for (const subjectId of Object.keys(db.data.tupleStore.bySubject)) {
+    if(subjectId.startsWith("group:")) {
+      groups.add(subjectId);
+    }
+  
+
+  // groups as objectid
+  for (const rel of db.data.tupleStore.bySubject[subjectId]) {
+    if (rel.objectId.startsWith("group:")) {
+      groups.add(rel.objectId);
+      }
+    }
+  }
+  
+    res.json({groups: [...groups]});
+
+} catch (err) {
+  console.error(err);
+  res.status(500).json({messeage: "failed to fetch groups", error: err.message});
+}
 });
 
 app.post("/api/newRelationType", async (req, res) => {
