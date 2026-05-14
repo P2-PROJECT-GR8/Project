@@ -43,6 +43,8 @@ beforeEach(() => {
   fakeDb.data.schema.file.relations = {};
   fakeDb.data.logs.byObject = {};
   fakeDb.data.logs.bySubject = {};
+
+  vi.resetAllMocks();
 });
 
 // tests
@@ -575,12 +577,219 @@ describe("foldercontent", async () => {
 
 });
 
-
-
-
-
 //create new
 
+describe("creatnew", async () => {
+  it("creates a file with the currenjt user as owner if not folder is prvided", async () => {
+    // initial db state
+    fakeDb.data.users.push({ id: "user:testuser", name: "testuser" });
+
+    // spy
+    const addspy = vi.spyOn(AccessControl.prototype, "addTuple");
+
+    // token
+    const token = jwt.sign({ userId: "user:testuser" }, "rtKaslL6w4B9in");
+
+    const res = await request(app)
+    .post("/api/createNew")
+    .set("Content-Type", "application/json")
+    .set("Cookie", `sessionToken=${token}`)
+    .send ({
+      objectId: "file:testfile",
+      parentFolder: "",
+    });
 
 
+    expect(res.status).toBe(201);
+    expect(res.body.message).toEqual("Object created successfully!");
+    expect(addspy).toHaveBeenCalled();
+    expect(fakeDb.data.tupleStore.bySubject).toEqual({"user:testuser": [{relation: "owner", objectId: "file:testfile"}]})
+    expect(fakeDb.data.tupleStore.byObject).toEqual({"file:testfile": [{relation: "owner", subjectId: "user:testuser"}]});
+
+  });
+  it("creates a file under a folder if a folder id is provided", async () => {
+    // initial db state
+    fakeDb.data.users.push({ id: "user:testuser", name: "testuser" });
+    
+    fakeDb.data.tupleStore.bySubject["user:testuser"] = [];
+    fakeDb.data.tupleStore.byObject["folder:testfolder"] = [];
+
+    fakeDb.data.tupleStore.bySubject["user:testuser"].push({relation: "owner", objectId: "folder:testfolder"});
+    fakeDb.data.tupleStore.byObject["folder:testfolder"].push({relation: "owner", subjectId: "user:testuser"});
+
+    // spy and mock
+    vi.spyOn(AccessControl.prototype, "can").mockResolvedValue(true);
+    const addspy = vi.spyOn(AccessControl.prototype, "addTuple");
+
+    // token
+    const token = jwt.sign({ userId: "user:testuser" }, "rtKaslL6w4B9in");
+
+    const res = await request(app)
+    .post("/api/createNew")
+    .set("Content-Type", "application/json")
+    .set("Cookie", `sessionToken=${token}`)
+    .send ({
+      objectId: "file:testfile",
+      parentFolder: "folder:testfolder",
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.message).toEqual("Object created successfully!");
+    expect(addspy).toHaveBeenCalled();
+    expect(fakeDb.data.tupleStore.bySubject["folder:testfolder"]).toContainEqual({relation: "parent",objectId: "file:testfile",});
+    expect(fakeDb.data.tupleStore.byObject["file:testfile"]).toContainEqual({relation: "parent",subjectId: "folder:testfolder",});
+  });
+  it("should not allow for creation of duplicates", async () => {
+    // initial db state
+    fakeDb.data.users.push({ id: "user:testuser", name: "testuser" });
+    
+    fakeDb.data.tupleStore.bySubject["user:testuser"] = [];
+    fakeDb.data.tupleStore.byObject["file:testfile"] = [];
+
+    fakeDb.data.tupleStore.bySubject["user:testuser"].push({relation: "owner", objectId: "folder:testfile"});
+    fakeDb.data.tupleStore.byObject["file:testfile"].push({relation: "owner", subjectId: "user:testuser"});
+
+    // spy
+    const addspy = vi.spyOn(AccessControl.prototype, "addTuple");
+
+    // token
+    const token = jwt.sign({ userId: "user:testuser" }, "rtKaslL6w4B9in");
+
+    const res = await request(app)
+    .post("/api/createNew")
+    .set("Content-Type", "application/json")
+    .set("Cookie", `sessionToken=${token}`)
+    .send ({
+      objectId: "file:testfile",
+      parentFolder: "",
+    });
+
+    expect(res.status).toBe(409);
+    expect(res.body.message).toEqual("An object with this ID already exists.");
+    expect(addspy).not.toHaveBeenCalled();
+  });
+  it("should return a status of 403 if user doesnt have permission to create file in folder", async () => {
+        // initial db state
+    fakeDb.data.users.push({ id: "user:testuser", name: "testuser" });
+    
+    fakeDb.data.tupleStore.bySubject["user:testuser"] = [];
+    fakeDb.data.tupleStore.byObject["folder:testfolder"] = [];
+
+    fakeDb.data.tupleStore.bySubject["user:testuser"].push({relation: "owner", objectId: "folder:testfolder"});
+    fakeDb.data.tupleStore.byObject["folder:testfolder"].push({relation: "owner", subjectId: "user:testuser"});
+
+    // spy and mock
+    vi.spyOn(AccessControl.prototype, "can").mockResolvedValue(false);
+    const addspy = vi.spyOn(AccessControl.prototype, "addTuple");
+
+    // token
+    const token = jwt.sign({ userId: "user:testuser" }, "rtKaslL6w4B9in");
+
+    const res = await request(app)
+    .post("/api/createNew")
+    .set("Content-Type", "application/json")
+    .set("Cookie", `sessionToken=${token}`)
+    .send ({
+      objectId: "file:testfile",
+      parentFolder: "folder:testfolder",
+    });
+
+    expect(res.status).toBe(403)
+    expect(res.body.message).toEqual("User does not have permission to create objects within this folder");
+    expect(addspy).not.toHaveBeenCalled();
+    
+
+  });
+  it("shoudl return status 400 if invalid object type gets sent", async () => {
+    // initial db state
+    fakeDb.data.users.push({ id: "user:testuser", name: "testuser" });
+
+    
+    // spy and mock
+    vi.spyOn(AccessControl.prototype, "can").mockResolvedValue(true);
+    const addspy = vi.spyOn(AccessControl.prototype, "addTuple");
+
+    // token
+    const token = jwt.sign({ userId: "user:testuser" }, "rtKaslL6w4B9in");
+
+    const res = await request(app)
+    .post("/api/createNew")
+    .set("Content-Type", "application/json")
+    .set("Cookie", `sessionToken=${token}`)
+    .send ({
+      objectId: "invalid:testfile",
+      parentFolder: "",
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body.message).toEqual("Not a valid object type");
+    expect(addspy).not.toHaveBeenCalled();
+
+  });
+});
+
+// adminfiles
+describe("adminFiles", async () => {
+  it("should return a list of all files for provided userid", async () => {
+     // initial db state
+    fakeDb.data.users.push({ id: "user:testuser", name: "testuser" });
+    fakeDb.data.users.push({id: "user:admin", name: "admin"});
+
+    fakeDb.data.tupleStore.bySubject["user:testuser"] = [];
+    fakeDb.data.tupleStore.byObject["file:testfile"] = [];
+    fakeDb.data.tupleStore.bySubject["user:testuser"].push({relation: "owner", objectId: "file:testfile"});
+    fakeDb.data.tupleStore.byObject["file:testfile"].push({relation: "owner", subjectId: "user:testuser"});
+
+    // spy
+    const spy = vi.spyOn(AccessControl.prototype, "getUserRelations");
+
+    // token
+    const token = jwt.sign({ userId: "user:admin" }, "rtKaslL6w4B9in");
+
+    const res = await request(app).get("/api/adminFiles?userId=user:testuser").set("Cookie", `sessionToken=${token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.files).toEqual([{ objectId: "file:testfile", relations: ["owner"] }]);
+    expect(spy).toHaveBeenCalled();
+  });
+  it("should return 403 if no user id is recieved", async () => {
+    // initial db state
+    fakeDb.data.users.push({ id: "user:testuser", name: "testuser" });
+    fakeDb.data.users.push({id: "user:admin", name: "admin"});
+    
+    // token
+    const token = jwt.sign({ userId: "user:admin" }, "rtKaslL6w4B9in");
+
+    const res = await request(app).get("/api/adminFiles").set("Cookie", `sessionToken=${token}`);
+
+    expect(res.status).toBe(403);
+    expect(res.body.message).toBe("Bad request");
+  });
+  it("should disallow any use rthat isnt admin ffrom makign a request", async () => {
+    // initial db state
+    fakeDb.data.users.push({ id: "user:testuser", name: "testuser" });
+    fakeDb.data.users.push({id: "user:admin", name: "admin"});
+
+    fakeDb.data.tupleStore.bySubject["user:testuser"] = [];
+    fakeDb.data.tupleStore.byObject["file:testfile"] = [];
+    fakeDb.data.tupleStore.bySubject["user:testuser"].push({relation: "owner", objectId: "file:testfile"});
+    fakeDb.data.tupleStore.byObject["file:testfile"].push({relation: "owner", subjectId: "user:testuser"});
+
+    // spy
+    const spy = vi.spyOn(AccessControl.prototype, "getUserRelations");
+
+    // token
+    const token = jwt.sign({ userId: "user:testuser" }, "rtKaslL6w4B9in");
+
+    const res = await request(app).get("/api/adminFiles?userId=user:testuser").set("Cookie", `sessionToken=${token}`);
+
+    expect(res.status).toBe(403);
+    expect(res.body.messeage).toEqual("request denied");
+    expect(spy).not.toHaveBeenCalled();
+  });
+  
+
+
+
+});
 

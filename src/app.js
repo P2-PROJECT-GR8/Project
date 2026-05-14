@@ -380,7 +380,7 @@ app.post("/api/createNew", async (req, res) => {
     objectType === "group"
   ) {
     if (parentFolder) {
-      if (accessControl.can(currentUser.id, "create_child", parentFolder)) {
+      if (await accessControl.can(currentUser.id, "create_child", parentFolder)) {
         await accessControl.addTuple(parentFolder, "parent", objectId);
         return res
           .status(201)
@@ -793,9 +793,11 @@ app.get("/api/adminFiles", async (req, res) => {
       return res.status(403).send({ messeage: "request denied" });
     }
     const targetUser = req.query.userId;
+    if (!targetUser) {
+      return res.status(403).send({message: "Bad request"});
+    }
 
     const userRelations = await accessControl.getUserRelations(targetUser);
-    // console.log(userRelations);
 
     res.json({ files: userRelations });
   } catch (error) {
