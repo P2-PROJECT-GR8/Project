@@ -409,6 +409,10 @@ app.post("/api/newTuple", async (req, res) => {
     return res.status(401).send({ message: "User not authenticated" });
   }
   const { objectId, relation, subjectId } = req.body;
+  // ensure req.body actually has arguments
+  if (!objectId || !relation || !subjectId){
+    return res.status(400).send({message: "Missing required arguments"});
+  }
   const canShare = await accessControl.can(currentUser.id, "share", objectId);
   if (!canShare) {
     return res

@@ -33,7 +33,7 @@ vi.mock("lowdb/node", async () => ({
   JSONFilePreset: vi.fn(async () => fakeDb),
 }));
 
-// must be imported afer mock
+// must be imported afer mock of lowdb
 import { app } from "../app.js";
 
 beforeEach(() => {
@@ -113,8 +113,7 @@ describe("newtuple", () => {
     fakeDb.data.users.push({ id: "user:testuser", name: "testuser" });
 
     // mock .can
-    const ac = new AccessControl(fakeDb);
-    ac.can = vi.fn().mockResolvedValue(true);
+    vi.spyOn(AccessControl.prototype ,"can").mockResolvedValue(true);
 
     // to get past getUser send along valid jwt token
     const token = jwt.sign({ userId: "user:testuser" }, "rtKaslL6w4B9in");
@@ -130,11 +129,124 @@ describe("newtuple", () => {
       });
 
     // assert
-    console.log(res.body.message);
     expect(res.status).toBe(201);
+    expect(res.body.message).toEqual("Member added successfully");
+    expect(fakeDb.data.tupleStore.bySubject).toEqual(
+      {'user:testuser': 
+      [ 
+        { relation: 'owner',
+           objectId: 'file:testfile' 
+        } 
+      ]
+    });
+    expect(fakeDb.data.tupleStore.byObject).toEqual(
+      {"file:testfile":
+       [
+        {
+          relation: "owner",
+          subjectId: "user:testuser"
+        }
+      ]
+    });
+
   });
+  it("should return an error if one or more arguments are missing", async () => {
+    // initial db state
+    fakeDb.data.users.push({ id: "user:testuser", name: "testuser" });
+
+    // mock .can
+    vi.spyOn(AccessControl.prototype ,"can").mockResolvedValue(true);
+
+    // to get past getUser send along valid jwt token
+    const token = jwt.sign({ userId: "user:testuser" }, "rtKaslL6w4B9in");
+
+    const res = await request(app)
+      .post("/api/newTuple")
+      .set("Content-Type", "application/json")
+      .set("Cookie", `sessionToken=${token}`)
+      .send({});
+
+    expect(res.status).toBe(400);
+    expect(res.body.message).toEqual("Missing required arguments");
+    
+    
+
+  });
+  it("should deny the request if user is not authroized to share", async () => {
+    // initial db state
+    fakeDb.data.users.push({ id: "user:testuser", name: "testuser" });
+
+    // mock .can
+    vi.spyOn(AccessControl.prototype, "can").mockResolvedValue(false);
+
+    // to get past getUser send along valid jwt token
+    const token = jwt.sign({ userId: "user:testuser" }, "rtKaslL6w4B9in");
+
+    const res = await request(app)
+      .post("/api/newTuple")
+      .set("Content-Type", "application/json")
+      .set("Cookie", `sessionToken=${token}`)
+      .send({
+        objectId: "file:testfile",
+        relation: "owner",
+        subjectId: "user:testuser",
+      });
+
+    expect(res.status).toBe(403);
+    expect(res.body.message).toEqual("User is not authorized to perform this action");      
+  });
+  it("should deny access if user is not authenticated", async () => {
+    // initial db state
+    fakeDb.data.users.push({ id: "user:testuser", name: "testuser" });
+
+    // mock .can
+    vi.spyOn(AccessControl.prototype, "can").mockResolvedValue(false);
+
+
+    const res = await request(app)
+      .post("/api/newTuple")
+      .set("Content-Type", "application/json")
+      .send({
+        objectId: "file:testfile",
+        relation: "owner",
+        subjectId: "user:testuser",
+      });
+
+      expect(res.status).toBe(401);
+      expect(res.body.message).toEqual("User not authenticated");
+  });
+  it("should be able to handle improperly formatted arguemnts", async () => {
+    // initial db state
+    fakeDb.data.users.push({ id: "user:testuser", name: "testuser" });
+
+    // mock .can
+    vi.spyOn(AccessControl.prototype ,"can").mockResolvedValue(true);
+
+    // to get past getUser send along valid jwt token
+    const token = jwt.sign({ userId: "user:testuser" }, "rtKaslL6w4B9in");
+
+    const res = await request(app)
+      .post("/api/newTuple")
+      .set("Content-Type", "application/json")
+      .set("Cookie", `sessionToken=${token}`)
+      .send({
+        objectId: " ",
+        relation: " ",
+        subjectId: " ",
+      });
+
+    expect(res.status).toBe(404);
+    expect(res.body.message).toEqual("invalid subjectID prefix");
+
+  });
+
+
+
 });
 
 // delete tuple
+
+// folder content (maybe do this one  instead of less complicated endpoint)
+
 
 //create new
