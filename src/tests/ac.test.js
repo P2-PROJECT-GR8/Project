@@ -340,7 +340,7 @@ describe("locatePaths", () => {
 
     const ac = new AccessControl(fakeDb);
 
-    const paths = await ac.locatePaths("user:testUser", "file:testfile");
+    const paths = await ac.locatePaths("user:testUser", "file:testfile", "pathsToTarget");
 
     // assert
     expect(paths.length).toBeGreaterThan(0);
@@ -393,7 +393,7 @@ describe("locatePaths", () => {
 
     const ac = new AccessControl(fakeDb);
 
-    const paths = await ac.locatePaths("file:testfile", null);
+    const paths = await ac.locatePaths("file:testfile", null, "pathsFromTarget");
 
     expect(paths.length).toBeGreaterThan(0);
     expect(paths).toBeInstanceOf(Array);
