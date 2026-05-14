@@ -240,13 +240,225 @@ describe("newtuple", () => {
 
   });
 
-
-
 });
 
-// delete tuple
+// save all cahnges
+describe("saveAllChanges", async () => {
+  it("adds relations if given proper arguments", async () => {
+    // initial db state
+    fakeDb.data.users.push({ id: "user:testuser", name: "testuser" });
+
+
+    // mock .can
+    vi.spyOn(AccessControl.prototype ,"can").mockResolvedValue(true);
+    const spy = vi.spyOn(AccessControl.prototype, "addTuple");
+
+    // to get past getUser send along valid jwt token
+    const token = jwt.sign({ userId: "user:testuser" }, "rtKaslL6w4B9in");
+
+    const res = await request(app)
+    .post("/api/saveAllChanges")
+    .set("Content-Type", "application/json")
+    .set("Cookie", `sessionToken=${token}`)
+    .send({
+      objectId: "file:testfile", 
+      addRel: 
+      [
+        {
+        subjectId: "user:testuser",
+        relations: ["owner"],
+        }
+      ]
+    });
+
+    expect(res.status).toBe(200)
+    expect(res.body.success).toBe(true);
+    expect(spy).toHaveBeenCalled();
+    expect(fakeDb.data.tupleStore.bySubject).toEqual(
+      {'user:testuser': 
+      [ 
+        { relation: 'owner',
+           objectId: 'file:testfile' 
+        } 
+      ]
+    });
+    expect(fakeDb.data.tupleStore.byObject).toEqual(
+      {"file:testfile":
+       [
+        {
+          relation: "owner",
+          subjectId: "user:testuser"
+        }
+      ]
+    });
+  });
+  it("deletes a relation if given correct arguemtns", async () => {
+    // initial db state
+    fakeDb.data.users.push({ id: "user:testuser", name: "testuser" });
+    fakeDb.data.tupleStore.bySubject["user:testuser"] = [];
+    fakeDb.data.tupleStore.byObject["file:testfile"] = [];
+    fakeDb.data.tupleStore.bySubject["user:testuser"].push({relation: "owner", objectId: "file:testfile"});
+    fakeDb.data.tupleStore.byObject["file:testfile"].push({relation: "owner", subjectId: "user:testuser"});
+
+
+    // mock .can
+    vi.spyOn(AccessControl.prototype ,"can").mockResolvedValue(true);
+    const spy = vi.spyOn(AccessControl.prototype, "deleteTuple");
+
+    // to get past getUser send along valid jwt token
+    const token = jwt.sign({ userId: "user:testuser" }, "rtKaslL6w4B9in");
+
+    const res = await request(app)
+    .post("/api/saveAllChanges")
+    .set("Content-Type", "application/json")
+    .set("Cookie", `sessionToken=${token}`)
+    .send({
+      objectId: "file:testfile", 
+      deleteRel: 
+      [
+        {
+        subjectId: "user:testuser",
+        relations: ["owner"],
+        }
+      ]
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(spy).toHaveBeenCalled();
+    expect(fakeDb.data.tupleStore.bySubject).toEqual({});
+    expect(fakeDb.data.tupleStore.byObject).toEqual({});
+  });
+  it("updates a relation if given proper arguemtns", async () => {
+     // initial db state
+    fakeDb.data.users.push({ id: "user:testuser", name: "testuser" });
+    fakeDb.data.users.push({ id: "user:testuser2", name: "testuser2"});
+    fakeDb.data.tupleStore.bySubject["user:testuser"] = [];
+    fakeDb.data.tupleStore.byObject["file:testfile"] = [];
+    fakeDb.data.tupleStore.bySubject["user:testuser2"] = [];
+    fakeDb.data.tupleStore.bySubject["user:testuser"].push({relation: "owner", objectId: "file:testfile"});
+    fakeDb.data.tupleStore.bySubject["user:testuser2"].push({relation: "viewer", objectId: "file:testfile"});
+    fakeDb.data.tupleStore.byObject["file:testfile"].push({relation: "owner", subjectId: "user:testuser"});
+    fakeDb.data.tupleStore.byObject["file:testfile"].push({relation: "viewer", subjectId: "user:testuser2"});
+
+
+    // mock .can
+    vi.spyOn(AccessControl.prototype ,"can").mockResolvedValue(true);
+    const addspy = vi.spyOn(AccessControl.prototype, "addTuple");
+    const delspy = vi.spyOn(AccessControl.prototype, "deleteTuple");
+
+    // to get past getUser send along valid jwt token
+    const token = jwt.sign({ userId: "user:testuser" }, "rtKaslL6w4B9in");
+
+    const res = await request(app)
+    .post("/api/saveAllChanges")
+    .set("Content-Type", "application/json")
+    .set("Cookie", `sessionToken=${token}`)
+    .send({
+      objectId: "file:testfile", 
+      updateRel: 
+      [
+        {
+        subjectId: "user:testuser2",
+        oldRel: ["viewer"],
+        newRel: "owner",
+        }
+      ]
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(addspy).toHaveBeenCalled();
+    expect(delspy).toHaveBeenCalled();
+    expect(fakeDb.data.tupleStore.bySubject["user:testuser2"]).toEqual([{
+      relation: "owner",
+      objectId: "file:testfile",
+    }]);
+    
+    expect(fakeDb.data.tupleStore.byObject["file:testfile"]).toEqual([
+      {
+      relation: "owner",
+      subjectId: "user:testuser",
+      },
+      {
+      relation: "owner",
+      subjectId: "user:testuser2",
+      }
+    ]);
+  });
+
+  it("returns tsatus 403 if unauthoprized", async () => {
+    // initial db state
+    fakeDb.data.users.push({ id: "user:testuser", name: "testuser" });
+
+
+    // mock .can
+    vi.spyOn(AccessControl.prototype ,"can").mockResolvedValue(false);
+    const spy = vi.spyOn(AccessControl.prototype, "addTuple");
+
+    // to get past getUser send along valid jwt token
+    const token = jwt.sign({ userId: "user:testuser" }, "rtKaslL6w4B9in");
+
+    const res = await request(app)
+    .post("/api/saveAllChanges")
+    .set("Content-Type", "application/json")
+    .set("Cookie", `sessionToken=${token}`)
+    .send({
+      objectId: "file:testfile", 
+      addRel: 
+      [
+        {
+        subjectId: "user:testuser",
+        relations: ["owner"],
+        }
+      ]
+    });
+
+    expect(res.status).toBe(403);
+    expect(res.body.message).toEqual("Not authorized to share!");
+
+  });
+  it("returns status 500 if given arguments are malformed", async () => {
+    // initial db state
+    fakeDb.data.users.push({ id: "user:testuser", name: "testuser" });
+
+    // mock .can
+    vi.spyOn(AccessControl.prototype ,"can").mockResolvedValue(true);
+
+    // to get past getUser send along valid jwt token
+    const token = jwt.sign({ userId: "user:testuser" }, "rtKaslL6w4B9in");
+
+    const res = await request(app)
+    .post("/api/saveAllChanges")
+    .set("Content-Type", "application/json")
+    .set("Cookie", `sessionToken=${token}`)
+    .send({
+      objectId: "file:testfile", 
+      updateRel: 
+      [
+        {
+        subjectId: "user:testuser",
+        }
+      ]
+    });
+
+    expect(res.status).toBe(500);
+    expect(res.body.message).toEqual("Update failed");
+
+  });
+});
+
+
 
 // folder content (maybe do this one  instead of less complicated endpoint)
 
 
+
+
+
+
 //create new
+
+
+
+
