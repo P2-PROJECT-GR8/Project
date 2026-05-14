@@ -14,7 +14,8 @@
         "editor": [
           "view",
           "edit",
-          "comment"
+          "comment",
+          "remove_relations"
         ],
         "viewer": [
           "view",
@@ -57,10 +58,6 @@
         {
           "subjectId": "user:magnus",
           "relation": "owner"
-        },
-        {
-          "subjectId": "user:emil",
-          "relation": "editor"
         }
       ],
       "folder:admin": [
@@ -69,21 +66,9 @@
           "relation": "owner"
         }
       ],
-      "folder:tester": [
-        {
-          "subjectId": "user:admin",
-          "relation": "owner"
-        }
-      ],
       "folder:nest1": [
         {
           "subjectId": "folder:admin",
-          "relation": "parent"
-        }
-      ],
-      "file:nestedfile": [
-        {
-          "subjectId": "folder:nest1",
           "relation": "parent"
         }
       ],
@@ -98,46 +83,6 @@
           "subjectId": "folder:nest1",
           "relation": "parent"
         }
-      ],
-      "file:deep_file": [
-        {
-          "subjectId": "folder:deep_nest",
-          "relation": "parent"
-        }
-      ],
-      "folder:folderTester": [
-        {
-          "subjectId": "user:emil",
-          "relation": "owner"
-        },
-        {
-          "subjectId": "user:magnus",
-          "relation": "viewer"
-        },
-        {
-          "subjectId": "user:jeff",
-          "relation": "lastviewer"
-        }
-      ],
-      "folder:nestedTester": [
-        {
-          "subjectId": "folder:folderTester",
-          "relation": "parent"
-        },
-        {
-          "subjectId": "user:alice",
-          "relation": "viewer"
-        }
-      ],
-      "file:deepTester": [
-        {
-          "subjectId": "folder:nestedTester",
-          "relation": "parent"
-        },
-        {
-          "subjectId": "user:alice",
-          "relation": "viewer"
-        }
       ]
     },
     "bySubject": {
@@ -149,22 +94,6 @@
         {
           "relation": "owner",
           "objectId": "file:Project.pdf"
-        },
-        {
-          "relation": "viewer",
-          "objectId": "folder:folderTester"
-        }
-      ],
-      "user:jeff": [
-        {
-          "relation": "lastviewer",
-          "objectId": "folder:folderTester"
-        }
-      ],
-      "user:admin": [
-        {
-          "relation": "owner",
-          "objectId": "folder:tester"
         }
       ],
       "folder:admin": [
@@ -180,53 +109,13 @@
       "folder:nest1": [
         {
           "relation": "parent",
-          "objectId": "file:nestedfile"
-        },
-        {
-          "relation": "parent",
           "objectId": "folder:deep_nest"
-        }
-      ],
-      "folder:deep_nest": [
-        {
-          "relation": "parent",
-          "objectId": "file:deep_file"
         }
       ],
       "user:alice": [
         {
           "relation": "owner",
           "objectId": "file:ny_fil"
-        },
-        {
-          "relation": "viewer",
-          "objectId": "file:deepTester"
-        },
-        {
-          "relation": "viewer",
-          "objectId": "folder:nestedTester"
-        }
-      ],
-      "user:emil": [
-        {
-          "relation": "owner",
-          "objectId": "folder:folderTester"
-        },
-        {
-          "relation": "editor",
-          "objectId": "file:Project.pdf"
-        }
-      ],
-      "folder:folderTester": [
-        {
-          "relation": "parent",
-          "objectId": "folder:nestedTester"
-        }
-      ],
-      "folder:nestedTester": [
-        {
-          "relation": "parent",
-          "objectId": "file:deepTester"
         }
       ],
       "user:bob": [
@@ -445,6 +334,20 @@
           "action": "manage_relations",
           "objectId": "file:newfile",
           "time": 1778482778523,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "delete_folder",
+          "objectId": "folder:folderTester",
+          "time": 1778668887653,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "delete",
+          "objectId": "file:sletfil",
+          "time": 1778670102770,
           "allowed": true
         }
       ],
@@ -790,6 +693,97 @@
           "action": "delete",
           "objectId": "file:newfile",
           "time": 1778497958925,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "delete",
+          "objectId": "file:deepTester",
+          "time": 1778668228432,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "file:deep_file",
+          "time": 1778669061781,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "file:deep_file",
+          "time": 1778669061785,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "file:deep_file",
+          "time": 1778669061787,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "delete",
+          "objectId": "file:deep_file",
+          "time": 1778669339560,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "delete_folder",
+          "objectId": "folder:tester",
+          "time": 1778779035171,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "delete",
+          "objectId": "file:nestedfile",
+          "time": 1778779449633,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "delete",
+          "objectId": "file:nestedfile",
+          "time": 1778779456234,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "delete",
+          "objectId": "file:nestedfile",
+          "time": 1778779624766,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "delete",
+          "objectId": "file:nestedfile",
+          "time": 1778779694118,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "file:Project.pdf",
+          "time": 1778779928585,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "file:Project.pdf",
+          "time": 1778779928590,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "file:Project.pdf",
+          "time": 1778779928592,
           "allowed": false
         }
       ]
@@ -1032,6 +1026,27 @@
           "objectId": "file:Project.pdf",
           "time": 1778488541638,
           "allowed": true
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "file:Project.pdf",
+          "time": 1778779928585,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "file:Project.pdf",
+          "time": 1778779928590,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "file:Project.pdf",
+          "time": 1778779928592,
+          "allowed": false
         }
       ],
       "folder:folderTester": [
@@ -1174,6 +1189,13 @@
           "objectId": "folder:folderTester",
           "time": 1778365072567,
           "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "delete_folder",
+          "objectId": "folder:folderTester",
+          "time": 1778668887653,
+          "allowed": true
         }
       ],
       "folder:nestedTester": [
@@ -1352,6 +1374,93 @@
           "action": "delete",
           "objectId": "file:newfile",
           "time": 1778497958925,
+          "allowed": false
+        }
+      ],
+      "file:deepTester": [
+        {
+          "subjectId": "user:admin",
+          "action": "delete",
+          "objectId": "file:deepTester",
+          "time": 1778668228432,
+          "allowed": false
+        }
+      ],
+      "file:deep_file": [
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "file:deep_file",
+          "time": 1778669061781,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "file:deep_file",
+          "time": 1778669061785,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "file:deep_file",
+          "time": 1778669061787,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "delete",
+          "objectId": "file:deep_file",
+          "time": 1778669339560,
+          "allowed": false
+        }
+      ],
+      "file:sletfil": [
+        {
+          "subjectId": "user:emil",
+          "action": "delete",
+          "objectId": "file:sletfil",
+          "time": 1778670102770,
+          "allowed": true
+        }
+      ],
+      "folder:tester": [
+        {
+          "subjectId": "user:admin",
+          "action": "delete_folder",
+          "objectId": "folder:tester",
+          "time": 1778779035171,
+          "allowed": true
+        }
+      ],
+      "file:nestedfile": [
+        {
+          "subjectId": "user:admin",
+          "action": "delete",
+          "objectId": "file:nestedfile",
+          "time": 1778779449633,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "delete",
+          "objectId": "file:nestedfile",
+          "time": 1778779456234,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "delete",
+          "objectId": "file:nestedfile",
+          "time": 1778779624766,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "delete",
+          "objectId": "file:nestedfile",
+          "time": 1778779694118,
           "allowed": false
         }
       ]

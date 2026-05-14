@@ -390,7 +390,7 @@ const saveAllChanges = async (event)=>{
     })
   );
   
-// send updates for changed relations
+  // send updates for changed relations
  const res = await fetch("/api/saveAllChanges", {
   method: "POST",
   credentials: "include",
@@ -401,14 +401,14 @@ const saveAllChanges = async (event)=>{
     deleteRel: deletedUsers,
     updateRel: changes
   }),
-});
+  });
 
-const resData = await res.json();
+  const resData = await res.json();
 
-if (!res.ok) {
+  if (!res.ok) {
   alert("Error: " + resData.message);
   return;
-}
+  }
 
 changedRelation.clear();
 addedUsers=[];
@@ -493,15 +493,8 @@ export const renderMembers = async (fileId) => {
           relationSel.appendChild(option);
         });
         // if can't manage relations, disable select
-        if (!canManageRel) {
+        if (!canManageRel || rel.subjectId === currentUser.id || rel.relations.includes("owner") && currentUser.id !== "user:admin") {
           relationSel.disabled = true;
-        }
-        //disable for current user
-        if (rel.subjectId === currentUser.id) {
-          relationSel.disabled = true;
-        }
-        if(rel.relations.includes("owner") && currentUser.id !== "user:admin"){
-           relationSel.disabled = true;
         }
         // indicate which user you are
         const relation = document.createElement("p");
@@ -530,6 +523,12 @@ export const renderMembers = async (fileId) => {
         });
         member.appendChild(user);
         member.appendChild(relationSel);
+        const deleteMessage = document.createElement("a")
+          deleteMessage.innerText= "delete object"
+          deleteMessage.addEventListener("click", (event)=>{
+            event.preventDefault();
+            deleteObject(event);
+          });
         // create an option for an owner to revoke acces from another member
         if (canDelRel && rel.subjectId !== currentUser.id) {
           const deleteRel = document.createElement("button");
@@ -538,6 +537,12 @@ export const renderMembers = async (fileId) => {
           deleteRel.id = "revoke-btn";
           deleteRel.addEventListener("click", (event) => {
             event.preventDefault();
+            if (tempMembers.length === 1){
+            const modal = document.getElementById("modalErrorMessage");
+            modal.innerText =
+            "An object must have at least one member. Alternatively ";
+            modal.append(deleteMessage);
+            return; }
             console.log("knap trykket")
             // remove from array that is being rendered
             tempMembers = tempMembers.filter(u => u.subjectId !== rel.subjectId);
@@ -551,14 +556,16 @@ export const renderMembers = async (fileId) => {
                 console.log(deletedUsers)
               }
             }
-
-            renderMembers(fileId);
+          renderMembers(fileId);
           });
           const helpDelete = document.createElement("span");
           helpDelete.className = "tooltip";
           helpDelete.innerText = "Revoke this user's access";
           deleteRel.appendChild(helpDelete);
           member.appendChild(deleteRel);
+          if (rel.relations.includes("owner") && currentUser.id !== "user:admin"){
+          deleteRel.disabled = true;
+        }
         } else if (rel.subjectId === currentUser.id)
           // create an option to revoke own access
           {
@@ -578,6 +585,16 @@ export const renderMembers = async (fileId) => {
           console.error("No file selected");
           return;
           }
+
+          if (tempMembers.length === 1){
+            const modal = document.getElementById("modalErrorMessage");
+
+            modal.innerText =
+            "An object must have at least one member. Alternatively ";
+
+            modal.append(deleteMessage);
+
+          return; }
 
           const res = await fetch("/api/leaveFile", {
           method: "POST",
@@ -599,7 +616,7 @@ export const renderMembers = async (fileId) => {
             });
             leaveSelectedFile.appendChild(helpLeave)
             member.appendChild(leaveSelectedFile)
-      }
+        }
         membersList.appendChild(member);
       });
     }
@@ -612,6 +629,8 @@ const customBtn = document
 .addEventListener("click", async (event)=>{
   createCustomRel(event);
 });
+
+
   
 export const createCustomRel = async (event)=>{
   event.preventDefault();
@@ -646,7 +665,6 @@ customRelForm.appendChild(message);
 const privOptionsFile = window.schema?.file?.relations?.owner || [];
 const privOptionsFolder = window.schema?.folder?.relations?.owner || [];
 const privilegeOptions = [...privOptionsFile];
-
 privOptionsFolder.forEach((pF) => {
   const exists = privilegeOptions.some((pO) => pO === pF);
   if (!exists) {
@@ -723,12 +741,10 @@ createRelSubmit.addEventListener("click", async (e) => {
   customRelForm.querySelectorAll('input[type="checkbox"]:checked').forEach((checkbox) => {
     selectedPrivileges.push(checkbox.name);
   });
-
   if (selectedPrivileges.length === 0) {
     messageText.textContent = "Cannot create relation with no privileges";
     return;
   }
-
   const existingRelation = existingEntries.find(([name, privileges]) => {
     console.log(`privileges length ${privileges.length}`);
     // check if existing array of privileges for a relation is the same 
@@ -780,10 +796,11 @@ createRelSubmit.addEventListener("click", async (e) => {
 
 const deleteFileBtn = document.getElementById("delete-file");
 deleteFileBtn.addEventListener("click", async (event) =>{
-
   event.preventDefault();
-  console.log("knap trykket")
+  deleteObject(event);
+});
 
+export const deleteObject = async () =>{
   if (!selectedFile) {
     alert("No file selected to delete");
     return;
@@ -801,7 +818,7 @@ deleteFileBtn.addEventListener("click", async (event) =>{
     const data = await res.json();
     alert("Error: " + data.message);
   }
-});
+};
 
 const disableDelete = async ()=>{
 const currentUser = await getCurrentUser();
