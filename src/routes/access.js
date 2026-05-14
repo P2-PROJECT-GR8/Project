@@ -60,6 +60,9 @@ class AccessControl {
    * @memberof AccessControl
    */
   async can(userId, action, objectId) {
+    if(!objectId){
+      console.log("no objectId")
+    }
     await this.db.read();
     // Get all relations this user has to an object
     const relations = await this.expandUserRelations(userId, objectId);
@@ -306,15 +309,37 @@ class AccessControl {
     await this.db.write();
   }
 
-  async locatePaths(subjectId, objectId, maxDepth = 5) {
+  async locatePaths(subjectId, objectId, mode, maxDepth = 5) {
     const paths = [];
     await this.db.read();
     const { bySubject } = this.db.data.tupleStore;
     const { byObject } = this.db.data.tupleStore;
-    const type = subjectId.split(":")[0];
+    
+    const rootId = mode === "pathsFromTarget" && subjectId === "null" ? objectId : subjectId;
 
-    // bySubject or byObject
-    if (type === "user" || type === "group") {
+    if (!rootId) {
+      return [];
+    }
+
+    const type = rootId.split(":")[0];
+
+    let adjacency;
+    let idType;
+
+    if(type === "user" || type === "group"){
+      adjacency = this.db.data.tupleStore.bySubject;
+      idType = "objectId";
+
+    } else if (type === "file" || type === "folder"){
+      adjacency = this.db.data.tupleStore.byObject;
+      idType = "subjectId";
+    } else {
+      return [];
+    }
+
+
+    // all paths to target
+    if (mode === "pathsToTarget") {
       // dfs algortihm for bySubject (returns all paths from user to object)
       function DFS(currentNode, path, visited, depth) {
         // if depth exceeded return
@@ -328,11 +353,11 @@ class AccessControl {
         }
 
         // intialize edges for current node
-        const edges = bySubject[currentNode] || [];
+        const edges = adjacency[currentNode] || [];
 
         // run through all edges at this node
         for (const edge of edges) {
-          const nextNode = edge.objectId;
+          const nextNode = edge[idType];
 
           // prevent cycles
           if (visited.has(nextNode)) continue;
@@ -353,9 +378,9 @@ class AccessControl {
           visited.delete(nextNode);
         }
       }
-      DFS(subjectId, [], new Set([subjectId]), 0);
-    } else if (type === "file" || type === "folder") {
-      // dfs algortihm for byObject (returns all paths from an object)
+      DFS(rootId, [], new Set([rootId]), 0);
+    } else if (mode === "pathsFromTarget") {
+      // all paths from subject/object
       function DFS(currentNode, path, visited, depth) {
         // if depth exceeded return
         if (depth > maxDepth) {
@@ -363,17 +388,26 @@ class AccessControl {
         }
 
         // intialize edges for current node
-        const edges = byObject[currentNode] || [];
+        const edges = adjacency[currentNode] || [];
 
-        // base case: if no more edges found then push path
-        if (edges.length === 0) {
+        // base case        
+
+        // Case 1: root is user/group → push path on every file/folder hit
+        if ((type === "user" || type === "group") && (currentNode.startsWith("file:") || currentNode.startsWith("folder:")) && path.length > 0) {
           paths.push([...path]);
-          return;
         }
+
+        // Case 2: root is file/folder → push path when traversal ends
+        if ((type === "file" || type === "folder") && edges.length === 0 && path.length > 0) {
+          paths.push([...path]);
+          return; 
+        }
+
+
 
         // run through all edges at this node
         for (const edge of edges) {
-          const nextNode = edge.subjectId;
+          const nextNode = edge[idType];
 
           // prevent cycles
           if (visited.has(nextNode)) continue;
@@ -394,7 +428,7 @@ class AccessControl {
           visited.delete(nextNode);
         }
       }
-      DFS(subjectId, [], new Set([subjectId]), 0);
+      DFS(rootId, [], new Set([rootId]), 0);
     }
 
     return paths;
