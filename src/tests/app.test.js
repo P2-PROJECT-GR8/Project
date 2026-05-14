@@ -450,8 +450,130 @@ describe("saveAllChanges", async () => {
 
 
 
-// folder content (maybe do this one  instead of less complicated endpoint)
+// foldercontent
+describe("foldercontent", async () => {
+  it("returns a list of all files / folders and actions a user has a direct relation to if no folder id was provided", async () => {
+    // initial db state
+    fakeDb.data.users.push({ id: "user:testuser", name: "testuser" });
+    fakeDb.data.tupleStore.bySubject["user:testuser"] = [];
+    fakeDb.data.tupleStore.byObject["file:testfile"] = [];
+    fakeDb.data.tupleStore.bySubject["user:testuser"].push({relation: "owner", objectId: "file:testfile"});
+    fakeDb.data.tupleStore.byObject["file:testfile"].push({relation: "owner", subjectId: "user:testuser"});
 
+
+
+    // token
+    const token = jwt.sign({ userId: "user:testuser" }, "rtKaslL6w4B9in");
+
+    const res = await request(app).get("/api/folderContent").set("Cookie", `sessionToken=${token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.files).toEqual([expect.objectContaining({objectId: "file:testfile", relations: ["owner"]})]);
+  });
+
+  it("retuns a lsit of all files / folders and actions within a folder if given folderid", async () => {
+    // initial db state
+    fakeDb.data.users.push({ id: "user:testuser", name: "testuser" });
+    fakeDb.data.tupleStore.bySubject["user:testuser"] = [];
+    fakeDb.data.tupleStore.byObject["file:testfile"] = [];
+    fakeDb.data.tupleStore.byObject["folder:testfolder"] = [];
+    fakeDb.data.tupleStore.bySubject["folder:testfolder"] = [];
+
+    fakeDb.data.tupleStore.bySubject["user:testuser"].push({relation: "owner", objectId: "folder:testfolder"});
+    fakeDb.data.tupleStore.byObject["folder:testfolder"].push({relation: "owner", subjectId: "user:testuser"});
+
+    fakeDb.data.tupleStore.bySubject["folder:testfolder"].push({relation: "parent", objectId: "file:testfile"});
+    fakeDb.data.tupleStore.byObject["file:testfile"].push({relation: "parent", subjectId: "folder:testfolder"});
+
+    // mock expand user relations to control has access
+    vi.spyOn(AccessControl.prototype, "expandUserRelations").mockResolvedValue(["owner"]);
+
+    // token
+    const token = jwt.sign({ userId: "user:testuser" }, "rtKaslL6w4B9in");
+
+    const res = await request(app).get("/api/folderContent?folderId=folder:testfolder").set("Cookie", `sessionToken=${token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.files).toEqual([expect.objectContaining({objectId: "file:testfile", relations: ["owner"]})]);
+
+  });
+
+  it("return a status 403 with messeage No access to this folder if folder cant be found", async () => {
+    // initial db state
+    fakeDb.data.users.push({ id: "user:testuser", name: "testuser" });
+    fakeDb.data.tupleStore.bySubject["user:testuser"] = [];
+    fakeDb.data.tupleStore.byObject["file:testfile"] = [];
+    fakeDb.data.tupleStore.byObject["folder:testfolder"] = [];
+    fakeDb.data.tupleStore.bySubject["folder:testfolder"] = [];
+
+    fakeDb.data.tupleStore.bySubject["user:testuser"].push({relation: "owner", objectId: "folder:testfolder"});
+    fakeDb.data.tupleStore.byObject["folder:testfolder"].push({relation: "owner", subjectId: "user:testuser"});
+
+    fakeDb.data.tupleStore.bySubject["folder:testfolder"].push({relation: "parent", objectId: "file:testfile"});
+    fakeDb.data.tupleStore.byObject["file:testfile"].push({relation: "parent", subjectId: "folder:testfolder"});
+
+    // expanduser relations to control  has acces
+    vi.spyOn(AccessControl.prototype, "expandUserRelations").mockResolvedValue([]);
+
+    // token
+    const token = jwt.sign({ userId: "user:testuser" }, "rtKaslL6w4B9in");
+
+    const res = await request(app).get("/api/folderContent?folderId=folder:doesntexist").set("Cookie", `sessionToken=${token}`);
+
+    expect(res.status).toBe(403);
+    expect(res.body.message).toEqual("No access to this folder");
+
+      
+  });
+  it("if user doesnt exist token validation fails and return should get staus 401 and msg Invalid session", async () => {
+    // initial db state
+    fakeDb.data.users.push({ id: "user:testuser", name: "testuser" });
+
+     // token
+    const token = jwt.sign({ userId: "user:doesntexist" }, "rtKaslL6w4B9in");
+
+    const res = await request(app).get("/api/folderContent").set("Cookie", `sessionToken=${token}`);
+
+    expect(res.status).toBe(401);
+    expect(res.body.message).toEqual("Invalid session");
+    
+
+
+
+  });
+  it("does not include duplictae relations for the same object", async () => {
+    // initial db state
+    fakeDb.data.users.push({ id: "user:testuser", name: "testuser" });
+    
+    fakeDb.data.tupleStore.bySubject["user:testuser"] = [
+      { relation: "owner", objectId: "file:testfile" },
+      { relation: "owner", objectId: "file:testfile" }, // duplicate
+      { relation: "editor", objectId: "file:testfile" } // different relation
+    ];
+
+    // schema mock 
+    fakeDb.data.schema = {
+      file: {
+        relations: {
+          owner: ["read", "write"],
+          editor: ["read"]
+        }
+      }
+    };
+
+    const token = jwt.sign({ userId: "user:testuser" }, "rtKaslL6w4B9in");
+
+    const res = await request(app).get("/api/folderContent").set("Cookie", `sessionToken=${token}`);
+
+    expect(res.status).toBe(200);
+    
+    expect(res.body.files[0].relations).toEqual(expect.arrayContaining(["owner", "editor"]));
+    expect(res.body.files[0].relations).toHaveLength(2);
+
+  });
+
+
+});
 
 
 
