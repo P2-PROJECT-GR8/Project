@@ -64,6 +64,10 @@
         {
           "subjectId": "user:magnus",
           "relation": "owner"
+        },
+        {
+          "subjectId": "user:emil",
+          "relation": "viewer"
         }
       ],
       "folder:nest1": [
@@ -122,6 +126,12 @@
         {
           "relation": "viewer",
           "objectId": "file:Project.pdf"
+        }
+      ],
+      "user:emil": [
+        {
+          "relation": "viewer",
+          "objectId": "folder:admin"
         }
       ]
     }
@@ -213,6 +223,27 @@
           "action": "manage_relations",
           "objectId": "file:Project.pdf",
           "time": 1778488541638,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "share",
+          "objectId": "folder:admin",
+          "time": 1778780833827,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "remove_relations",
+          "objectId": "folder:admin",
+          "time": 1778780833832,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "manage_relations",
+          "objectId": "folder:admin",
+          "time": 1778780833834,
           "allowed": true
         }
       ],
@@ -823,6 +854,27 @@
           "action": "manage_relations",
           "objectId": "folder:admin",
           "time": 1778183133222,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "share",
+          "objectId": "folder:admin",
+          "time": 1778780833827,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "remove_relations",
+          "objectId": "folder:admin",
+          "time": 1778780833832,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "manage_relations",
+          "objectId": "folder:admin",
+          "time": 1778780833834,
           "allowed": true
         }
       ],

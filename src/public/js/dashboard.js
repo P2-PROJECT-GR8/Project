@@ -450,7 +450,7 @@ export const renderMembers = async (fileId) => {
     window.schema = schema;
 
       const inviteContainer = document.getElementById("invite-container")
-      const canShare = shareObj(currentUser, tempMembers, schema);
+      const canShare = canPriv(currentUser, tempMembers, schema, "share");
       if (!canShare){inviteContainer.classList.add("hidden");
     } else {
       inviteContainer.classList.remove("hidden");
@@ -464,8 +464,8 @@ export const renderMembers = async (fileId) => {
         (rel) =>
           rel.relations.includes("owner") && rel.subjectId === currentUser.id,
       );
-      const canDelRel = delRel(currentUser, tempMembers, schema);
-      const canManageRel = manageRel(currentUser, tempMembers, schema);
+      const canDelRel = canPriv(currentUser, tempMembers, schema, "delete") || ownFile;
+      const canManageRel = canPriv(currentUser, tempMembers, schema, "manage");
 
       //create a div element for each member to be displayed 
       tempMembers.forEach((rel) => {
@@ -837,22 +837,6 @@ const currentUser = await getCurrentUser();
   deleteFileBtn.disabled=!canDelete
 }
 
-const delRel = (currentUser, tempMembers, schema)=>{
-  const userEntry = tempMembers.find(rel => rel.subjectId === currentUser.id);
-  const userRelations = userEntry ? userEntry.relations : [];
-
-  return currentUser.id === "user:admin" || userRelations.some(rel => 
-  schema?.file?.relations?.[rel]?.includes("remove_relations"));
-}
-
-const manageRel = (currentUser, tempMembers, schema)=>{
-  const userEntry = tempMembers.find(rel => rel.subjectId === currentUser.id);
-  const userRelations = userEntry ? userEntry.relations : [];
-
-  return currentUser.id === "user:admin" || userRelations.some(rel => 
-  schema?.file?.relations?.[rel]?.includes("manage_relations"))
-}
-
 export function setSelectedFile(fileId) {
   selectedFile = fileId;
 }
@@ -918,12 +902,12 @@ export const inviteMember = async ()=>{
       console.log(tempMembers);
     }};
 
-const shareObj = (currentUser, tempMembers, schema)=>{
+const canPriv = (currentUser, tempMembers, schema, privilege)=>{
   const userEntry = tempMembers.find(rel => rel.subjectId === currentUser.id);
   const userRelations = userEntry ? userEntry.relations : [];
 
   return currentUser.id === "user:admin" || userRelations.some(rel => 
-  schema?.file?.relations?.[rel]?.includes("share"))
+  schema?.file?.relations?.[rel]?.includes(privilege))
 }
 // calculate weight of all roles and return "strongest"
 function dominance(files) {
