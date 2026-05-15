@@ -619,6 +619,38 @@ app.get("/api/adminGetGroups", async (req, res) => {
 }
 });
 
+app.get("/api/groupNames", (req, res) => {
+  db.read();
+  const groupNames = Object.keys(db.data.tupleStore.byObject)
+    .filter(id => id.startsWith("group:"))
+    .map(id => id.split(":")[1]);
+  res.send({ groupNames });
+});
+
+app.get("/api/ownedGroups", async (req, res) => {
+  let currentUser;
+  try {
+    currentUser = getUser(req);
+  } catch {
+    return res.status(401).send({ message: "User not authenticated" });
+  }
+
+  await db.read();
+
+  const allGroups = Object.keys(db.data.tupleStore.byObject)
+    .filter(id => id.startsWith("group:"));
+
+  const ownedGroups = [];
+  for (const groupId of allGroups) {
+    const relations = await accessControl.expandUserRelations(currentUser.id, groupId);
+    if (relations.includes("owner")) {
+      ownedGroups.push(groupId.split(":")[1]);
+    }
+  }
+
+  res.json({ ownedGroups });
+});
+
 app.post("/api/newRelationType", async (req, res) => {
   let currentUser;
   try {

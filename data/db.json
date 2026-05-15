@@ -105,6 +105,12 @@
           "subjectId": "user:emil",
           "relation": "owner"
         }
+      ],
+      "group:gruppe": [
+        {
+          "subjectId": "user:alice",
+          "relation": "owner"
+        }
       ]
     },
     "bySubject": {
@@ -146,6 +152,10 @@
         {
           "relation": "viewer",
           "objectId": "folder:nest1"
+        },
+        {
+          "relation": "owner",
+          "objectId": "group:gruppe"
         }
       ],
       "user:bob": [

@@ -185,6 +185,8 @@ export const getCurrentUser = async () => {
 };
 
 export let selectedFile;
+let selectedFileType
+let groupNames = [];
 
 // When the DOM is fully loaded, set up initial state and event listeners
 document.addEventListener("DOMContentLoaded", async () => {
@@ -196,8 +198,24 @@ document.addEventListener("DOMContentLoaded", async () => {
   const createNewErrorMsg = document.getElementById("create-new-error");
   const filesList = document.getElementById("filesList");
   const uploadNewBtn = document.getElementById("UploadNewbtn");
-  uploadNewBtn.addEventListener("click", () => {
+
+  uploadNewBtn.addEventListener("click", async () => {
     createNewErrorMsg.innerText = "";
+
+    const ownerSelect = document.getElementById("new-owner-select");
+    ownerSelect.innerHTML = '<option value="">Me (personal)</option>';
+
+    // Use the new endpoint instead of filtering /api/files
+    const res = await fetch("/api/ownedGroups", { credentials: "include" });
+    const { ownedGroups } = await res.json();
+
+    ownedGroups.forEach((group) => {
+      const option = document.createElement("option");
+      option.value = `group:${group}`;
+      option.innerText = `Group: ${group.charAt(0).toUpperCase() + group.slice(1)}`;
+      ownerSelect.appendChild(option);
+    });
+
     createNewModal.showModal();
   });
 
@@ -242,6 +260,67 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
+  const createNewGroupModal = document.getElementById("create-new-group");
+  const createNewGroupForm = document.getElementById("create-new-group-form");
+  const createNewGroupErrorMsg = document.getElementById("create-new-group-error");
+  const groupsList = document.getElementById("GroupsList");
+  const newGroupBtn = document.getElementById("newGroupBtn");
+  newGroupBtn.addEventListener("click", async () => {
+    createNewGroupErrorMsg.innerText = "";
+
+    const ownerSelect = document.getElementById("new-group-owner-select");
+    ownerSelect.innerHTML = '<option value="">Me (personal)</option>';
+
+    // Use the new endpoint instead of filtering /api/files
+    const res = await fetch("/api/ownedGroups", { credentials: "include" });
+    const { ownedGroups } = await res.json();
+
+    ownedGroups.forEach((group) => {
+      const option = document.createElement("option");
+      option.value = `group:${group}`;
+      option.innerText = `Group: ${group.charAt(0).toUpperCase() + group.slice(1)}`;
+      ownerSelect.appendChild(option);
+    });
+
+    createNewGroupModal.showModal();
+  });
+  
+
+  const createNewGroupCancelBtn = document.getElementById("create-new-group-cancel");
+  createNewGroupCancelBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    createNewGroupModal.close();
+    createNewGroupForm.reset();
+  });
+    
+  const createNewGroupButton = document.getElementById("create-new-group-button");
+  createNewGroupButton.addEventListener("click", async (e) => {
+    e.preventDefault();
+    const data = new FormData(createNewGroupForm);
+    const formObject = Object.fromEntries(data);
+    if (validateString(formObject.name)) {
+      const res = await fetch("/api/createNew", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          objectId: `group:${formObject.name}`,
+        }),
+      });
+      const resData = await res.json();
+      if (!res.ok) {
+        createNewGroupErrorMsg.innerText = resData.message;
+      } else {
+        createNewGroupForm.reset();
+        createNewGroupModal.close();
+        await renderFileListForUser(currentUser.id);
+      }
+    } else {
+      createNewGroupErrorMsg.innerText =
+        'Please only use letters, numbers and symbols like: ".-_"';
+    }
+  }); 
+
   // Set the initial active page
   showPage("#files"); // Set "All Files" as the default active page
 
@@ -270,6 +349,105 @@ document.addEventListener("DOMContentLoaded", async () => {
   } else {
     await renderFileListForUser();
   }
+  
+    function renderGroups(files) {
+  console.log("renderGroups called with:", files);
+  const groupsList = document.getElementById("GroupsList");
+  console.log("GroupsList element:", groupsList);
+  groupsList.innerHTML = "";
+
+  const groups = files.filter(file => file.objectId.startsWith("group:"));
+    if (groups.length > 0) {
+    groups.forEach((file) => {
+    const listItem = document.createElement("div");
+        listItem.className = "listitem";
+        listItem.dataset.fileId = file.objectId;
+        listItem.dataset.relations = file.relations;
+
+        const icon = document.createElement("i");
+        icon.className = "material-icons type";
+        icon.innerText = "people";
+
+        const itemTitle = document.createElement("div");
+        itemTitle.className = "item-title";
+
+        const h3 = document.createElement("h3");
+        h3.innerText = file.objectId.split(":")[1];
+
+        const p = document.createElement("p");
+        p.innerText = "Updated by User - 2 Hours ago";
+
+        itemTitle.appendChild(h3);
+        itemTitle.appendChild(p);
+
+        const relation = document.createElement("div");
+        relation.className = "relation";
+        relation.innerText = file.relations.join(", ").toUpperCase();
+
+        const moreLink = document.createElement("a");
+        moreLink.href = "#";
+        const moreIcon = document.createElement("i");
+        moreIcon.className = "material-icons more-btn";
+        moreIcon.innerText = "more_vert";
+        moreLink.appendChild(moreIcon);
+
+        listItem.appendChild(icon);
+        listItem.appendChild(itemTitle);
+        listItem.appendChild(relation);
+        listItem.appendChild(moreLink);
+
+        groupsList.appendChild(listItem);
+        });
+      }
+    }
+
+  function renderSharedFiles(files) {
+  const sharedList = document.getElementById("SharedList");
+  sharedList.innerHTML = "";
+    const sharedFiles = files.filter(file =>
+      !file.relations.includes("owner") && !file.objectId.startsWith("group:")
+      );
+
+      if (sharedFiles.length === 0) {
+        sharedList.innerHTML = "<p style='padding: 1rem;'>No files have been shared with you.</p>";
+        return;
+      }
+
+      sharedFiles.forEach((file) => {
+      const listItem = document.createElement("div");
+      listItem.className = "listitem";
+      listItem.dataset.fileId = file.objectId;
+      listItem.dataset.relations = file.relations;
+
+      const fileType = file.objectId.split(":")[0];
+      const icon = document.createElement("i");
+      icon.className = "material-icons type";
+      icon.innerText = fileType === "folder" ? "folder" : "article";
+
+      const itemTitle = document.createElement("div");
+      itemTitle.className = "item-title";
+
+      const h3 = document.createElement("h3");
+      h3.innerText = file.objectId.split(":")[1];
+
+      const p = document.createElement("p");
+      p.innerText = "Shared with you";
+
+      itemTitle.appendChild(h3);
+      itemTitle.appendChild(p);
+
+      const relation = document.createElement("div");
+      relation.className = "relation";
+      relation.innerText = file.relations.join(", ").toUpperCase();
+
+      listItem.appendChild(icon);
+      listItem.appendChild(itemTitle);
+      listItem.appendChild(relation);
+
+      sharedList.appendChild(listItem);
+    });
+    }
+
 
   const inviteBtn = document.getElementById("invite-member");
   inviteBtn.addEventListener("click", async (event) => {
@@ -328,6 +506,92 @@ document.addEventListener("DOMContentLoaded", async () => {
       inviteInput.value = "";
       console.log(tempMembers);
     }};
+  
+   const groupInviteInput = document.getElementById("invite-group-field");
+  const groupInviteBtn = document.getElementById("invite-group-member");
+  console.log("groupInviteBtn:", groupInviteBtn);
+  groupInviteBtn.addEventListener("click", async (event) => {
+    const errorMessage = document.getElementById("modalErrorMessage");
+    if (groupInviteInput.value.length >= 2 && groupInviteInput.value.length <= 10) {
+      const newMember = groupInviteInput.value.toLowerCase();
+      try {
+        if (!selectedFile) throw new Error("No selected file");
+        const isGroup = groupNames.some(g => g.toLowerCase() === newMember);
+        const subjectId = isGroup ? `group:${newMember}` : `user:${newMember}`;
+        const relation = isGroup ? "subgroup" : "member";
+        const res = await fetch("/api/newTuple", {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            objectId: selectedFile,
+            relation: relation,
+            subjectId: subjectId,
+          }),
+        });
+        if (res.ok) {
+          errorMessage.innerText = "";
+          groupInviteInput.value = "";
+          renderGroupMembers(selectedFile);
+        } else {
+          const data = await res.json();
+          errorMessage.innerText = data.message;
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    } else {
+      errorMessage.innerText = "Username must be between 2 and 10 characters.";
+    // validate input
+    if(!validateString(inviteInput.value)){
+      alert("do not use special characters")
+      return}
+    
+    const res = await fetch("/username", {
+    method: "POST",
+    headers: {
+    "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+    userName: inviteInput.value,
+    }),
+    });
+
+    const data = await res.json();
+
+    if (data.status === "404") {
+    errorMessage.innerText="User does not exist in the database"
+    return;
+    }
+      
+    
+      
+      
+    const newId = `user:${inviteInput.value.toLowerCase()}`;
+    if (!selectedFile) return;
+
+    // check if they already have a relation
+    if (tempMembers.some(u => u.subjectId === newId)) {
+      alert("User is already related to this file")
+    return;}
+
+    // remove from deleted if re-added
+    deletedUsers = deletedUsers.filter(u => u.subjectId !== newId);
+
+    tempMembers.push({
+      subjectId: newId,
+      relations: ["viewer"]
+    });
+
+    addedUsers.push({
+      subjectId: newId,
+      relations: ["viewer"]
+    });
+
+    renderMembers(selectedFile);
+      inviteInput.value = "";
+      console.log(tempMembers);
+    }});
 
   filesList.addEventListener("click", async (event) => {
     const btn = event.target.closest(".more-btn");
@@ -348,6 +612,20 @@ document.addEventListener("DOMContentLoaded", async () => {
       const option = document.createElement("option");
       option.innerText = user;
       userList.appendChild(option);
+    });
+
+    const groupNamesRes = await fetch("/api/groupNames", {
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    });
+    const { groupNames: fetchedGroups } = await groupNamesRes.json();
+    groupNames = fetchedGroups;
+    const groupList = document.getElementById("data-group");
+    groupList.innerHTML = "";
+    groupNames.forEach((group) => {
+    const option = document.createElement("option");
+    option.value = group;
+    groupList.appendChild(option);
     });
 
     const item = btn.closest(".listitem");
@@ -372,7 +650,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     fileDetailsModal.showModal();
   });
 
+    const groupDetailsModal = document.getElementById("group-details");
+    groupDetailsModal.querySelector(".cancel-modal").addEventListener("click", () => {
+    groupDetailsModal.close();
+
   });
+});
   
   // fetch the server when saving all changes
 const saveChanges = document.getElementById("save-changes");
@@ -620,7 +903,184 @@ export const renderMembers = async (fileId) => {
         membersList.appendChild(member);
       });
     }
+};
+
+const renderGroupMembers = async (fileId) => {
+  const membersList = document.getElementById("group-members");
+  const currentUser = await getCurrentUser();
+  const schemaRes = await fetch("/api/schema", { credentials: "include" });
+  const schema = await schemaRes.json();
+  const res = await fetch("/relatedUsers", {  
+    method: "POST",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ objectId: fileId }),
+  });
+  if (res.ok) {
+    membersList.innerHTML = "";
+    const { relatedUsers } = await res.json();
+    console.log("relatedUsers:", relatedUsers); 
+    if (relatedUsers && relatedUsers.length > 0) {
+      const ownFile = relatedUsers.some(
+        (rel) =>
+          rel.relations.includes("owner") && rel.subjectId === currentUser.id,
+      );
+      const canDelRel = delRel(currentUser, relatedUsers, schema);
+      const canManageRel = manageRel(currentUser, relatedUsers, schema);
+      relatedUsers.forEach((rel) => {
+        // Create a member element in the dialog for every related user
+        // to provide an overview over users that have access
+        const member = document.createElement("div");
+        member.className = "member";
+        const user = document.createElement("p");
+        const userName = rel.subjectId.split(":")[1];
+        user.innerText = userName.charAt(0).toUpperCase() + userName.slice(1);
+
+
+        // relation part of member made to be a dropdown that allows owners to change relation
+        const relationSel = document.createElement("select");
+        relationSel.className = "changeRelation";
+        const relationOptions = Object.keys(schema?.file?.relations || {});
+        
+        // format it beuatifully
+        relationOptions.forEach((r) => {
+          const option = document.createElement("option");
+          option.value = r;
+          option.innerText = r.charAt(0).toUpperCase() + r.slice(1);
+        // choose the relation specified in the db, so it displays the correct relation
+          if (rel.relations.includes(r)) {
+            option.selected = true;
+          }
+          relationSel.appendChild(option);
+        });
+        // if can't manage relations, disable select
+        if (!canManageRel) {
+          relationSel.disabled = true;
+        }
+        //disable for current user
+        if (rel.subjectId === currentUser.id) {
+          relationSel.disabled = true;
+        }
+        if(rel.relations.includes("owner")){
+           relationSel.disabled = true;
+        }
+        // indicate which user you are
+        const relation = document.createElement("p");
+        const formattedRelations = rel.relations.map((str) => {
+          return str.charAt(0).toUpperCase() + str.slice(1);
+        });
+
+        // maybe show only strongest relation here aswell although maybe good thing that user can see all their relations to the object here
+        relation.innerText = formattedRelations.join(", ");
+
+        if (rel.subjectId === currentUser.id) {
+          user.innerText += " (You)";
+          user.style.fontWeight = 600;
+          relationSel.style.fontWeight = 600;
+        }
+        // update in client when changes are made in the select
+        relationSel.addEventListener("change", async (e) => {
+          const assignedRel = e.target.value;
+          if (rel.relations.includes(assignedRel)) return;
+
+        changedRelation.set(rel.subjectId, {
+          oldRel: [...rel.relations],
+          newRel: assignedRel
+        });
+        rel.relations = [assignedRel];
+        });
+        member.appendChild(user);
+        member.appendChild(relationSel);
+        // create an option for an owner to revoke acces from another member
+        if (canDelRel && rel.subjectId !== currentUser.id) {
+          const deleteRel = document.createElement("button");
+          deleteRel.innerText = "Revoke";
+          deleteRel.className="btn-lift";
+          deleteRel.id = "revoke-btn";
+          deleteRel.addEventListener("click", async (event) => {
+            event.preventDefault();
+            if (!confirm("Remove this user?")) return;
+            const res = await fetch("/api/deleteTuple", {
+              method: "POST",
+              credentials: "include",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                objectId: fileId,
+                relations: rel.relations,
+                subjectId: rel.subjectId,
+              }),
+            });
+            if (res.ok) {
+              renderGroupMembers(fileId);
+            console.log("knap trykket")
+            // remove from array that is being rendered
+            tempMembers = tempMembers.filter(u => u.subjectId !== rel.subjectId);
+            const subjectId = rel.subjectId
+            // if user was just invited cancel invite
+            if (addedUsers.some(u => u.subjectId === subjectId)) {
+              addedUsers = addedUsers.filter(u => u.subjectId !== subjectId);
+            } else {
+            if (!deletedUsers.some(u => u.subjectId === subjectId)) {
+                deletedUsers.push({ subjectId });
+                console.log(deletedUsers)
+              }
+            }
+
+            renderMembers(fileId);
+          }
+          });
+          const helpDelete = document.createElement("span");
+          helpDelete.className = "tooltip";
+          helpDelete.innerText = "Revoke this user's access";
+          deleteRel.appendChild(helpDelete);
+          member.appendChild(deleteRel);
+        } else if (rel.subjectId === currentUser.id)
+          // create an option to revoke own access
+          {
+          const leaveSelectedFile = document.createElement("button")
+          leaveSelectedFile.innerText = "Leave";
+          leaveSelectedFile.className="btn-lift";
+          leaveSelectedFile.id="leave-file";
+          const helpLeave = document.createElement("span");
+          helpLeave.className = "tooltip-leave";
+          helpLeave.innerText = "Revoke own access";
+
+          leaveSelectedFile.addEventListener("click", async (event)=>{
+          event.preventDefault();
+
+          if (!selectedFile) {
+          console.error("No file selected");
+          return;
+          }
+
+          const res = await fetch("/api/leaveFile", {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ objectId: selectedFile }),
+          });
+
+          if (res.ok) {
+          document.getElementById("file-details").close();
+          location.reload();
+          } else {
+          const data = await res.json();
+          const errorMessage = document.getElementById("modalErrorMessage");
+          errorMessage.innerText = data.message;
+          }
+            });
+            leaveSelectedFile.appendChild(helpLeave)
+            member.appendChild(leaveSelectedFile)
+      }
+        membersList.appendChild(member);
+      });
+    }
   };
+}
 
 
 // add eventlistener to the costum relations link/button
@@ -940,4 +1400,3 @@ function dominance(files) {
   return strongest;
 }
 export {saveAllChanges};
-
