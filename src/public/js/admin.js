@@ -211,9 +211,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       objectSelect.hidden = false;
       objectSelectLabel.hidden = false;
     }
-
     let subjectid;
-
     if (userSelect.value.startsWith("group:")) {
       subjectid = userSelect.value;
     } else {
@@ -313,20 +311,36 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       // upon delete button press delete path
       pathDelete.addEventListener("click", async () => {
-        const del = await fetch("/api/adminDeleteTuple", {
-          credentials: "include",
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            path: path,
-            index: index,
-          }),
+  
+      let conditionalBody = {};
+
+      if (mode.value === "pathsToTarget" || mode.value === "pathsFromTargetUser") {
+        conditionalBody = {
+          objectId:path[0].to,     
+          addRel: [],
+          deleteRel: [{subjectId: path[0].from}], 
+          updateRel: []
+          };
+        } else if (mode.value === "pathsFromTargetObject") {
+        conditionalBody = {
+          objectId: path[0].from, 
+          addRel: [],
+          deleteRel: [{subjectId: path[0].to}],    
+          updateRel: []
+          };
+        }
+        const del = await fetch("/api/saveAllChanges", {
+        credentials: "include",
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(conditionalBody),
         });
         if (!del.ok) {
           console.log("failed to delete");
         }
         if (del.ok) {
           console.log("deleted succesfully");
+          location.reload();
         }
       });
     });
