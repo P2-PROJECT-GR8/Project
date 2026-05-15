@@ -6,8 +6,8 @@ import {
   setSelectedFile,
   resetChanges,
   inviteMember,
+  saveAllChanges
 } from "./dashboard.js";
-import { saveAllChanges } from "./dashboard.js";
 import { tempMembers, selectedFile } from "./dashboard.js";
 
 // wait for DOM load before doing anything
