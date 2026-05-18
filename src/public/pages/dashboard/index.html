@@ -39,33 +39,27 @@
               <a href="#files"><i class="material-icons">folder</i>All Files</a>
             </li>
             <li>
-              <a href="#documents"
-                ><i class="material-icons">article</i>Documents</a
+              <a href="#groups"
+                ><i class="material-icons">article</i>Groups</a
               >
             </li>
             <li>
-              <a href="#media"><i class="material-icons">image</i>Media</a>
-            </li>
-            <li>
-              <a href="#archive"
-                ><i class="material-icons">inventory_2</i>Archives</a
-              >
-            </li>
-            <li>
-              <a href="#trash"><i class="material-icons">delete</i>Trash</a>
+              <a href="#shared"><i class="material-icons">image</i>Shared Files</a>
             </li>
           </ul>
         </nav>
       </div>
       <main class="content">
+
+
         <div id="files" class="page">
-          <h1 id="allFilesHeader">All Files</h1>
+          <h1 id="allFilesHeader">My Files</h1>
           <div class="pageHeader">
             <p id="allFIlesHeaderText">
               Here you will find an overview of all your files
             </p>
             <button class="btn-lift" id="UploadNewbtn">
-              <i class="material-icons">add</i>Upload New
+              <i class="material-icons">add</i>Create New
             </button>
 
             <!-- <button id="create-option">Create Folder</button> -->
@@ -91,7 +85,7 @@
                 <div class="input-container">
                   <label for="invite-field">ADD USERS OR GROUPS</label>
                   <input
-                    list="data-users"
+                    list="data-users, data-group"
                     type="text"
                     id="invite-field"
                     placeholder="Write the name of a group or user"
@@ -104,6 +98,11 @@
                     <option value="Viktor"></option>
                     <option value="Ditte"></option>
                   </datalist>
+                  <datalist id="data-group">
+                    <option value="Group A"></option>
+                    <option value="Group B"></option>
+                    <option value="Group C"></option>
+                  </datalist>
                 </div>
                 <button id="invite-member" class="btn-lift">Invite</button>
               </div>
@@ -113,18 +112,6 @@
               ></p>
               <h3>Current Members</h3>
               <div id="members">
-                <div class="member">
-                  <p>Magnus</p>
-                  <p>Owner</p>
-                </div>
-                <div class="member">
-                  <p>Emil</p>
-                  <p>Viewer</p>
-                </div>
-                <div class="member">
-                  <p>Kasper</p>
-                  <p>Editor</p>
-                </div>
               </div>
               <div id="custom-access">
                 <i class="material-icons md-36">verified_user</i>
@@ -149,38 +136,181 @@
               <h2>Create a new file</h2>
               <form id="create-new-form">
                 <input
-                name="name"
+                  name="name"
                   type="text"
                   id="new-name-input"
-                  placeholder="Write the name of the file/foler/group"
+                  placeholder="Write the name of the file/folder"
                 />
                 <select name="type" id="new-type-select" class="select-new-type">
                   <option value="file">File</option>
                   <option value="folder">Folder</option>
-                  <option value="group">Group</option>
                 </select>
+
+                <label for="new-owner-select">Owner</label>
+                <select name="owner" id="new-owner-select">
+                  <option value="">Me (personal)</option>
+                </select>
+
                 <div class="create-new-buttons">
                   <button id="create-new-cancel" class="cancel-modal">Cancel</button>
                   <span></span>
                   <button id="create-new-button" class="btn-lift">Create</button>
-                </span>
+                </div>
               </form>
             </div>
             <p id="create-new-error" style="text-align: center; color: red;"></p>
           </dialog>
         </div>
-        <div id="documents" class="page">
-          <h1>Here are all your douments</h1>
+
+
+        <div id="groups" class="page">
+          <h1>Here are all your groups</h1>
+            <p id="allFIlesHeaderText">
+              Here you will find an overview of all your groups
+            </p>
+            <button class="btn-lift" id="newGroupBtn">
+              <i class="material-icons">add</i>Create New Group
+            </button>
+
+            <!-- <button id="create-option">Create Folder</button> -->
+          <div id="GroupsList">
+            <!-- <div class="listitem">
+              <i class="material-icons type">article</i>
+              <div class="item-title">
+                <h3>Project.pdf</h3>
+                <p>Updated by User - 2 Hours ago</p>
+              </div>
+              <div class="relation">OWNER</div>
+              <a href="#"><i class="material-icons">more_vert</i></a>
+            </div> -->
+          </div>
+          <dialog id="group-details">
+            <div class="modal-body">
+              <div>
+                <h2>Manage Group</h2>
+                <p>Define who are members of this group</p>
+              </div>
+              <div class="invite-container" id="invite-container">
+                <div class="input-container">
+                  <label for="invite-group-field">ADD USERS</label>
+                  <input
+                    list="data-users"
+                    type="text"
+                    id="invite-group-field"
+                    placeholder="Write the name of a user"
+                    minlength="2"
+                  />
+                  <datalist id="data-users">
+                    <option value="Magnus"></option>
+                    <option value="Emil"></option>
+                    <option value="Admin"></option>
+                    <option value="Viktor"></option>
+                    <option value="Ditte"></option>
+                  </datalist>
+                </div>
+                <button id="invite-group-member" class="btn-lift">Invite</button>
+              </div>
+              <p
+                id="modalErrorMessage"
+                style="color: red; text-align: center"
+              ></p>
+              <h3>Current Members</h3>
+              <div id="group-members">
+              </div>
+              <div id="modal-buttons">
+                <button id="cancel-modal" class="cancel-modal">Cancel</button>
+                <button id="delete-group" class="btn-lift">Delete Group</button>
+                <button class="btn-lift" id="save-group-changes">Save Changes</button>
+              </div>
+            </div>
+          </dialog>
+          <dialog id="create-new-group">
+            <div class="create-new-modal">
+              <h2>Create a new group</h2>
+              <form id="create-new-group-form">
+                <input
+                name="name"
+                  type="text"
+                  id="new-group-name-input"
+                  placeholder="Write the name of the group"
+                />
+                <label for="new-group-owner-select">Owner</label>
+                <select name="owner" id="new-group-owner-select">
+                  <option value="">Me (personal)</option>
+                </select>  
+
+                <div class="create-new-group-buttons">
+                  <button id="create-new-group-cancel" class="cancel-modal">Cancel</button>
+                  <span></span>
+                  <button id="create-new-group-button" class="btn-lift">Create</button>
+                </div> 
+              </form>
+            </div>
+            <p id="create-new-group-error" style="text-align: center; color: red;"></p>
+          </dialog>
         </div>
-        <div id="media" class="page">
-          <h1>Here is all your media</h1>
+
+
+        <div id="shared" class="page">
+          <h1>Here are all Files shared with you</h1>
+          <p id="allFIlesHeaderText">
+            Here you will find an overview of all files shared with you
+          </p>
+          <div id="SharedList"></div>
         </div>
-        <div id="archive" class="page">
-          <h1>Here is your archive</h1>
-        </div>
-        <div id="trash" class="page">
-          <h1>Here is your trash</h1>
-        </div>
+          <dialog id="shared-details">
+            <div class="modal-body">
+              <div>
+                <h2>Manage Group</h2>
+                <p>Define who are members of this group</p>
+              </div>
+              <div class="invite-container" id="invite-container">
+                <div class="input-container">
+                  <label for="invite-field">ADD USERS</label>
+                  <input
+                    list="data-users"
+                    type="text"
+                    id="invite-field"
+                    placeholder="Write the name of a user"
+                    minlength="2"
+                  />
+                  <datalist id="data-users">
+                    <option value="Magnus"></option>
+                    <option value="Emil"></option>
+                    <option value="Admin"></option>
+                    <option value="Viktor"></option>
+                    <option value="Ditte"></option>
+                  </datalist>
+                </div>
+                <button id="invite-member" class="btn-lift">Invite</button>
+              </div>
+              <p
+                id="modalErrorMessage"
+                style="color: red; text-align: center"
+              ></p>
+              <h3>Current Members</h3>
+              <div id="members">
+                <div class="member">
+                  <p>Magnus</p>
+                  <p>Owner</p>
+                </div>
+                <div class="member">
+                  <p>Emil</p>
+                  <p>Member</p>
+                </div>
+                <div class="member">
+                  <p>Kasper</p>
+                  <p>Member</p>
+                </div>
+              </div>
+              <div id="modal-buttons">
+                <button id="cancel-modal" class="cancel-modal">Cancel</button>
+                <div></div>
+
+                <button class="btn-lift">Save Changes</button>
+              </div>
+            </div>
+
       </main>
       <footer class="footer"></footer>
     </div>

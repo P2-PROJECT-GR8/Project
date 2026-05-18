@@ -50,6 +50,23 @@
           "view"
         ]
       }
+    },
+    "group": {
+      "relations": {
+        "owner": [
+          "view",
+          "delete",
+          "share",
+          "add_member",
+          "remove_member"
+        ],
+        "member": [
+          "view"
+        ],
+        "subgroup": [
+          "view"
+        ]
+      }
     }
   },
   "tupleStore": {
@@ -87,6 +104,40 @@
           "subjectId": "folder:nest1",
           "relation": "parent"
         }
+      ],
+      "file:filestest": [
+        {
+          "subjectId": "user:emil",
+          "relation": "owner"
+        },
+        {
+          "subjectId": "user:alice",
+          "relation": "viewer"
+        },
+        {
+          "subjectId": "user:jeff",
+          "relation": "viewer"
+        },
+        {
+          "subjectId": "user:magnus",
+          "relation": "viewer"
+        }
+      ],
+      "group:gruppetest": [
+        {
+          "subjectId": "user:emil",
+          "relation": "owner"
+        },
+        {
+          "subjectId": "user:alice",
+          "relation": "member"
+        }
+      ],
+      "group:grouptesting": [
+        {
+          "subjectId": "user:emil",
+          "relation": "owner"
+        }
       ]
     },
     "bySubject": {
@@ -98,6 +149,10 @@
         {
           "relation": "owner",
           "objectId": "file:Project.pdf"
+        },
+        {
+          "relation": "viewer",
+          "objectId": "file:filestest"
         }
       ],
       "folder:admin": [
@@ -120,6 +175,14 @@
         {
           "relation": "owner",
           "objectId": "file:ny_fil"
+        },
+        {
+          "relation": "viewer",
+          "objectId": "file:filestest"
+        },
+        {
+          "relation": "member",
+          "objectId": "group:gruppetest"
         }
       ],
       "user:bob": [
@@ -132,6 +195,24 @@
         {
           "relation": "viewer",
           "objectId": "folder:admin"
+        },
+        {
+          "relation": "owner",
+          "objectId": "file:filestest"
+        },
+        {
+          "relation": "owner",
+          "objectId": "group:gruppetest"
+        },
+        {
+          "relation": "owner",
+          "objectId": "group:grouptesting"
+        }
+      ],
+      "user:jeff": [
+        {
+          "relation": "viewer",
+          "objectId": "file:filestest"
         }
       ]
     }
@@ -379,6 +460,90 @@
           "action": "delete",
           "objectId": "file:sletfil",
           "time": 1778670102770,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "file:filestest",
+          "time": 1779088879683,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "file:filestest",
+          "time": 1779088879685,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "file:filestest",
+          "time": 1779088879686,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:gruppetest",
+          "time": 1779093370039,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:gruppetest",
+          "time": 1779093725986,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "file:filestest",
+          "time": 1779097944488,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "file:filestest",
+          "time": 1779097944492,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "file:filestest",
+          "time": 1779097944493,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "delete",
+          "objectId": "group:gruppetest",
+          "time": 1779100672108,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "file:filestest",
+          "time": 1779102162545,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "file:filestest",
+          "time": 1779102162549,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "file:filestest",
+          "time": 1779102162552,
           "allowed": true
         }
       ],
@@ -1514,6 +1679,94 @@
           "objectId": "file:nestedfile",
           "time": 1778779694118,
           "allowed": false
+        }
+      ],
+      "file:filestest": [
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "file:filestest",
+          "time": 1779088879683,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "file:filestest",
+          "time": 1779088879685,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "file:filestest",
+          "time": 1779088879686,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "file:filestest",
+          "time": 1779097944488,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "file:filestest",
+          "time": 1779097944492,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "file:filestest",
+          "time": 1779097944493,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "file:filestest",
+          "time": 1779102162545,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "file:filestest",
+          "time": 1779102162549,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "file:filestest",
+          "time": 1779102162552,
+          "allowed": true
+        }
+      ],
+      "group:gruppetest": [
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:gruppetest",
+          "time": 1779093370039,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:gruppetest",
+          "time": 1779093725986,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "delete",
+          "objectId": "group:gruppetest",
+          "time": 1779100672108,
+          "allowed": true
         }
       ]
     }
