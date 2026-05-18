@@ -32,6 +32,8 @@ const SECRET_KEY = "rtKaslL6w4B9in";
 app.use(express.json());
 app.use(cookieParser());
 
+export { app };
+
 const isAuthenticated = (req, res, next) => {
   const token = req.cookies.sessionToken;
   if (!token) {
@@ -193,15 +195,17 @@ app.post("/api/relatedUsers", async (req, res) => {
 
 // JWT sender for when a new user logs in
 app.post("/api/login", (req, res) => {
-  const userName = req.body.userName.toLowerCase();
+  let userName = req.body.userName;
+
+  if (!userName)
+    return res.status(400).send({ message: "Username is missing" });
+
+  userName = userName.toLowerCase();
 
   // Check if a user is in the users db (JSON file) and return an error if not.
   if (!db.data.users.some((user) => user.name === userName)) {
     return res.status(404).send({ message: "Username not found" });
   }
-
-  if (!userName)
-    return res.status(400).send({ message: "Username is missing" });
 
   const token = jwt.sign({ userId: `user:${userName}` }, SECRET_KEY, {
     expiresIn: "1h",
@@ -360,7 +364,9 @@ app.post("/api/createNew", async (req, res) => {
     objectType === "group"
   ) {
     if (parentFolder) {
-      if (accessControl.can(currentUser.id, "create_child", parentFolder)) {
+      if (
+        await accessControl.can(currentUser.id, "create_child", parentFolder)
+      ) {
         await accessControl.addTuple(parentFolder, "parent", objectId);
         return res
           .status(201)
@@ -389,6 +395,10 @@ app.post("/api/newTuple", async (req, res) => {
     return res.status(401).send({ message: "User not authenticated" });
   }
   const { objectId, relation, subjectId } = req.body;
+  // ensure req.body actually has arguments
+  if (!objectId || !relation || !subjectId) {
+    return res.status(400).send({ message: "Missing required arguments" });
+  }
   const canShare = await accessControl.can(currentUser.id, "share", objectId);
   if (!canShare) {
     return res
@@ -551,7 +561,7 @@ app.get("/api/adminRelations", async (req, res) => {
 
   // only allow admin to acces this endpoint
   if (currentUser.id !== "user:admin") {
-    return res.status(401).json({ messeage: "currnet user is not admin" });
+    return res.status(401).json({ messeage: "current user is not admin" });
   }
 
   const userId = req.query.userId;
@@ -777,9 +787,11 @@ app.get("/api/adminFiles", async (req, res) => {
       return res.status(403).send({ messeage: "request denied" });
     }
     const targetUser = req.query.userId;
+    if (!targetUser) {
+      return res.status(403).send({ message: "Bad request" });
+    }
 
     const userRelations = await accessControl.getUserRelations(targetUser);
-    // console.log(userRelations);
 
     res.json({ files: userRelations });
   } catch (error) {
