@@ -104,32 +104,19 @@ const redirectIfLoggedIn = (req, res, next) => {
 
 app.use("/pages", isAuthenticated);
 app.get("/", redirectIfLoggedIn);
-
 app.use(express.static(path.join(__dirname, "public")));
 
-// Return a username to the client and logs whether the user exists in the db
-app.post("/username", function (req, res) {
+// Return a username to the client and logs whether the provided user exists in the db
+app.post("/api/validateUserName", function (req, res) {
   console.log("recieved from index.js", req.body);
   const userName = req.body.userName.toLowerCase();
 
   db.read();
 
   if (db.data.users.some((u) => u.name === userName)) {
-    console.log(`User ${userName} exists in the database`);
-    console.log("New user login", userName);
     res.json({ userName: userName, status: "200" });
   } else {
-    console.log(`User ${userName} does not exist in the database`);
-    console.log("Valid usernames are:");
-    db.data.users.forEach((element) => {
-      console.log(element.name);
-    });
     res.json({ status: "404" });
-
-    // console.log(`Adding ${userName} to the database`);
-    // db.update(({ users }) => {
-    //   users.push({ id: `user:${userName}`, name: userName });
-    // });
   }
 });
 
@@ -144,7 +131,7 @@ app.get("/api/me", (req, res) => {
   res.json(user);
 });
 
-app.post("/register", async (req, res) => {
+app.post("/api/register", async (req, res) => {
   const { userName, login } = req.body;
   const normalizedUserName = userName?.toLowerCase().trim();
 
@@ -179,7 +166,6 @@ app.post("/register", async (req, res) => {
         expiresIn: "1h",
       },
     );
-    res.cookie("sessionToken", token, { httpOnly: true });
     return res.json({
       message: `Registered and logged in as ${normalizedUserName}`,
     });
@@ -188,7 +174,7 @@ app.post("/register", async (req, res) => {
   return res.status(201).json({ message: "User registered successfully!" });
 });
 
-app.post("/relatedUsers", async (req, res) => {
+app.post("/api/relatedUsers", async (req, res) => {
   let user;
   try {
     user = getUser(req);
@@ -208,7 +194,7 @@ app.post("/relatedUsers", async (req, res) => {
 });
 
 // JWT sender for when a new user logs in
-app.post("/login", (req, res) => {
+app.post("/api/login", (req, res) => {
   let userName = req.body.userName;
 
   if (!userName)
@@ -226,7 +212,7 @@ app.post("/login", (req, res) => {
   });
 
   console.log(`Created a session for ${userName} with Id : user:${userName}`);
-  res.cookie("sessionToken", token, { httpOnly: true });
+  res.cookie("sessionToken", token, { httpOnly: true, path: "/" });
   res.send({ message: `Logged in as ${userName}` });
 });
 
@@ -252,13 +238,13 @@ app.get("/account", (req, res) => {
   }
 });
 
-app.post("/logout", (req, res) => {
+app.post("/api/logout", (req, res) => {
   if (!req.cookies.sessionToken) {
     return res
       .status(401)
       .send({ message: "No active session found. Log in before loggin out" });
   } else {
-    res.clearCookie("sessionToken", { httpOnly: true });
+    res.clearCookie("sessionToken", { httpOnly: true, path: "/" });
     res.send("Session deleted, user logged out");
     console.log("Session deleted");
   }
@@ -278,7 +264,7 @@ app.get("/api/files", async (req, res) => {
 app.get("/api/folderContent", async (req, res) => {
   let currentUser;
   try {
-    currentUser = getUser(req, res);
+    currentUser = getUser(req);
   } catch (error) {
     return res.status(401).send({ message: "Invalid session" });
   }
@@ -289,27 +275,25 @@ app.get("/api/folderContent", async (req, res) => {
   await db.read();
   if (folderId === "") {
     // For the root view, get all direct relations for the user.
-    const directUserRelations = db.data.tupleStore.bySubject[currentUser.id];
-    const grouped = directUserRelations.reduce((acc, tuple) => {
+    const directUserRelations =
+      db.data.tupleStore.bySubject[currentUser.id] || [];
+    const grouped = {};
+    for (const tuple of directUserRelations) {
       const oid = tuple.objectId;
 
-      if (!acc[oid]) {
-        acc[oid] = {
+      if (!grouped[oid]) {
+        grouped[oid] = {
           objectId: oid,
           relations: [],
         };
       }
 
-      // Only add relation if list already exists
-      if (!acc[oid].relations.includes(tuple.relation)) {
-        acc[oid].relations.push(tuple.relation);
+      if (!grouped[oid].relations.includes(tuple.relation)) {
+        grouped[oid].relations.push(tuple.relation);
       }
-
-      return acc;
-    }, {});
-    // Convert to array
+    }
     userRelations = Object.values(grouped);
-  } else if (await await hasAccess(currentUser.id, folderId)) {
+  } else if (await accessControl.can(currentUser.id, "view", folderId)) {
     const rawContent = db.data.tupleStore.bySubject[folderId] || [];
 
     const grouped = {};
@@ -380,7 +364,9 @@ app.post("/api/createNew", async (req, res) => {
     objectType === "group"
   ) {
     if (parentFolder) {
-      if (await accessControl.can(currentUser.id, "create_child", parentFolder)) {
+      if (
+        await accessControl.can(currentUser.id, "create_child", parentFolder)
+      ) {
         await accessControl.addTuple(parentFolder, "parent", objectId);
         return res
           .status(201)
@@ -410,8 +396,8 @@ app.post("/api/newTuple", async (req, res) => {
   }
   const { objectId, relation, subjectId } = req.body;
   // ensure req.body actually has arguments
-  if (!objectId || !relation || !subjectId){
-    return res.status(400).send({message: "Missing required arguments"});
+  if (!objectId || !relation || !subjectId) {
+    return res.status(400).send({ message: "Missing required arguments" });
   }
   const canShare = await accessControl.can(currentUser.id, "share", objectId);
   if (!canShare) {
@@ -498,11 +484,17 @@ app.post("/api/saveAllChanges", async (req, res) => {
     return res.status(401).send({ message: "User not authenticated" });
   }
   try {
-    const canShare = await accessControl.can(currentUser.id, "share", objectId) || currentUser.id === "user:admin"
-    const canDelete = await accessControl.can(currentUser.id, "remove_relations", objectId) || currentUser.id === "user:admin"
-    const canEdit = await accessControl.can(currentUser.id, "manage_relations", objectId) || currentUser.id === "user:admin"
-    if(addRel.length>0){
-      if(!canShare){
+    const canShare =
+      (await accessControl.can(currentUser.id, "share", objectId)) ||
+      currentUser.id === "user:admin";
+    const canDelete =
+      (await accessControl.can(currentUser.id, "remove_relations", objectId)) ||
+      currentUser.id === "user:admin";
+    const canEdit =
+      (await accessControl.can(currentUser.id, "manage_relations", objectId)) ||
+      currentUser.id === "user:admin";
+    if (addRel.length > 0) {
+      if (!canShare) {
         return res.status(403).send({ message: "Not authorized to share!" });
       }
     }
@@ -575,7 +567,14 @@ app.get("/api/adminRelations", async (req, res) => {
   const userId = req.query.userId;
   const objectId = req.query.objectId;
   const mode = req.query.mode;
-  console.log("adminraltions was called i now call locate paths with " + userId + " " + objectId + " " + mode );
+  console.log(
+    "adminraltions was called i now call locate paths with " +
+      userId +
+      " " +
+      objectId +
+      " " +
+      mode,
+  );
   const paths = await accessControl.locatePaths(userId, objectId, mode);
   res.json({ paths: paths });
 });
@@ -600,31 +599,29 @@ app.get("/api/adminGetGroups", async (req, res) => {
   try {
     await db.read();
 
-  
+    const groups = new Set();
 
-  const groups = new Set();
+    // groups as keys
+    for (const subjectId of Object.keys(db.data.tupleStore.bySubject)) {
+      if (subjectId.startsWith("group:")) {
+        groups.add(subjectId);
+      }
 
-  // groups as keys
-  for (const subjectId of Object.keys(db.data.tupleStore.bySubject)) {
-    if(subjectId.startsWith("group:")) {
-      groups.add(subjectId);
-    }
-  
-
-  // groups as objectid
-  for (const rel of db.data.tupleStore.bySubject[subjectId]) {
-    if (rel.objectId.startsWith("group:")) {
-      groups.add(rel.objectId);
+      // groups as objectid
+      for (const rel of db.data.tupleStore.bySubject[subjectId]) {
+        if (rel.objectId.startsWith("group:")) {
+          groups.add(rel.objectId);
+        }
       }
     }
-  }
-  
-    res.json({groups: [...groups]});
 
-} catch (err) {
-  console.error(err);
-  res.status(500).json({messeage: "failed to fetch groups", error: err.message});
-}
+    res.json({ groups: [...groups] });
+  } catch (err) {
+    console.error(err);
+    res
+      .status(500)
+      .json({ messeage: "failed to fetch groups", error: err.message });
+  }
 });
 
 app.post("/api/newRelationType", async (req, res) => {
@@ -665,16 +662,13 @@ app.post("/api/deleteFile", async (req, res) => {
     const objectType = objectId.split(":")[0];
     let canDelete;
     if (objectType === "file") {
-      canDelete = await accessControl.can(
-        currentUser.id, 
-        "delete", 
-        objectId)|| currentUser.id === "user:admin";
+      canDelete =
+        (await accessControl.can(currentUser.id, "delete", objectId)) ||
+        currentUser.id === "user:admin";
     } else if (objectType === "folder") {
-      canDelete = await accessControl.can(
-        currentUser.id,
-        "delete_folder",
-        objectId,
-      ) || currentUser.id === "user:admin";
+      canDelete =
+        (await accessControl.can(currentUser.id, "delete_folder", objectId)) ||
+        currentUser.id === "user:admin";
     }
     console.log(canDelete);
 
@@ -752,11 +746,11 @@ app.get("/api/userNames", (req, res) => {
 app.get("/api/objects", async (req, res) => {
   await db.read();
   const validTypes = new Set(["folder", "file"]);
-    const objects = Object.entries(db.data?.tupleStore?.byObject || {})
+  const objects = Object.entries(db.data?.tupleStore?.byObject || {})
     .filter(([id]) => validTypes.has(id.split(":")[0]))
     .map(([objectId, relations]) => ({ objectId, relations }));
 
-  res.send({ objects })
+  res.send({ objects });
 });
 
 // Create a new folder
@@ -794,7 +788,7 @@ app.get("/api/adminFiles", async (req, res) => {
     }
     const targetUser = req.query.userId;
     if (!targetUser) {
-      return res.status(403).send({message: "Bad request"});
+      return res.status(403).send({ message: "Bad request" });
     }
 
     const userRelations = await accessControl.getUserRelations(targetUser);

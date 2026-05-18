@@ -18,14 +18,7 @@ export function renderHeader(state = "none") {
   const logo = document.createElement("a");
   logo.id = "logo";
   logo.addEventListener("click", async (e) => {
-    const res = await fetch("/account", { credentials: "include" });
-    const data = await res.json();
-    if (res.ok) {
-      window.location.href = "/pages/dashboard";
-    } else {
-      alert(data.message);
-      window.location.href = "/pages/landing";
-    }
+    window.location.href = "/pages/dashboard";
   });
 
   // Create logo text
@@ -95,7 +88,7 @@ export function renderHeader(state = "none") {
   logoutIcon.className = "material-icons md-36";
   logoutIcon.innerText = "logout";
   logoutIcon.addEventListener("click", async (e) => {
-    const response = await fetch("/logout", {
+    const response = await fetch("/api/logout", {
       method: "POST",
       credentials: "include",
     });
