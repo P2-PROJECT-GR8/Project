@@ -689,7 +689,7 @@ app.post("/api/deleteFile", async (req, res) => {
     await db.read();
     const objectType = objectId.split(":")[0];
     let canDelete;
-    if (objectType === "file") {
+    if (objectType === "file" || objectType === "group") {
       canDelete = await accessControl.can(
         currentUser.id, 
         "delete", 
@@ -700,7 +700,7 @@ app.post("/api/deleteFile", async (req, res) => {
         "delete_folder",
         objectId,
       ) || currentUser.id === "user:admin";
-    }
+    } 
     console.log(canDelete);
 
     if (!canDelete) {
