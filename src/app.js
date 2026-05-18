@@ -102,32 +102,19 @@ const redirectIfLoggedIn = (req, res, next) => {
 
 app.use("/pages", isAuthenticated);
 app.get("/", redirectIfLoggedIn);
-
 app.use(express.static(path.join(__dirname, "public")));
 
-// Return a username to the client and logs whether the user exists in the db
-app.post("/username", function (req, res) {
+// Return a username to the client and logs whether the provided user exists in the db
+app.post("/api/validateUserName", function (req, res) {
   console.log("recieved from index.js", req.body);
   const userName = req.body.userName.toLowerCase();
 
   db.read();
 
   if (db.data.users.some((u) => u.name === userName)) {
-    console.log(`User ${userName} exists in the database`);
-    console.log("New user login", userName);
     res.json({ userName: userName, status: "200" });
   } else {
-    console.log(`User ${userName} does not exist in the database`);
-    console.log("Valid usernames are:");
-    db.data.users.forEach((element) => {
-      console.log(element.name);
-    });
     res.json({ status: "404" });
-
-    // console.log(`Adding ${userName} to the database`);
-    // db.update(({ users }) => {
-    //   users.push({ id: `user:${userName}`, name: userName });
-    // });
   }
 });
 
@@ -142,7 +129,7 @@ app.get("/api/me", (req, res) => {
   res.json(user);
 });
 
-app.post("/register", async (req, res) => {
+app.post("/api/register", async (req, res) => {
   const { userName, login } = req.body;
   const normalizedUserName = userName?.toLowerCase().trim();
 
@@ -177,7 +164,6 @@ app.post("/register", async (req, res) => {
         expiresIn: "1h",
       },
     );
-    res.cookie("sessionToken", token, { httpOnly: true });
     return res.json({
       message: `Registered and logged in as ${normalizedUserName}`,
     });
@@ -186,7 +172,7 @@ app.post("/register", async (req, res) => {
   return res.status(201).json({ message: "User registered successfully!" });
 });
 
-app.post("/relatedUsers", async (req, res) => {
+app.post("/api/relatedUsers", async (req, res) => {
   let user;
   try {
     user = getUser(req);
@@ -206,7 +192,7 @@ app.post("/relatedUsers", async (req, res) => {
 });
 
 // JWT sender for when a new user logs in
-app.post("/login", (req, res) => {
+app.post("/api/login", (req, res) => {
   const userName = req.body.userName.toLowerCase();
 
   // Check if a user is in the users db (JSON file) and return an error if not.
@@ -222,7 +208,7 @@ app.post("/login", (req, res) => {
   });
 
   console.log(`Created a session for ${userName} with Id : user:${userName}`);
-  res.cookie("sessionToken", token, { httpOnly: true });
+  res.cookie("sessionToken", token, { httpOnly: true, path: "/" });
   res.send({ message: `Logged in as ${userName}` });
 });
 
@@ -248,13 +234,13 @@ app.get("/account", (req, res) => {
   }
 });
 
-app.post("/logout", (req, res) => {
+app.post("/api/logout", (req, res) => {
   if (!req.cookies.sessionToken) {
     return res
       .status(401)
       .send({ message: "No active session found. Log in before loggin out" });
   } else {
-    res.clearCookie("sessionToken", { httpOnly: true });
+    res.clearCookie("sessionToken", { httpOnly: true, path: "/" });
     res.send("Session deleted, user logged out");
     console.log("Session deleted");
   }
@@ -303,7 +289,7 @@ app.get("/api/folderContent", async (req, res) => {
       }
     }
     userRelations = Object.values(grouped);
-  } else if (await hasAccess(currentUser.id, folderId)) {
+  } else if (await accessControl.can(currentUser.id, "view", folderId)) {
     const rawContent = db.data.tupleStore.bySubject[folderId] || [];
 
     const grouped = {};
