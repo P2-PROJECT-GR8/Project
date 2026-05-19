@@ -318,77 +318,19 @@ document.addEventListener("DOMContentLoaded", async () => {
   inviteBtn.addEventListener("click", async (event) => {
     event.preventDefault();
     inviteMember(event);
-  });
+});
 
-  const groupInviteBtn = document.getElementById("invite-group-member");
-  groupInviteBtn.addEventListener("click", inviteMember)
+const groupInviteBtn = document.getElementById("invite-group-member");
+groupInviteBtn.addEventListener("click", inviteMember)
 
-    filesList.addEventListener("click", async (event) => {
-    const btn = event.target.closest(".more-btn");
-    if (!btn) return;
-
-    event.preventDefault();
-
-    const userList = document.getElementById("data-users");
-    const userNamesRes = await fetch("/api/userNames", {
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-    });
-    const { userNames } = await userNamesRes.json();
-    console.log(userNamesRes);
-
-    userList.innerHTML = "";
-    userNames.forEach((user) => {
-      const option = document.createElement("option");
-      option.innerText = user;
-      userList.appendChild(option);
-    });
-
-    const groupNamesRes = await fetch("/api/groupNames", {
-    credentials: "include",
-    headers: { "Content-Type": "application/json" },
-    });
-    const { groupNames: fetchedGroups } = await groupNamesRes.json();
-    groupNames = fetchedGroups;
-    const groupList = document.getElementById("data-group");
-    groupList.innerHTML = "";
-    groupNames.forEach((group) => {
-    const option = document.createElement("option");
-    option.value = group;
-    groupList.appendChild(option);
-    });
-
-    const item = btn.closest(".listitem");
-    const { fileId, relations } = item.dataset;
-    selectedFile = fileId;
-    selectedFileType = "file";
-    console.log("selected:", selectedFile)
-    
-    document.getElementById("manage-header").innerText = `Manage Acces For ${selectedFile.split(":")[1]}`
-
-    tempMembers = [];
-    addedUsers = [];
-    deletedUsers = [];
-    changedRelation.clear();
-
-    const relationsArray = relations ? relations.split(",") : [];
-
-    const inviteContainer = document.getElementById("invite-container");
-    console.log(relationsArray);
-
-    inviteContainer.classList.remove("hidden");
-    renderMembers(selectedFile);
-    fileDetailsModal.showModal();
-    });
-
-    const groupDetailsModal = document.getElementById("group-details");
+const groupDetailsModal = document.getElementById("group-details");
     groupDetailsModal.querySelector(".cancel-modal").addEventListener("click", () => {
     groupDetailsModal.close();
-  });
+});
 
-   const groupsList = document.getElementById("GroupsList");
+const groupsList = document.getElementById("GroupsList");
 
-   groupsList.addEventListener("click", async (event) => {
+groupsList.addEventListener("click", async (event) => {
     const btn = event.target.closest(".more-btn");
     const selectedGroup = event.target.closest(".listitem");
     if (btn){
@@ -420,7 +362,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       groupInviteContainer.classList.remove("hidden");
     }
 
-    renderMembers(selectedFile, {
+    await renderMembers(selectedFile, {
     membersContainerId: "group-members",
     modalId: "group-details"
     });
@@ -508,7 +450,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           const listItem = document.createElement("div");
           listItem.className = "listitem";
           listItem.dataset.fileId = file.objectId;
-          listItem.dataset.relations = file.relations;
+          listItem.dataset.relations = (file.relations || []).join(",");
 
           listItem.addEventListener("click", (event)=>{
             const isMoreBtn = event.target.closest(".more-btn");
@@ -551,235 +493,74 @@ document.addEventListener("DOMContentLoaded", async () => {
           groupsList.appendChild(listItem);
         });
       }
-    }
-
-  function renderMyFiles(files) {
-    filesList.innerHTML = "";
-
-    const ownedFiles = files.filter(file => 
-        file.relations.includes("owner") && !file.objectId.startsWith("group:"));
-
-        if (ownedFiles.length > 0) {
-        ownedFiles.forEach((file) => {
-        const listItem = document.createElement("div");
-        listItem.className = "listitem";
-        listItem.dataset.fileId = file.objectId;
-        listItem.dataset.relations = file.relations;
-
-        const fileType = file.objectId.split(":")[0];
-        const icon = document.createElement("i");
-        icon.className = "material-icons type";
-        switch (fileType) {
-          case "folder":
-            icon.innerText = "folder";listItem.addEventListener("click", (event) => {
-            const isMoreBtn = event.target.closest(".more-btn");
-            if (isMoreBtn) return;
-            navigateToFolder(file.objectId);
-            console.log("Clicked on folder ", listItem.dataset.fileId);
-            });
-            break;
-          case "file":
-            icon.innerText = "article";
-            break;
-          default:
-            icon.innerText = "question_mark";
-            break;
-        }
-
-        const itemTitle = document.createElement("div");
-        itemTitle.className = "item-title";
-
-        const h3 = document.createElement("h3");
-        h3.innerText = file.objectId.split(":")[1];
-
-        const p = document.createElement("p");
-        p.innerText = "Updated by User - 2 Hours ago";
-
-        itemTitle.appendChild(h3);
-        itemTitle.appendChild(p);
-
-        const relation = document.createElement("div");
-        relation.className = "relation";
-        relation.innerText = file.relations.join(", ").toUpperCase();
-
-        const moreLink = document.createElement("a");
-        moreLink.href = "#";
-        const moreIcon = document.createElement("i");
-        moreIcon.className = "material-icons more-btn";
-        moreIcon.innerText = "more_vert";
-        moreLink.appendChild(moreIcon);
-
-        listItem.appendChild(icon);
-        listItem.appendChild(itemTitle);
-        listItem.appendChild(relation);
-        listItem.appendChild(moreLink);
-
-        filesList.appendChild(listItem);
-      });
-    }
-  }
-function renderSharedFiles(files) {
-    const sharedList = document.getElementById("SharedList");
-    sharedList.innerHTML = "";
-
-      const sharedFiles = files.filter(file =>
-        !file.relations.includes("owner") && !file.objectId.startsWith("group:")
-      );
-
-        if (sharedFiles.length === 0) {
-          sharedList.innerHTML = "<p style='padding: 1rem;'>No files have been shared with you.</p>";
-          return;
-        }
-
-          sharedFiles.forEach((file) => {
-          const listItem = document.createElement("div");
-          listItem.className = "listitem";
-          listItem.dataset.fileId = file.objectId;
-          listItem.dataset.relations = file.relations;
-
-          const fileType = file.objectId.split(":")[0];
-          const icon = document.createElement("i");
-          icon.className = "material-icons type";
-          switch (fileType) {
-          case "folder":
-            icon.innerText = "folder";listItem.addEventListener("click", (event) => {
-            const isMoreBtn = event.target.closest(".more-btn");
-            if (isMoreBtn) return;
-            navigateToFolder(file.objectId);
-            console.log("Clicked on folder ", listItem.dataset.fileId);
-            });
-            break;
-          case "file":
-            icon.innerText = "article";
-            break;
-          default:
-            icon.innerText = "question_mark";
-            break;
-        }
-
-          const itemTitle = document.createElement("div");
-          itemTitle.className = "item-title";
-
-          const h3 = document.createElement("h3");
-          h3.innerText = file.objectId.split(":")[1];
-
-          const p = document.createElement("p");
-          p.innerText = "Shared with you";
-
-          itemTitle.appendChild(h3);
-          itemTitle.appendChild(p);
-
-          const relation = document.createElement("div");
-          relation.className = "relation";
-          relation.innerText = file.relations.join(", ").toUpperCase();
-
-          const moreLink = document.createElement("a");
-          moreLink.href = "#";
-          const moreIcon = document.createElement("i");
-          moreIcon.className = "material-icons more-btn";
-          moreIcon.innerText = "more_vert";
-          moreLink.appendChild(moreIcon);
-
-          sharedList.addEventListener("click", (event) => {
-          const moreBtn = event.target.closest(".more-btn");
-        if (moreBtn) {
-        console.log("More button clicked in shared files!");
-        }
-        });
-
-          listItem.appendChild(icon);
-          listItem.appendChild(itemTitle);
-          listItem.appendChild(relation);
-          listItem.appendChild(moreLink);
-
-          sharedList.appendChild(listItem);
-        });
 }
-async function renderGroupFiles(files) {
-  const groupFileList = document.getElementById("groups-files-list");
-  if (!groupFileList) return;
-  groupFileList.innerHTML = "";
 
-  const groupFiles = files
+function renderMyFiles(files) {
+  filesList.innerHTML = "";
 
-  if (groupFiles.length === 0) {
-    groupFileList.innerHTML = "<p style='padding: 1rem;'>No files have been shared with this group yet.</p>";
+  const ownedFiles = files.filter(
+    (file) =>
+      file.relations.includes("owner") &&
+      !file.objectId.startsWith("group:")
+  );
+
+  ownedFiles.forEach((file) => {
+    const item = createFileListItem(file);
+
+    filesList.appendChild(item);
+  });
+}
+
+function renderSharedFiles(files) {
+  const sharedList =
+    document.getElementById("SharedList");
+
+  sharedList.innerHTML = "";
+
+  const sharedFiles = files.filter(
+    (file) =>
+      !file.relations.includes("owner") &&
+      !file.objectId.startsWith("group:")
+  );
+
+  if (sharedFiles.length === 0) {
+    sharedList.innerHTML =
+      "<p style='padding:1rem;'>No shared files.</p>";
+
     return;
   }
 
+  sharedFiles.forEach((file) => {
+    const item = createFileListItem(file, {
+      subtitle: "Shared with you",
+    });
 
-  groupFiles.forEach((file) => {
-    const listItem = document.createElement("div");
-    listItem.className = "listitem";
-    listItem.dataset.fileId = file.objectId;
-    
-    const relationsArray = Array.isArray(file.relations) ? file.relations : [file.relations || "reader"];
-    listItem.dataset.relations = relationsArray.join(",");
-
-    const fileType = file.objectId.split(":")[0];
-    const icon = document.createElement("i");
-    icon.className = "material-icons type";
-    
-    switch (fileType) {
-      case "folder":
-        icon.innerText = "folder";
-        listItem.addEventListener("click", (event) => {
-          const isMoreBtn = event.target.closest(".more-btn");
-          if (isMoreBtn) return;
-          navigateToFolder(file.objectId);
-        });
-        break;
-      case "file":
-        icon.innerText = "article";
-        break;
-      default:
-        icon.innerText = "question_mark";
-        break;
-    }
-
-    const itemTitle = document.createElement("div");
-    itemTitle.className = "item-title";
-
-    const h3 = document.createElement("h3");
-    h3.innerText = file.objectId.split(":")[1];
-
-    const p = document.createElement("p");
-    p.innerText = "Shared with group";
-
-    itemTitle.appendChild(h3);
-    itemTitle.appendChild(p);
-
-    const relation = document.createElement("div");
-    relation.className = "relation";
-    relation.innerText = relationsArray.join(", ").toUpperCase();
-
-    const moreLink = document.createElement("a");
-    moreLink.href = "#";
-    const moreIcon = document.createElement("i");
-    moreIcon.className = "material-icons more-btn";
-    moreIcon.innerText = "more_vert";
-    moreLink.appendChild(moreIcon);
-
-    listItem.appendChild(icon);
-    listItem.appendChild(itemTitle);
-    listItem.appendChild(relation);
-    listItem.appendChild(moreLink);
-
-
-    groupFileList.appendChild(listItem);
-  });
-
-  groupFileList.replaceWith(groupFileList.cloneNode(true));
-  
-  const freshGroupFileList = document.getElementById("groups-files-list");
-  freshGroupFileList.addEventListener("click", (event) => {
-    const moreBtn = event.target.closest(".more-btn");
-    if (!moreBtn) return;
-    
-    event.preventDefault();
-    console.log("More button clicked in shared files!");
+    sharedList.appendChild(item);
   });
 }
+
+async function renderGroupFiles(files) {
+  const groupFileList =
+    document.getElementById("groups-files-list");
+
+  groupFileList.innerHTML = "";
+
+  if (files.length === 0) {
+    groupFileList.innerHTML =
+      "<p style='padding:1rem;'>No files.</p>";
+    return;
+  }
+
+  files.forEach((file) => {
+    const item = createFileListItem(file, {
+      subtitle: "Shared with group",
+      containerType: "group",
+    });
+
+    groupFileList.appendChild(item);
+  });
+}
+
 // fetch the server when saving all changes
   const saveChanges = document.getElementById("save-changes");
   saveChanges.addEventListener("click", async (e) => {
@@ -847,7 +628,6 @@ const { membersContainerId = "members",
   const membersList = document.getElementById(membersContainerId);
   const currentUser = await getCurrentUser();
   membersList.innerHTML = "";
-  if (tempMembers.length === 0) {
     const res = await fetch("/api/relatedUsers", {
       method: "POST",
       credentials: "include",
@@ -864,7 +644,6 @@ const { membersContainerId = "members",
 
     tempMembers = structuredClone(normalized);
       } 
-    }
     const schemaRes = await fetch("/api/schema", { credentials: "include" });
       const schema = await schemaRes.json();
     window.schema = schema;
@@ -958,7 +737,7 @@ const { membersContainerId = "members",
         deleteRel.innerText = "Revoke";
         deleteRel.className = "btn-lift";
         deleteRel.id = "revoke-btn";
-        deleteRel.addEventListener("click", (event) => {
+        deleteRel.addEventListener("click", async (event) => {
           event.preventDefault();
           if (tempMembers.length === 1) {
             const modal = document.getElementById("modalErrorMessage");
@@ -980,7 +759,7 @@ const { membersContainerId = "members",
               }
             }
           if (selectedFileType === "group"){
-          renderMembers(selectedFile, {
+          await renderMembers(selectedFile, {
           membersContainerId: "group-members",
           modalId: "group-details"
     });
@@ -1224,7 +1003,7 @@ export const createCustomRel = async (event)=>{
     }
 
     if (selectedFile) {
-      renderMembers(selectedFile);
+      await renderMembers(selectedFile);
     }
     customRelation.close();
     customRelation.remove();
@@ -1296,7 +1075,7 @@ export function resetChanges() {
 export const inviteMember = async ()=>{
     let inviteInput;
     const errorMessage = document.getElementById("modalErrorMessage");
-    if (selectedFileType === "file" || selectedFile === "folder"){
+    if (selectedFileType === "file" || selectedFileType === "folder"){
       inviteInput = document.getElementById("invite-field");
     } else {
       inviteInput = document.getElementById("invite-group-field");
@@ -1338,7 +1117,7 @@ export const inviteMember = async ()=>{
     deletedUsers = deletedUsers.filter((u) => u.subjectId !== newId);
 
     let addedRelation;
-    if (selectedFileType === "file" || selectedFileType === "file"){
+    if (selectedFileType === "file" || selectedFileType === "folder"){
       addedRelation = "viewer"
     } else {
       addedRelation = "member"
@@ -1353,10 +1132,10 @@ export const inviteMember = async ()=>{
       relations: [addedRelation]
     });
 
-    if (selectedFileType === "file" || selectedFileType === "file"){
-    renderMembers(selectedFile);
+    if (selectedFileType === "file" || selectedFileType === "folder"){
+    await renderMembers(selectedFile);
     } else {
-    renderMembers(selectedFile, {
+    await renderMembers(selectedFile, {
     membersContainerId: "group-members",
     modalId: "group-details"
     });
@@ -1398,6 +1177,8 @@ async function renderFileListForGroup(groupId) {
     document.getElementById("group-files-title")?.classList.remove("hidden");
     
     document.getElementById("groups-main-view")?.classList.add("hidden");
+
+    document.getElementById("groups-deeper-view")?.classList.remove("hidden");
 
     if (files.length === 0) {
       if (groupsFilesList) {
@@ -1448,5 +1229,146 @@ function dominance(files) {
   });
   console.log(strongest);
   return strongest;
+}
+
+function createFileListItem(file, options = {}) {
+  const {
+    subtitle = "Updated recently",
+    containerType = "default",
+  } = options;
+
+  const listItem = document.createElement("div");
+
+  listItem.className = "listitem";
+
+  listItem.dataset.fileId = file.objectId;
+
+  const relationsArray = Array.isArray(file.relations)
+    ? file.relations
+    : [file.relations || "viewer"];
+
+  listItem.dataset.relations = relationsArray.join(",");
+
+  const fileType = file.objectId.split(":")[0];
+
+  // ICON
+  const icon = document.createElement("i");
+
+  icon.className = "material-icons type";
+
+  switch (fileType) {
+    case "folder":
+      icon.innerText = "folder";
+      break;
+
+    case "group":
+      icon.innerText = "people";
+      break;
+
+    case "file":
+      icon.innerText = "article";
+      break;
+
+    default:
+      icon.innerText = "question_mark";
+  }
+
+  // TITLE
+  const itemTitle = document.createElement("div");
+
+  itemTitle.className = "item-title";
+
+  const h3 = document.createElement("h3");
+
+  h3.innerText = file.objectId.split(":")[1];
+
+  const p = document.createElement("p");
+
+  p.innerText = subtitle;
+
+  itemTitle.appendChild(h3);
+
+  itemTitle.appendChild(p);
+
+  // RELATION
+  const relation = document.createElement("div");
+
+  relation.className = "relation";
+
+  relation.innerText = relationsArray.join(", ").toUpperCase();
+
+  // MORE BUTTON
+  const moreLink = document.createElement("a");
+
+  moreLink.href = "#";
+
+  moreLink.className = "more-btn";
+
+  const moreIcon = document.createElement("i");
+
+  moreIcon.className = "material-icons";
+
+  moreIcon.innerText = "more_vert";
+
+  moreLink.appendChild(moreIcon);
+
+  // APPEND
+  listItem.appendChild(icon);
+
+  listItem.appendChild(itemTitle);
+
+  listItem.appendChild(relation);
+
+  listItem.appendChild(moreLink);
+
+  listItem.addEventListener("click", async (event) => {
+    const isMoreBtn = event.target.closest(".more-btn");
+
+    if (isMoreBtn) {
+      event.preventDefault();
+
+      await openDetailsModal(listItem);
+
+      return;
+    }
+
+    if (fileType === "group") {
+      navigateToGroup(file.objectId);
+
+      return;
+    }
+
+    if (fileType === "folder") {
+      if (containerType === "group") {
+        navigateToGroup(file.objectId);
+      } else {
+        navigateToFolder(file.objectId);
+      }
+    }
+  });
+
+  return listItem;
+}
+
+async function openDetailsModal(listItem) {
+  try {
+    selectedFile = listItem.dataset.fileId;
+
+    selectedFileType = selectedFile.split(":")[0];
+
+    tempMembers = [];
+    addedUsers = [];
+    deletedUsers = [];
+    changedRelation.clear();
+
+    await renderMembers(selectedFile);
+
+    document
+      .getElementById("file-details")
+      .showModal();
+
+  } catch (err) {
+    console.error("Modal failed:", err);
+  }
 }
 export { saveAllChanges };
