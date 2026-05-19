@@ -152,6 +152,13 @@ async function navigateToFolder(folderId) {
   renderFileListForUser(newParam);
 }
 
+async function navigateToGroup(folderId) {
+  const url = new URL(window.location);
+  const newParam = folderId;
+  url.searchParams.set("groupId", newParam);
+  window.history.pushState({}, "", url);
+  renderFileListForGroup(newParam);
+}
 
 window.addEventListener("popstate", () => {
   const url = new URL(window.location);
@@ -357,8 +364,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
    groupsList.addEventListener("click", async (event) => {
     const btn = event.target.closest(".more-btn");
-    if (!btn) return;
-
+    const selectedGroup = event.target.closest(".listitem");
+    if (btn){
     event.preventDefault();
 
     tempMembers = [];
@@ -392,6 +399,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     modalId: "group-details"
     });
     groupDetailsModal.showModal();
+  } else if(selectedGroup){
+    const { fileId, relations } = selectedGroup.dataset;
+
+    const url = new URL(window.location);
+    url.searchParams.set("groupId", fileId);
+    window.history.pushState({ groupId: fileId }, "", url);
+
+    await renderFileListForGroup(fileId)
+  }
       
   });
 
@@ -513,7 +529,6 @@ document.addEventListener("DOMContentLoaded", async () => {
           listItem.addEventListener("click", (event) => {
           const isMoreBtn = event.target.closest(".more-btn");
           if (isMoreBtn) return;
-
             navigateToGroup(file.objectId);
           });
 
@@ -1251,7 +1266,7 @@ export const inviteMember = async ()=>{
       console.log(tempMembers);
 }};
 
-const canPriv = (currentUser, tempMembers, schema, privilege)=>{
+const canPriv = (currentUser, tempMembers, schema, privilege, type = selectedFileType)=>{
   const userEntry = tempMembers.find(rel => rel.subjectId === currentUser.id);
   const userRelations = userEntry ? userEntry.relations : [];
 
@@ -1260,8 +1275,12 @@ const canPriv = (currentUser, tempMembers, schema, privilege)=>{
 }
 
 async function renderFileListForGroup(groupId) {
+  if (!groupId) {
+    const url = new URL(window.location);
+    groupId = url.searchParams.get("groupId") || "";
+  }
   try {
-    const res = await fetch(`/api/groupContent?groupId=${encodeURIComponent(groupId)}`, {
+    const res = await fetch(`/api/folderContent?groupId=${encodeURIComponent(groupId)}`, {
       credentials: "include"
     });
 
@@ -1273,7 +1292,7 @@ async function renderFileListForGroup(groupId) {
 
     const { files } = await res.json();
 
-    const groupsFilesList = document.getElementById("GroupsFilesList");
+    const groupsFilesList = document.getElementById("groups-files-list");
     groupsFilesList.innerHTML = "";
 
     document.getElementById("group-files-title")?.classList.remove("hidden");
@@ -1288,10 +1307,6 @@ async function renderFileListForGroup(groupId) {
   } catch (error) {
     console.error("Error fetching group content:", error);
   }
-}
-
-function navigateToGroup(groupId) {
-
 }
 
 function renderFilesToTarget(files, targetContainer) {
