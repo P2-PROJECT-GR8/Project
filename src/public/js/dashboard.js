@@ -2,6 +2,7 @@ import { renderHeader } from "./navRenderer.js";
 import { validateString } from "./utils.js";
 
 renderHeader();
+console.log("dashboard.js executed");
 
 // renders an overview of all users within the system
 async function renderAdminUSerList() {
@@ -222,7 +223,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const createNewErrorMsg = document.getElementById("create-new-error");
   const filesList = document.getElementById("filesList");
   const uploadNewBtn = document.getElementById("UploadNewbtn");
-
+  if (uploadNewBtn){
   uploadNewBtn.addEventListener("click", async () => {
     createNewErrorMsg.innerText = "";
 
@@ -242,15 +243,17 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     createNewModal.showModal();
   });
-
+}
   const createNewCancelBtn = document.getElementById("create-new-cancel");
+  if(createNewCancelBtn){
   createNewCancelBtn.addEventListener("click", (e) => {
     e.preventDefault();
     createNewModal.close();
     createNewForm.reset();
   });
-
+  }
   const createNewButton = document.getElementById("create-new-button");
+  if(createNewButton){
   createNewButton.addEventListener("click", async (e) => {
     e.preventDefault();
     const data = new FormData(createNewForm);
@@ -291,12 +294,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         'Please only use letters, numbers and symbols like: ".-_"';
     }
   });
+}
 
   const createNewGroupModal = document.getElementById("create-new-group");
   const createNewGroupForm = document.getElementById("create-new-group-form");
   const createNewGroupErrorMsg = document.getElementById("create-new-group-error");
   const groupsList = document.getElementById("GroupsList");
   const newGroupBtn = document.getElementById("newGroupBtn");
+  if(newGroupBtn){
   newGroupBtn.addEventListener("click", async () => {
     createNewGroupErrorMsg.innerText = "";
 
@@ -316,16 +321,18 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     createNewGroupModal.showModal();
   });
-  
+}
 
   const createNewGroupCancelBtn = document.getElementById("create-new-group-cancel");
+  if(createNewGroupCancelBtn){
   createNewGroupCancelBtn.addEventListener("click", (e) => {
     e.preventDefault();
     createNewGroupModal.close();
     createNewGroupForm.reset();
   });
-    
+}  
   const createNewGroupButton = document.getElementById("create-new-group-button");
+  if(createNewGroupButton){
   createNewGroupButton.addEventListener("click", async (e) => {
     e.preventDefault();
     const data = new FormData(createNewGroupForm);
@@ -352,7 +359,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         'Please only use letters, numbers and symbols like: ".-_"';
     }
   }); 
-
+}
   // Set the initial active page
   showPage("#files"); // Set "All Files" as the default active page
 
@@ -390,105 +397,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       await renderFileListForUser(currentFolderId || "");
     }
   }
-  
-    function renderGroups(files) {
-  console.log("renderGroups called with:", files);
-  const groupsList = document.getElementById("GroupsList");
-  console.log("GroupsList element:", groupsList);
-  groupsList.innerHTML = "";
-
-  const groups = files.filter(file => file.objectId.startsWith("group:"));
-    if (groups.length > 0) {
-    groups.forEach((file) => {
-    const listItem = document.createElement("div");
-        listItem.className = "listitem";
-        listItem.dataset.fileId = file.objectId;
-        listItem.dataset.relations = file.relations;
-
-        const icon = document.createElement("i");
-        icon.className = "material-icons type";
-        icon.innerText = "people";
-
-        const itemTitle = document.createElement("div");
-        itemTitle.className = "item-title";
-
-        const h3 = document.createElement("h3");
-        h3.innerText = file.objectId.split(":")[1];
-
-        const p = document.createElement("p");
-        p.innerText = "Updated by User - 2 Hours ago";
-
-        itemTitle.appendChild(h3);
-        itemTitle.appendChild(p);
-
-        const relation = document.createElement("div");
-        relation.className = "relation";
-        relation.innerText = file.relations.join(", ").toUpperCase();
-
-        const moreLink = document.createElement("a");
-        moreLink.href = "#";
-        const moreIcon = document.createElement("i");
-        moreIcon.className = "material-icons more-btn";
-        moreIcon.innerText = "more_vert";
-        moreLink.appendChild(moreIcon);
-
-        listItem.appendChild(icon);
-        listItem.appendChild(itemTitle);
-        listItem.appendChild(relation);
-        listItem.appendChild(moreLink);
-
-        groupsList.appendChild(listItem);
-        });
-      }
-    }
-
-  function renderSharedFiles(files) {
-  const sharedList = document.getElementById("SharedList");
-  sharedList.innerHTML = "";
-    const sharedFiles = files.filter(file =>
-      !file.relations.includes("owner") && !file.objectId.startsWith("group:")
-      );
-
-      if (sharedFiles.length === 0) {
-        sharedList.innerHTML = "<p style='padding: 1rem;'>No files have been shared with you.</p>";
-        return;
-      }
-
-      sharedFiles.forEach((file) => {
-      const listItem = document.createElement("div");
-      listItem.className = "listitem";
-      listItem.dataset.fileId = file.objectId;
-      listItem.dataset.relations = file.relations;
-
-      const fileType = file.objectId.split(":")[0];
-      const icon = document.createElement("i");
-      icon.className = "material-icons type";
-      icon.innerText = fileType === "folder" ? "folder" : "article";
-
-      const itemTitle = document.createElement("div");
-      itemTitle.className = "item-title";
-
-      const h3 = document.createElement("h3");
-      h3.innerText = file.objectId.split(":")[1];
-
-      const p = document.createElement("p");
-      p.innerText = "Shared with you";
-
-      itemTitle.appendChild(h3);
-      itemTitle.appendChild(p);
-
-      const relation = document.createElement("div");
-      relation.className = "relation";
-      relation.innerText = file.relations.join(", ").toUpperCase();
-
-      listItem.appendChild(icon);
-      listItem.appendChild(itemTitle);
-      listItem.appendChild(relation);
-
-      sharedList.appendChild(listItem);
-    });
-    }
-
 
   const inviteBtn = document.getElementById("invite-member");
   inviteBtn.addEventListener("click", async (event) => {
@@ -503,8 +411,6 @@ const groupDetailsModal = document.getElementById("group-details");
     groupDetailsModal.querySelector(".cancel-modal").addEventListener("click", () => {
     groupDetailsModal.close();
 });
-
-const groupsList = document.getElementById("GroupsList");
 
 groupsList.addEventListener("click", async (event) => {
     const btn = event.target.closest(".more-btn");
@@ -551,125 +457,30 @@ groupsList.addEventListener("click", async (event) => {
       
   });
 
-  });
-
-  const createNewGroupModal = document.getElementById("create-new-group");
-  const createNewGroupForm = document.getElementById("create-new-group-form");
-  const createNewGroupErrorMsg = document.getElementById("create-new-group-error");
-  const groupsList = document.getElementById("GroupsList");
-  const newGroupBtn = document.getElementById("newGroupBtn");
-  newGroupBtn.addEventListener("click", async () => {
-    createNewGroupErrorMsg.innerText = "";
-
-    const ownerSelect = document.getElementById("new-group-owner-select");
-    ownerSelect.innerHTML = '<option value="">Me (personal)</option>';
-
-    // Use the new endpoint instead of filtering /api/files
-    const res = await fetch("/api/ownedGroups", { credentials: "include" });
-    const { ownedGroups } = await res.json();
-
-    ownedGroups.forEach((group) => {
-      const option = document.createElement("option");
-      option.value = `group:${group}`;
-      option.innerText = `Group: ${group.charAt(0).toUpperCase() + group.slice(1)}`;
-      ownerSelect.appendChild(option);
-    });
-
-    createNewGroupModal.showModal();
-  });
-
-  const createNewGroupCancelBtn = document.getElementById("create-new-group-cancel");
-  createNewGroupCancelBtn.addEventListener("click", (e) => {
-  e.preventDefault();
-  createNewGroupModal.close();
-  createNewGroupForm.reset();
-  });
-
-   const createNewGroupButton = document.getElementById("create-new-group-button");
-    createNewGroupButton.addEventListener("click", async (e) => {
-    e.preventDefault();
-
-    const currentUser = await getCurrentUser();
-    const data = new FormData(createNewGroupForm);
-    const formObject = Object.fromEntries(data);
-    if (validateString(formObject.name)) {
-      const res = await fetch("/api/createNew", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          objectId: `group:${formObject.name}`,
-        }),
-      });
-      const resData = await res.json();
-      if (!res.ok) {
-        createNewGroupErrorMsg.innerText = resData.message;
-      } else {
-        createNewGroupForm.reset();
-        createNewGroupModal.close();
-        await renderFileListForUser(currentUser.id);
-      }
-    } else {
-      createNewGroupErrorMsg.innerText =
-        'Please only use letters, numbers and symbols like: ".-_"';
-    }
-  }); 
+});
 
   function renderGroups(files) {
-  console.log("GroupsList element:", groupsList);
   groupsList.innerHTML = "";
 
-  const groups = files.filter(file => file.objectId.startsWith("group:"));
+  const groups = files.filter(file =>
+    file.objectId.startsWith("group:")
+  );
 
-          if (groups.length > 0) {
-          groups.forEach((file) => {
-          const listItem = document.createElement("div");
-          listItem.className = "listitem";
-          listItem.dataset.fileId = file.objectId;
-          listItem.dataset.relations = (file.relations || []).join(",");
+  if (groups.length === 0) {
+    groupsList.innerHTML =
+      "<p style='padding:1rem;'>No groups.</p>";
+    return;
+  }
 
-          listItem.addEventListener("click", (event)=>{
-            const isMoreBtn = event.target.closest(".more-btn");
-            if (isMoreBtn) return;
-            console.log(file.objectId)
-            navigateToGroup(file.objectId)
-          })
+  groups.forEach((file) => {
+    const item = createFileListItem(file, {
+      subtitle: "Group",
+    });
 
-          const icon = document.createElement("i");
-          icon.className = "material-icons type";
-          icon.innerText = "people";
-
-          const itemTitle = document.createElement("div");
-          itemTitle.className = "item-title";
-
-          const h3 = document.createElement("h3");
-          h3.innerText = file.objectId.split(":")[1];
-
-          const p = document.createElement("p");
-          p.innerText = "Updated by User - 2 Hours ago";
-
-          itemTitle.appendChild(h3);
-          itemTitle.appendChild(p);
-
-          const relation = document.createElement("div");
-          relation.className = "relation";
-          relation.innerText = file.relations.join(", ").toUpperCase();
-
-          const moreLink = document.createElement("a");
-          moreLink.href = "#";
-          const moreIcon = document.createElement("i");
-          moreIcon.className = "material-icons more-btn";
-          moreIcon.innerText = "more_vert";
-          moreLink.appendChild(moreIcon);
-
-          listItem.appendChild(icon);
-          listItem.appendChild(itemTitle);
-          listItem.appendChild(relation);
-          listItem.appendChild(moreLink);
-          groupsList.appendChild(listItem);
-        });
-      }
+    groupsList.appendChild(item);
+  });
 }
+
 
 function renderMyFiles(files) {
   filesList.innerHTML = "";
@@ -691,7 +502,7 @@ function renderSharedFiles(files) {
   const sharedList =
     document.getElementById("SharedList");
 
-  sharedList.innerHTML = "";
+    sharedList.innerHTML = "";
 
   const sharedFiles = files.filter(
     (file) =>
@@ -736,7 +547,6 @@ async function renderGroupFiles(files) {
     groupFileList.appendChild(item);
   });
 }
-
 // fetch the server when saving all changes
   const saveChanges = document.getElementById("save-changes");
   saveChanges.addEventListener("click", async (e) => {
@@ -746,11 +556,13 @@ async function renderGroupFiles(files) {
 
 // fetch the server when saving all changes
   const saveGroupChanges = document.getElementById("save-group-changes");
+  if(saveGroupChanges){
   saveGroupChanges.addEventListener("click", async (e) => {
     e.preventDefault();
     console.log("trykket")
     saveAllChanges(e);
 })
+}
 
 const saveAllChanges = async (event) => {
   const changes = Array.from(changedRelation.entries()).map(
@@ -1188,11 +1000,12 @@ export const createCustomRel = async (event)=>{
 };
 
 const deleteGroupBtn = document.getElementById("delete-group");
+if (deleteGroupBtn){
 deleteGroupBtn.addEventListener("click", async (event) =>{
   event.preventDefault();
   deleteObject(event)
 });
-
+}
 const deleteFileBtn = document.getElementById("delete-file");
 deleteFileBtn.addEventListener("click", async (event) => {
   event.preventDefault();

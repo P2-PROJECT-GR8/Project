@@ -12,6 +12,7 @@ import { tempMembers, selectedFile } from "./dashboard.js";
 
 // wait for DOM load before doing anything
 document.addEventListener("DOMContentLoaded", async () => {
+  const currentUser = await getCurrentUser();
   const userSelect = document.getElementById("user-Select");
   const objectSelect = document.getElementById("object-Select");
   const display = document.getElementById("main-Display");
@@ -452,8 +453,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     logsDisplay.appendChild(ul);
   }
 });
-
-const currentUser = await getCurrentUser();
 const canDelRel = true;
 const canManageRel = true;
 const canShare = true;
@@ -520,7 +519,7 @@ async function loadObjectModal() {
 
   inviteContainer.classList.remove("hidden");
 
-  renderMembers(selectedObjectId);
+  await renderMembers(selectedObjectId);
 
   fileDetailsModal.showModal();
 }
@@ -539,7 +538,7 @@ saveChanges.addEventListener("click", async (e) => {
 
 const inviteBtn = document.getElementById("invite-member");
 inviteBtn.addEventListener("click", async (event) => {
-  event.preventDefault;
+  event.preventDefault();
   inviteMember(event);
 });
 
