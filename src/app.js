@@ -401,6 +401,24 @@ app.post("/api/createNew", async (req, res) => {
 
   //checks for valid object types and permissions to create in the parent folder if specified
   if (objectType === "folder" || objectType === "file" || objectType === "group") {
+
+    if (objectType === "group") {
+      const groupName = objectId.split(":")[1];
+
+      db.data.groups = db.data.groups || [];
+
+      db.data.groups.push({
+        id: objectId,
+        name: groupName
+      });
+
+      await accessControl.addTuple(resolvedOwner, "owner", objectId);
+      
+      await db.write(); 
+
+      return res.status(201).send({ message: "Group created successfully in DB!" });
+    }
+
     if (parentFolder) {
       const canCreate = await accessControl.can(currentUser.id, "create_child", parentFolder);
       if (canCreate) {

@@ -164,6 +164,7 @@
 
 
         <div id="groups" class="page">
+          <div id="grooups-main-view">
           <h1>Here are all your groups</h1>
             <p id="allFIlesHeaderText">
               Here you will find an overview of all your groups
@@ -183,6 +184,7 @@
               <div class="relation">OWNER</div>
               <a href="#"><i class="material-icons">more_vert</i></a>
             </div> -->
+          </div>
           </div>
           <dialog id="group-details">
             <div class="modal-body">
@@ -248,9 +250,11 @@
             </div>
             <p id="create-new-group-error" style="text-align: center; color: red;"></p>
           </dialog>
-        </div>
-        <h2 id="group-files-header" class="hidden">Group Files</h2>
-        <div id="groups-files-list"></div>
+      <div id="groups-deeper-view" class="hidden">
+      <h2 id="group-files-title">Group Files</h2>
+      <div id="groups-files-list"></div>
+      </div>
+</div>
 
 
         <div id="shared" class="page">

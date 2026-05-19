@@ -152,9 +152,9 @@ async function navigateToFolder(folderId) {
   renderFileListForUser(newParam);
 }
 
-async function navigateToGroup(folderId) {
+async function navigateToGroup(groupId) {
   const url = new URL(window.location);
-  const newParam = folderId;
+  const newParam = groupId;
   url.searchParams.set("groupId", newParam);
   window.history.pushState({}, "", url);
   renderFileListForGroup(newParam);
@@ -162,8 +162,21 @@ async function navigateToGroup(folderId) {
 
 window.addEventListener("popstate", () => {
   const url = new URL(window.location);
-  const param = url.searchParams.get("folderId") || "";
-  renderFileListForUser(param);
+  const folderParam = url.searchParams.get("folderId") || "";
+  const groupParam = url.searchParams.get("groupId") || "";
+
+  if (groupParam) {
+    renderFileListForGroup(groupParam);
+  } else if(folderParam){
+    renderFileListForUser(folderParam || "");
+  } else {
+    document.getElementById("groups-main-view")?.classList.remove("hidden");
+    document.getElementById("groups-deeper-view")?.classList.add("hidden");
+    const groupFileList = document.getElementById("groups-files-list");
+    if (groupFileList) groupFileList.innerHTML = "";
+
+    renderFileListForUser("");
+  }
 });
 
 function showPage(pageId) {
@@ -245,14 +258,16 @@ document.addEventListener("DOMContentLoaded", async () => {
       } else {
         createNewForm.reset();
         createNewModal.close();
+        
         const urlParams = new URLSearchParams(window.location.search);
         const currentGroup = urlParams.get("groupId");
         const currentFolder = urlParams.get("folderId") || "";
+        
         if (currentGroup) {
-        showPage("#files");
-        await renderFileListForGroup(currentGroup);
+          showPage("#files");
+          await renderFileListForGroup(currentGroup);
         } else {
-        await renderFileListForUser(currentFolder);
+          await renderFileListForUser(currentFolder); 
         }
       }
     } else {
@@ -281,11 +296,22 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   // loads either defualt dashboard or admin dashboard
+  const urlParams = new URLSearchParams(window.location.search);
+  const currentGroupId = urlParams.get("groupId");
+  const currentFolderId = urlParams.get("folderId");
+
   const adminRes = await fetch("/api/isAdmin", { credentials: "include" });
+  
   if (adminRes.ok) {
-    // any HTML changes needed for admin should be done here
+    await renderAdminUSerList();
   } else {
-    await renderFileListForUser();
+    if (currentGroupId) {
+      showPage("#files")
+      await renderFileListForGroup(currentGroupId);
+    } else {
+  
+      await renderFileListForUser(currentFolderId || "");
+    }
   }
 
   const inviteBtn = document.getElementById("invite-member");
@@ -492,7 +518,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           listItem.addEventListener("click", (event)=>{
             const isMoreBtn = event.target.closest(".more-btn");
             if (isMoreBtn) return;
-            const groupId = file.objectId
+            navigateToGroup(file.objectId)
           })
 
           const icon = document.createElement("i");
@@ -526,12 +552,6 @@ document.addEventListener("DOMContentLoaded", async () => {
           listItem.appendChild(itemTitle);
           listItem.appendChild(relation);
           listItem.appendChild(moreLink);
-          listItem.addEventListener("click", (event) => {
-          const isMoreBtn = event.target.closest(".more-btn");
-          if (isMoreBtn) return;
-            navigateToGroup(file.objectId);
-          });
-
           groupsList.appendChild(listItem);
         });
       }
@@ -678,6 +698,115 @@ function renderSharedFiles(files) {
           listItem.appendChild(moreLink);
 
           sharedList.appendChild(listItem);
+        });
+}
+
+function renderGroupFiles(files) {
+    const groupFileList = document.getElementById("groups-files-list");
+    groupFileList.innerHTML = "";
+
+      const groupFiles = files.filter(file =>
+        !file.relations.includes("owner") && !file.objectId.startsWith("group:")
+      );
+
+        if (groupFiles.length === 0) {
+          groupFileList.innerHTML = "<p style='padding: 1rem;'>No files have been shared with you.</p>";
+          return;
+        }
+
+          groupFiles.forEach((file) => {
+          const listItem = document.createElement("div");
+          listItem.className = "listitem";
+          listItem.dataset.fileId = file.objectId;
+          listItem.dataset.relations = file.relations;
+
+          const fileType = file.objectId.split(":")[0];
+          const icon = document.createElement("i");
+          icon.className = "material-icons type";
+          function renderGroupFiles(files) {
+  const groupFileList = document.getElementById("groups-files-list");
+  groupFileList.innerHTML = "";
+
+  const groupFiles = files.filter(file =>
+    !file.relations.includes("owner") && !file.objectId.startsWith("group:")
+  );
+
+  if (groupFiles.length === 0) {
+    groupFileList.innerHTML = "<p style='padding: 1rem;'>No files have been shared with you.</p>";
+    return;
+  }
+
+  groupFiles.forEach((file) => {
+    const listItem = document.createElement("div");
+    listItem.className = "listitem";
+    listItem.dataset.fileId = file.objectId;
+    listItem.dataset.relations = file.relations;
+
+    const fileType = file.objectId.split(":")[0];
+    const icon = document.createElement("i");
+    icon.className = "material-icons type";
+    switch (fileType) {
+      case "folder":
+        icon.innerText = "folder";
+        listItem.addEventListener("click", (event) => {
+          const isMoreBtn = event.target.closest(".more-btn");
+          if (isMoreBtn) return;
+          navigateToFolder(file.objectId);
+        });
+        break;
+      case "file":
+        icon.innerText = "article";
+        break;
+      default:
+        icon.innerText = "question_mark";
+        break;
+    }
+    
+    listItem.appendChild(icon);
+    listItem.appendChild(itemTitle);
+    listItem.appendChild(relation);
+    listItem.appendChild(moreLink);
+    groupFileList.appendChild(listItem);
+  });
+}
+
+          const itemTitle = document.createElement("div");
+          itemTitle.className = "item-title";
+
+          const h3 = document.createElement("h3");
+          h3.innerText = file.objectId.split(":")[1];
+
+          const p = document.createElement("p");
+          p.innerText = "Shared with you";
+
+          itemTitle.appendChild(h3);
+          itemTitle.appendChild(p);
+
+          const relation = document.createElement("div");
+          relation.className = "relation";
+          relation.innerText = file.relations.join(", ").toUpperCase();
+
+          const moreLink = document.createElement("a");
+          moreLink.href = "#";
+          const moreIcon = document.createElement("i");
+          moreIcon.className = "material-icons more-btn";
+          moreIcon.innerText = "more_vert";
+          moreLink.appendChild(moreIcon);
+
+          groupFileList.addEventListener("click", (event) => {
+          const moreBtn = event.target.closest(".more-btn");
+        if (moreBtn) {
+         // Trigger the exact same logic/modal here
+         console.log("More button clicked in shared files!");
+        }
+        });
+
+          listItem.appendChild(icon);
+          listItem.appendChild(itemTitle);
+          listItem.appendChild(relation);
+          listItem.appendChild(moreLink);
+
+          groupFileList.appendChild(listItem);
         });
 }
 
@@ -1296,76 +1425,22 @@ async function renderFileListForGroup(groupId) {
     groupsFilesList.innerHTML = "";
 
     document.getElementById("group-files-title")?.classList.remove("hidden");
+    document.getElementById("groups").classList.add("hidden")
 
     if (files.length === 0) {
       groupsFilesList.innerHTML = "<p style='padding: 1rem;'>No files shared with this group.</p>";
       return;
     }
+  
+    document.getElementById("filesList").innerHTML = "";
+    const sharedList = document.getElementById("SharedList");
+    if (sharedList) sharedList.innerHTML = "";
 
-    renderFilesToTarget(files, groupsFilesList);
+    renderGroupFiles(files);
 
   } catch (error) {
     console.error("Error fetching group content:", error);
   }
-}
-
-function renderFilesToTarget(files, targetContainer) {
-  files.forEach((file) => {
-    const listItem = document.createElement("div");
-    listItem.className = "listitem";
-    listItem.dataset.fileId = file.objectId;
-    listItem.dataset.relations = file.relations;
-
-    const fileType = file.objectId.split(":")[0];
-        const icon = document.createElement("i");
-        icon.className = "material-icons type";
-        switch (fileType) {
-          case "folder":
-            icon.innerText = "folder";listItem.addEventListener("click", (event) => {
-            const isMoreBtn = event.target.closest(".more-btn");
-            if (isMoreBtn) return;
-            navigateToFolder(file.objectId);
-            console.log("Clicked on folder ", listItem.dataset.fileId);
-            });
-            break;
-          case "file":
-            icon.innerText = "article";
-            break;
-          default:
-            icon.innerText = "question_mark";
-            break;
-        }
-
-        const itemTitle = document.createElement("div");
-        itemTitle.className = "item-title";
-
-        const h3 = document.createElement("h3");
-        h3.innerText = file.objectId.split(":")[1];
-
-        const p = document.createElement("p");
-        p.innerText = "Updated by User - 2 Hours ago";
-
-        itemTitle.appendChild(h3);
-        itemTitle.appendChild(p);
-
-        const relation = document.createElement("div");
-        relation.className = "relation";
-        relation.innerText = file.relations.join(", ").toUpperCase();
-
-        const moreLink = document.createElement("a");
-        moreLink.href = "#";
-        const moreIcon = document.createElement("i");
-        moreIcon.className = "material-icons more-btn";
-        moreIcon.innerText = "more_vert";
-        moreLink.appendChild(moreIcon);
-
-        listItem.appendChild(icon);
-        listItem.appendChild(itemTitle);
-        listItem.appendChild(relation);
-        listItem.appendChild(moreLink);
-
-    targetContainer.appendChild(listItem);
-  });
 }
 
 // calculate weight of all roles and return "strongest"
