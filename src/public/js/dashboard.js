@@ -51,6 +51,76 @@ async function renderAdminFilesForUser(userId) {
   renderFiles(files);
 }
 
+// renders received filelist to dashboard
+
+function renderFiles(files) {
+  const filesList = document.getElementById("filesList");
+  filesList.innerHTML = "";
+
+  if (files.length > 0) {
+    files.forEach((file) => {
+      const listItem = document.createElement("div");
+      listItem.className = "listitem";
+      listItem.dataset.fileId = file.objectId;
+      console.log(file.relations);
+      listItem.dataset.relations = (file.relations || []).join(",");
+
+      const fileType = file.objectId.split(":")[0];
+      const icon = document.createElement("i");
+      icon.className = "material-icons type";
+      switch (fileType) {
+        case "folder":
+          icon.innerText = "folder";
+          listItem.addEventListener("click", (event) => {
+            const isMoreBtn = event.target.closest(".more-btn");
+            if (isMoreBtn) return;
+
+            navigateToFolder(file.objectId);
+            console.log("Clicked on folder ", listItem.dataset.fileId);
+          });
+          break;
+        case "file":
+          icon.innerText = "article";
+          break;
+        default:
+          icon.innerText = "question_mark";
+          break;
+      }
+
+      const itemTitle = document.createElement("div");
+      itemTitle.className = "item-title";
+
+      const h3 = document.createElement("h3");
+      h3.innerText = file.objectId.split(":")[1];
+
+      const p = document.createElement("p");
+      p.innerText = "Updated by User - 2 Hours ago";
+
+      itemTitle.appendChild(h3);
+      itemTitle.appendChild(p);
+
+      const relation = document.createElement("div");
+      relation.className = "relation";
+      // display only strongest relation to user
+      relation.innerText = dominance(file).toUpperCase();
+
+      const moreLink = document.createElement("a");
+      moreLink.href = "#";
+      const moreIcon = document.createElement("i");
+      moreIcon.className = "material-icons more-btn";
+      moreIcon.innerText = "more_vert";
+      moreLink.appendChild(moreIcon);
+
+      listItem.appendChild(icon);
+      listItem.appendChild(itemTitle);
+      listItem.appendChild(relation);
+      listItem.appendChild(moreLink);
+
+      filesList.appendChild(listItem);
+    });
+  }
+}
+
 // renders all of a users files
 async function renderFileListForUser(folderId = "") {
   if (!folderId) {
@@ -81,6 +151,7 @@ async function navigateToFolder(folderId) {
   window.history.pushState({}, "", url);
   renderFileListForUser(newParam);
 }
+
 
 window.addEventListener("popstate", () => {
   const url = new URL(window.location);
@@ -167,9 +238,15 @@ document.addEventListener("DOMContentLoaded", async () => {
       } else {
         createNewForm.reset();
         createNewModal.close();
-        const url = new URL(window.location);
-        const param = url.searchParams.get("folderId") || "";
-        await renderFileListForUser(param);
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentGroup = urlParams.get("groupId");
+        const currentFolder = urlParams.get("folderId") || "";
+        if (currentGroup) {
+        showPage("#files");
+        await renderFileListForGroup(currentGroup);
+        } else {
+        await renderFileListForUser(currentFolder);
+        }
       }
     } else {
       createNewErrorMsg.innerText =
@@ -274,8 +351,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 
     const groupDetailsModal = document.getElementById("group-details");
-  groupDetailsModal.querySelector(".cancel-modal").addEventListener("click", () => {
-  groupDetailsModal.close();
+    groupDetailsModal.querySelector(".cancel-modal").addEventListener("click", () => {
+    groupDetailsModal.close();
   });
 
    const groupsList = document.getElementById("GroupsList");
@@ -398,6 +475,12 @@ document.addEventListener("DOMContentLoaded", async () => {
           listItem.dataset.fileId = file.objectId;
           listItem.dataset.relations = file.relations;
 
+          listItem.addEventListener("click", (event)=>{
+            const isMoreBtn = event.target.closest(".more-btn");
+            if (isMoreBtn) return;
+            const groupId = file.objectId
+          })
+
           const icon = document.createElement("i");
           icon.className = "material-icons type";
           icon.innerText = "people";
@@ -429,6 +512,12 @@ document.addEventListener("DOMContentLoaded", async () => {
           listItem.appendChild(itemTitle);
           listItem.appendChild(relation);
           listItem.appendChild(moreLink);
+          listItem.addEventListener("click", (event) => {
+          const isMoreBtn = event.target.closest(".more-btn");
+          if (isMoreBtn) return;
+
+            navigateToGroup(file.objectId);
+          });
 
           groupsList.appendChild(listItem);
         });
@@ -561,6 +650,14 @@ function renderSharedFiles(files) {
           moreIcon.className = "material-icons more-btn";
           moreIcon.innerText = "more_vert";
           moreLink.appendChild(moreIcon);
+
+          sharedList.addEventListener("click", (event) => {
+          const moreBtn = event.target.closest(".more-btn");
+        if (moreBtn) {
+         // Trigger the exact same logic/modal here
+         console.log("More button clicked in shared files!");
+        }
+        });
 
           listItem.appendChild(icon);
           listItem.appendChild(itemTitle);
@@ -1147,6 +1244,101 @@ const canPriv = (currentUser, tempMembers, schema, privilege, type = selectedFil
   return currentUser.id === "user:admin" || userRelations.some(rel => 
   schema?.[type]?.relations?.[rel]?.includes(privilege))
 }
+
+async function renderFileListForGroup(groupId) {
+  try {
+    const res = await fetch(`/api/groupContent?groupId=${encodeURIComponent(groupId)}`, {
+      credentials: "include"
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      console.error("Failed to load group files:", errorData.message);
+      return;
+    }
+
+    const { files } = await res.json();
+
+    const groupsFilesList = document.getElementById("GroupsFilesList");
+    groupsFilesList.innerHTML = "";
+
+    document.getElementById("group-files-title")?.classList.remove("hidden");
+
+    if (files.length === 0) {
+      groupsFilesList.innerHTML = "<p style='padding: 1rem;'>No files shared with this group.</p>";
+      return;
+    }
+
+    renderFilesToTarget(files, groupsFilesList);
+
+  } catch (error) {
+    console.error("Error fetching group content:", error);
+  }
+}
+
+function navigateToGroup(groupId) {
+
+}
+
+function renderFilesToTarget(files, targetContainer) {
+  files.forEach((file) => {
+    const listItem = document.createElement("div");
+    listItem.className = "listitem";
+    listItem.dataset.fileId = file.objectId;
+    listItem.dataset.relations = file.relations;
+
+    const fileType = file.objectId.split(":")[0];
+        const icon = document.createElement("i");
+        icon.className = "material-icons type";
+        switch (fileType) {
+          case "folder":
+            icon.innerText = "folder";listItem.addEventListener("click", (event) => {
+            const isMoreBtn = event.target.closest(".more-btn");
+            if (isMoreBtn) return;
+            navigateToFolder(file.objectId);
+            console.log("Clicked on folder ", listItem.dataset.fileId);
+            });
+            break;
+          case "file":
+            icon.innerText = "article";
+            break;
+          default:
+            icon.innerText = "question_mark";
+            break;
+        }
+
+        const itemTitle = document.createElement("div");
+        itemTitle.className = "item-title";
+
+        const h3 = document.createElement("h3");
+        h3.innerText = file.objectId.split(":")[1];
+
+        const p = document.createElement("p");
+        p.innerText = "Updated by User - 2 Hours ago";
+
+        itemTitle.appendChild(h3);
+        itemTitle.appendChild(p);
+
+        const relation = document.createElement("div");
+        relation.className = "relation";
+        relation.innerText = file.relations.join(", ").toUpperCase();
+
+        const moreLink = document.createElement("a");
+        moreLink.href = "#";
+        const moreIcon = document.createElement("i");
+        moreIcon.className = "material-icons more-btn";
+        moreIcon.innerText = "more_vert";
+        moreLink.appendChild(moreIcon);
+
+        listItem.appendChild(icon);
+        listItem.appendChild(itemTitle);
+        listItem.appendChild(relation);
+        listItem.appendChild(moreLink);
+
+    targetContainer.appendChild(listItem);
+  });
+}
+
 // calculate weight of all roles and return "strongest"
 function dominance(files) {
   //  weights for individual actions

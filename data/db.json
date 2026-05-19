@@ -33,6 +33,10 @@
           "view",
           "share",
           "manage_relations"
+        ],
+        "erte": [
+          "view",
+          "create_child"
         ]
       }
     },
@@ -75,6 +79,10 @@
         {
           "subjectId": "user:magnus",
           "relation": "owner"
+        },
+        {
+          "subjectId": "group:grouptesting",
+          "relation": "viewer"
         }
       ],
       "folder:admin": [
@@ -127,6 +135,10 @@
         {
           "subjectId": "user:emil",
           "relation": "owner"
+        },
+        {
+          "subjectId": "user:magnus",
+          "relation": "member"
         }
       ],
       "file:filetest2": [
@@ -137,12 +149,6 @@
         {
           "subjectId": "user:alice",
           "relation": "viewer"
-        }
-      ],
-      "group:groupingrouptest": [
-        {
-          "subjectId": "user:emil",
-          "relation": "owner"
         }
       ],
       "group:testing12": [
@@ -165,6 +171,10 @@
         {
           "relation": "viewer",
           "objectId": "file:filestest"
+        },
+        {
+          "relation": "member",
+          "objectId": "group:grouptesting"
         }
       ],
       "folder:admin": [
@@ -219,10 +229,6 @@
         {
           "relation": "owner",
           "objectId": "file:filetest2"
-        },
-        {
-          "relation": "owner",
-          "objectId": "group:groupingrouptest"
         },
         {
           "relation": "owner",
@@ -823,6 +829,62 @@
           "action": "delete",
           "objectId": "group:gruppetest",
           "time": 1779110017450,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:grouptesting",
+          "time": 1779129558428,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779129558432,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779129558435,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:groupingrouptest",
+          "time": 1779129567510,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "group:groupingrouptest",
+          "time": 1779129567515,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "group:groupingrouptest",
+          "time": 1779129567517,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "delete",
+          "objectId": "group:groupingrouptest",
+          "time": 1779170784918,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "delete",
+          "objectId": "file:filefis",
+          "time": 1779174257168,
           "allowed": true
         }
       ],
@@ -2306,6 +2368,68 @@
           "action": "manage_relations",
           "objectId": "file:filetest2",
           "time": 1779105313197,
+          "allowed": true
+        }
+      ],
+      "group:grouptesting": [
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:grouptesting",
+          "time": 1779129558428,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779129558432,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779129558435,
+          "allowed": false
+        }
+      ],
+      "group:groupingrouptest": [
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:groupingrouptest",
+          "time": 1779129567510,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "group:groupingrouptest",
+          "time": 1779129567515,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "group:groupingrouptest",
+          "time": 1779129567517,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "delete",
+          "objectId": "group:groupingrouptest",
+          "time": 1779170784918,
+          "allowed": true
+        }
+      ],
+      "file:filefis": [
+        {
+          "subjectId": "user:emil",
+          "action": "delete",
+          "objectId": "file:filefis",
+          "time": 1779174257168,
           "allowed": true
         }
       ]
