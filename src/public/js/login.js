@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const input = document.getElementById("usernameInput")?.value ?? "";
     const errorMsg = document.getElementById("ErrorMsg");
 
-    const res = await fetch("/login", {
+    const res = await fetch("/api/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userName: input }),
@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log(input);
     const errorMsg = document.getElementById("ErrorMsg");
 
-    const res = await fetch("/register", {
+    const res = await fetch("/api/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userName: input, login: true }),
