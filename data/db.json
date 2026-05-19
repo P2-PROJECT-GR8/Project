@@ -103,6 +103,14 @@
         {
           "subjectId": "folder:admin",
           "relation": "parent"
+        },
+        {
+          "subjectId": "user:emil",
+          "relation": "editor"
+        },
+        {
+          "subjectId": "user:alice",
+          "relation": "viewer"
         }
       ],
       "file:test123": [
@@ -385,6 +393,132 @@
           "action": "manage_relations",
           "objectId": "folder:admin",
           "time": 1778780833834,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "share",
+          "objectId": "file:Project.pdf",
+          "time": 1778835423217,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "remove_relations",
+          "objectId": "file:Project.pdf",
+          "time": 1778835423223,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "manage_relations",
+          "objectId": "file:Project.pdf",
+          "time": 1778835423225,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "share",
+          "objectId": "folder:admin",
+          "time": 1778835430597,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "remove_relations",
+          "objectId": "folder:admin",
+          "time": 1778835430600,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "manage_relations",
+          "objectId": "folder:admin",
+          "time": 1778835430602,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "share",
+          "objectId": "folder:nest1",
+          "time": 1778836843749,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "remove_relations",
+          "objectId": "folder:nest1",
+          "time": 1778836843753,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "manage_relations",
+          "objectId": "folder:nest1",
+          "time": 1778836843755,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "share",
+          "objectId": "folder:admin",
+          "time": 1778841172751,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "remove_relations",
+          "objectId": "folder:admin",
+          "time": 1778841172756,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "manage_relations",
+          "objectId": "folder:admin",
+          "time": 1778841172758,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "share",
+          "objectId": "folder:admin",
+          "time": 1778841417867,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "remove_relations",
+          "objectId": "folder:admin",
+          "time": 1778841417871,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "manage_relations",
+          "objectId": "folder:admin",
+          "time": 1778841417873,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "share",
+          "objectId": "folder:admin",
+          "time": 1778841481965,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "remove_relations",
+          "objectId": "folder:admin",
+          "time": 1778841481968,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "manage_relations",
+          "objectId": "folder:admin",
+          "time": 1778841481971,
           "allowed": true
         }
       ],
@@ -3855,6 +3989,426 @@
           "objectId": "file:Project.pdf",
           "time": 1778779928592,
           "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "folder:deep_nest",
+          "time": 1778839236786,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "folder:deep_nest",
+          "time": 1778839236789,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "folder:deep_nest",
+          "time": 1778839236790,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "folder:deep_nest",
+          "time": 1778839254538,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "folder:deep_nest",
+          "time": 1778839254539,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "folder:deep_nest",
+          "time": 1778839254541,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "folder:deep_nest",
+          "time": 1778839637890,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "folder:deep_nest",
+          "time": 1778839637893,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "folder:deep_nest",
+          "time": 1778839637895,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "folder:deep_nest",
+          "time": 1778840088271,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "folder:deep_nest",
+          "time": 1778840088274,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "folder:deep_nest",
+          "time": 1778840088276,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "folder:deep_nest",
+          "time": 1778840299703,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "folder:deep_nest",
+          "time": 1778840299707,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "folder:deep_nest",
+          "time": 1778840299708,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "folder:admin",
+          "time": 1778840529137,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "folder:admin",
+          "time": 1778840529143,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "folder:admin",
+          "time": 1778840529145,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "folder:admin",
+          "time": 1778841186900,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "folder:admin",
+          "time": 1778841186903,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "folder:admin",
+          "time": 1778841186906,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "folder:admin",
+          "time": 1778841462130,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "folder:admin",
+          "time": 1778841462134,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "folder:admin",
+          "time": 1778841462136,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "folder:admin",
+          "time": 1778841499482,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "folder:admin",
+          "time": 1778841499485,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "folder:admin",
+          "time": 1778841499488,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "folder:deep_nest",
+          "time": 1778843286103,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "folder:deep_nest",
+          "time": 1778843286109,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "folder:deep_nest",
+          "time": 1778843286113,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "folder:deep_nest",
+          "time": 1778843290418,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "folder:deep_nest",
+          "time": 1778843290422,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "folder:deep_nest",
+          "time": 1778843290427,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "folder:deep_nest",
+          "time": 1778843320571,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "folder:deep_nest",
+          "time": 1778843320576,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "folder:deep_nest",
+          "time": 1778843320581,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "folder:deep_nest",
+          "time": 1778843338365,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "folder:deep_nest",
+          "time": 1778843338369,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "folder:deep_nest",
+          "time": 1778843338373,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "folder:deep_nest",
+          "time": 1778843455116,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "folder:deep_nest",
+          "time": 1778843455121,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "folder:deep_nest",
+          "time": 1778843455124,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "folder:nest1",
+          "time": 1778843463285,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "folder:nest1",
+          "time": 1778843463289,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "folder:nest1",
+          "time": 1778843463294,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "folder:nest1",
+          "time": 1778843481968,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "folder:nest1",
+          "time": 1778843481973,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "folder:nest1",
+          "time": 1778843481977,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "folder:nest1",
+          "time": 1778843491820,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "folder:nest1",
+          "time": 1778843491824,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "folder:nest1",
+          "time": 1778843491829,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "folder:nest1",
+          "time": 1778843498582,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "folder:nest1",
+          "time": 1778843498586,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "folder:nest1",
+          "time": 1778843498590,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "file:abc23",
+          "time": 1778844472865,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "file:abc23",
+          "time": 1778844472870,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "file:abc23",
+          "time": 1778844472873,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "file:abc23",
+          "time": 1778844536116,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "file:abc23",
+          "time": 1778844536121,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "file:abc23",
+          "time": 1778844536126,
+          "allowed": false
         }
       ]
     },
@@ -4390,6 +4944,27 @@
           "objectId": "file:Project.pdf",
           "time": 1778779928592,
           "allowed": false
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "share",
+          "objectId": "file:Project.pdf",
+          "time": 1778835423217,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "remove_relations",
+          "objectId": "file:Project.pdf",
+          "time": 1778835423223,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "manage_relations",
+          "objectId": "file:Project.pdf",
+          "time": 1778835423225,
+          "allowed": true
         }
       ],
       "folder:folderTester": [
