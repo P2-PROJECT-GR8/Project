@@ -157,7 +157,7 @@ async function navigateToGroup(groupId) {
   const newParam = groupId;
   url.searchParams.set("groupId", newParam);
   window.history.pushState({}, "", url);
-  renderFileListForGroup(newParam);
+  await renderFileListForGroup(newParam);
 }
 
 window.addEventListener("popstate", () => {
@@ -428,10 +428,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   } else if(selectedGroup){
     const { fileId, relations } = selectedGroup.dataset;
 
-    const url = new URL(window.location);
-    url.searchParams.set("groupId", fileId);
-    window.history.pushState({ groupId: fileId }, "", url);
-
     await renderFileListForGroup(fileId)
   }
       
@@ -502,7 +498,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   }); 
 
   function renderGroups(files) {
-  console.log("renderGroups called with:", files);
   console.log("GroupsList element:", groupsList);
   groupsList.innerHTML = "";
 
@@ -518,6 +513,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           listItem.addEventListener("click", (event)=>{
             const isMoreBtn = event.target.closest(".more-btn");
             if (isMoreBtn) return;
+            console.log(file.objectId)
             navigateToGroup(file.objectId)
           })
 
@@ -687,8 +683,7 @@ function renderSharedFiles(files) {
           sharedList.addEventListener("click", (event) => {
           const moreBtn = event.target.closest(".more-btn");
         if (moreBtn) {
-         // Trigger the exact same logic/modal here
-         console.log("More button clicked in shared files!");
+        console.log("More button clicked in shared files!");
         }
         });
 
@@ -700,51 +695,31 @@ function renderSharedFiles(files) {
           sharedList.appendChild(listItem);
         });
 }
-
-function renderGroupFiles(files) {
-    const groupFileList = document.getElementById("groups-files-list");
-    groupFileList.innerHTML = "";
-
-      const groupFiles = files.filter(file =>
-        !file.relations.includes("owner") && !file.objectId.startsWith("group:")
-      );
-
-        if (groupFiles.length === 0) {
-          groupFileList.innerHTML = "<p style='padding: 1rem;'>No files have been shared with you.</p>";
-          return;
-        }
-
-          groupFiles.forEach((file) => {
-          const listItem = document.createElement("div");
-          listItem.className = "listitem";
-          listItem.dataset.fileId = file.objectId;
-          listItem.dataset.relations = file.relations;
-
-          const fileType = file.objectId.split(":")[0];
-          const icon = document.createElement("i");
-          icon.className = "material-icons type";
-          function renderGroupFiles(files) {
+async function renderGroupFiles(files) {
   const groupFileList = document.getElementById("groups-files-list");
+  if (!groupFileList) return;
   groupFileList.innerHTML = "";
 
-  const groupFiles = files.filter(file =>
-    !file.relations.includes("owner") && !file.objectId.startsWith("group:")
-  );
+  const groupFiles = files
 
   if (groupFiles.length === 0) {
-    groupFileList.innerHTML = "<p style='padding: 1rem;'>No files have been shared with you.</p>";
+    groupFileList.innerHTML = "<p style='padding: 1rem;'>No files have been shared with this group yet.</p>";
     return;
   }
+
 
   groupFiles.forEach((file) => {
     const listItem = document.createElement("div");
     listItem.className = "listitem";
     listItem.dataset.fileId = file.objectId;
-    listItem.dataset.relations = file.relations;
+    
+    const relationsArray = Array.isArray(file.relations) ? file.relations : [file.relations || "reader"];
+    listItem.dataset.relations = relationsArray.join(",");
 
     const fileType = file.objectId.split(":")[0];
     const icon = document.createElement("i");
     icon.className = "material-icons type";
+    
     switch (fileType) {
       case "folder":
         icon.innerText = "folder";
@@ -761,55 +736,50 @@ function renderGroupFiles(files) {
         icon.innerText = "question_mark";
         break;
     }
-    
+
+    const itemTitle = document.createElement("div");
+    itemTitle.className = "item-title";
+
+    const h3 = document.createElement("h3");
+    h3.innerText = file.objectId.split(":")[1];
+
+    const p = document.createElement("p");
+    p.innerText = "Shared with group";
+
+    itemTitle.appendChild(h3);
+    itemTitle.appendChild(p);
+
+    const relation = document.createElement("div");
+    relation.className = "relation";
+    relation.innerText = relationsArray.join(", ").toUpperCase();
+
+    const moreLink = document.createElement("a");
+    moreLink.href = "#";
+    const moreIcon = document.createElement("i");
+    moreIcon.className = "material-icons more-btn";
+    moreIcon.innerText = "more_vert";
+    moreLink.appendChild(moreIcon);
+
     listItem.appendChild(icon);
     listItem.appendChild(itemTitle);
     listItem.appendChild(relation);
     listItem.appendChild(moreLink);
+
+
     groupFileList.appendChild(listItem);
   });
+
+  groupFileList.replaceWith(groupFileList.cloneNode(true));
+  
+  const freshGroupFileList = document.getElementById("groups-files-list");
+  freshGroupFileList.addEventListener("click", (event) => {
+    const moreBtn = event.target.closest(".more-btn");
+    if (!moreBtn) return;
+    
+    event.preventDefault();
+    console.log("More button clicked in shared files!");
+  });
 }
-
-          const itemTitle = document.createElement("div");
-          itemTitle.className = "item-title";
-
-          const h3 = document.createElement("h3");
-          h3.innerText = file.objectId.split(":")[1];
-
-          const p = document.createElement("p");
-          p.innerText = "Shared with you";
-
-          itemTitle.appendChild(h3);
-          itemTitle.appendChild(p);
-
-          const relation = document.createElement("div");
-          relation.className = "relation";
-          relation.innerText = file.relations.join(", ").toUpperCase();
-
-          const moreLink = document.createElement("a");
-          moreLink.href = "#";
-          const moreIcon = document.createElement("i");
-          moreIcon.className = "material-icons more-btn";
-          moreIcon.innerText = "more_vert";
-          moreLink.appendChild(moreIcon);
-
-          groupFileList.addEventListener("click", (event) => {
-          const moreBtn = event.target.closest(".more-btn");
-        if (moreBtn) {
-         // Trigger the exact same logic/modal here
-         console.log("More button clicked in shared files!");
-        }
-        });
-
-          listItem.appendChild(icon);
-          listItem.appendChild(itemTitle);
-          listItem.appendChild(relation);
-          listItem.appendChild(moreLink);
-
-          groupFileList.appendChild(listItem);
-        });
-}
-
 // fetch the server when saving all changes
   const saveChanges = document.getElementById("save-changes");
   saveChanges.addEventListener("click", async (e) => {
@@ -1408,38 +1378,44 @@ async function renderFileListForGroup(groupId) {
     const url = new URL(window.location);
     groupId = url.searchParams.get("groupId") || "";
   }
+  
   try {
     const res = await fetch(`/api/folderContent?groupId=${encodeURIComponent(groupId)}`, {
       credentials: "include"
     });
 
     if (!res.ok) {
-      const errorData = await res.json();
-      console.error("Failed to load group files:", errorData.message);
+      const errorText = await res.text();
+      console.error("Failed to load group files via server:", errorText);
       return;
     }
 
     const { files } = await res.json();
 
     const groupsFilesList = document.getElementById("groups-files-list");
-    groupsFilesList.innerHTML = "";
+    if (groupsFilesList) groupsFilesList.innerHTML = "";
 
     document.getElementById("group-files-title")?.classList.remove("hidden");
-    document.getElementById("groups").classList.add("hidden")
+    
+    document.getElementById("groups-main-view")?.classList.add("hidden");
 
     if (files.length === 0) {
-      groupsFilesList.innerHTML = "<p style='padding: 1rem;'>No files shared with this group.</p>";
+      if (groupsFilesList) {
+        groupsFilesList.innerHTML = "<p style='padding: 1rem;'>No files shared with this group.</p>";
+      }
       return;
     }
   
-    document.getElementById("filesList").innerHTML = "";
+    const filesList = document.getElementById("filesList");
+    if (filesList) filesList.innerHTML = "";
+    
     const sharedList = document.getElementById("SharedList");
     if (sharedList) sharedList.innerHTML = "";
 
-    renderGroupFiles(files);
+    await renderGroupFiles(files);
 
   } catch (error) {
-    console.error("Error fetching group content:", error);
+    console.error("Error fetching group content on frontend:", error);
   }
 }
 
