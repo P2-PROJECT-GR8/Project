@@ -464,7 +464,7 @@ class AccessControl {
     // Remove all relations to the file
     // The deleteTuple function delete when there are no more relations
     const objectType = objectId.split(":")[0];
-    if (objectType === "folder") {
+    if (objectType === "folder"){
       const folderContent = this.db.data.tupleStore.bySubject[objectId] || [];
 
       for (const content of [...folderContent]) {
