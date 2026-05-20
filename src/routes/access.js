@@ -237,19 +237,14 @@ class AccessControl {
     return relatedUsers;
   }
 
-   async getObjectGroups(objectId) {
+  async renderSubjects(objectId){
     const relatedUsers = [];
     const allSubjectIds = new Set(
       Object.keys(this.db.data.tupleStore.bySubject),
     );
     for (const subjectId of allSubjectIds) {
-      // We only care about users, not groups or other objects
-      if (!subjectId.startsWith("group:")) {
-        continue;
-      }
 
       const relations = await this.expandUserRelations(subjectId, objectId);
-
       if (relations.length > 0) {
         relatedUsers.push({
           subjectId: subjectId,
@@ -257,8 +252,23 @@ class AccessControl {
         });
       }
     }
+    
+  const possibleDirect = await this.getObjectRelations(objectId);
 
-    return relatedUsers;
+  possibleDirect.forEach((p) => {
+  const directTuples =
+    this.db.data.tupleStore.bySubject[p.subjectId]?.filter(
+      (t) => t.objectId === objectId
+    ) || [];
+
+  if (directTuples.length > 0) {
+    relatedUsers.push({
+      subjectId: p.subjectId,
+      relations: directTuples.map((t) => t.relation),
+    });
+  }
+  });
+  return relatedUsers;
   }
 
   async addTuple(subjectId, relation, objectId) {

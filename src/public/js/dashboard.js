@@ -237,6 +237,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const option = document.createElement("option");
       option.value = `group:${group}`;
       option.innerText = `Group: ${group.charAt(0).toUpperCase() + group.slice(1)}`;
+      const ownerSelect = document.getElementById("new-group-owner-select");
       ownerSelect.appendChild(option);
     });
 
@@ -756,9 +757,9 @@ export const renderMembers = async (fileId, options  ={}) => {
           await renderMembers(selectedFile, {
           membersContainerId: "group-members",
           modalId: "group-details"
-  });
+          });
           } else {
-            renderMembers(fileId);
+            renderMembers(fileId, options );
           }
           });
           const helpDelete = document.createElement("span");
@@ -1238,7 +1239,7 @@ function createFileListItem(file, options = {}) {
 
   relation.className = "relation";
 
-  relation.innerText = relationsArray.join(", ").toUpperCase();
+  relation.innerText = dominance(file)
 
   // MORE BUTTON
   const moreLink = document.createElement("a");
@@ -1255,7 +1256,6 @@ function createFileListItem(file, options = {}) {
 
   moreLink.appendChild(moreIcon);
 
-  // APPEND
   listItem.appendChild(icon);
 
   listItem.appendChild(itemTitle);
@@ -1297,7 +1297,6 @@ async function openDetailsModal(listItem) {
   const fileId = listItem.dataset.fileId;
   const type = fileId.split(":")[0];
   
-  // Define which modal to use
   const modalId = type === "group" ? "group-details" : "file-details";
   const modal = document.getElementById(modalId);
   
@@ -1311,7 +1310,6 @@ async function openDetailsModal(listItem) {
     selectedFile = fileId;
     selectedFileType = type;
     
-    // Reset state
     tempMembers = [];
     addedUsers = [];
     deletedUsers = [];

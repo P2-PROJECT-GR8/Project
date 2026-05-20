@@ -194,8 +194,11 @@ app.post("/api/relatedUsers", async (req, res) => {
   }
   try {
     const relatedUsers = await accessControl.getObjectRelations(objectId);
-    const relatedGroups = await accessControl.getObjectGroups(objectId);
+    const relatedGroups = await accessControl.renderSubjects(objectId);
     const allRelated = [...relatedUsers, ...relatedGroups];
+    console.log("relatedUsers:", relatedUsers)
+    console.log("relatedGroups:", relatedGroups)
+    console.log("allRelated:", allRelated)
 
     const userRelations = db.data.tupleStore.bySubject[user.id] || [];
 
