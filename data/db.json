@@ -92,6 +92,10 @@
         {
           "subjectId": "group:grouptest2",
           "relation": "viewer"
+        },
+        {
+          "subjectId": "user:alice",
+          "relation": "viewer"
         }
       ],
       "folder:foldertest": [
@@ -194,6 +198,12 @@
         {
           "relation": "viewer",
           "objectId": "folder:foldertest"
+        }
+      ],
+      "user:alice": [
+        {
+          "relation": "viewer",
+          "objectId": "file:filetest"
         }
       ]
     }
@@ -580,6 +590,13 @@
           "action": "view",
           "objectId": "group:grouptest",
           "time": 1779290105397,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:grouptest",
+          "time": 1779306242830,
           "allowed": true
         }
       ],
@@ -5811,6 +5828,27 @@
           "action": "manage_relations",
           "objectId": "file:filetest",
           "time": 1779291908727,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "file:filetest",
+          "time": 1779306415428,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "file:filetest",
+          "time": 1779306415436,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "file:filetest",
+          "time": 1779306415439,
           "allowed": true
         }
       ],
@@ -12522,6 +12560,13 @@
           "objectId": "group:grouptest",
           "time": 1779290371146,
           "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:grouptest",
+          "time": 1779306242830,
+          "allowed": true
         }
       ],
       "file:filetest": [
@@ -12712,6 +12757,27 @@
           "action": "manage_relations",
           "objectId": "file:filetest",
           "time": 1779291908727,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "file:filetest",
+          "time": 1779306415428,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "file:filetest",
+          "time": 1779306415436,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "file:filetest",
+          "time": 1779306415439,
           "allowed": true
         }
       ],

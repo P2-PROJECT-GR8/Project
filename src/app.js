@@ -200,19 +200,8 @@ app.post("/api/relatedUsers", async (req, res) => {
     console.log("relatedGroups:", relatedGroups)
     console.log("allRelated:", allRelated)
 
-    const userRelations = db.data.tupleStore.bySubject[user.id] || [];
-
-    const processedUsers = allRelated.map(member => {
-      return {
-        ...member,
-        userIsOwner: userRelations.some(t => 
-          t.objectId === member.subjectId && t.relation === "owner"
-        )
-      };
-    });
-
     res.send({
-      relatedUsers: processedUsers,
+      relatedUsers: relatedGroups,
     });
     
   } catch (error) {

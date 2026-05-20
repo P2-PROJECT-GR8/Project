@@ -220,9 +220,6 @@ class AccessControl {
     );
     for (const subjectId of allSubjectIds) {
       // We only care about users, not groups or other objects
-      if (!subjectId.startsWith("user:")) {
-        continue;
-      }
 
       const relations = await this.expandUserRelations(subjectId, objectId);
 
@@ -237,39 +234,30 @@ class AccessControl {
     return relatedUsers;
   }
 
-  async renderSubjects(objectId){
-    const relatedUsers = [];
-    const allSubjectIds = new Set(
-      Object.keys(this.db.data.tupleStore.bySubject),
-    );
-    for (const subjectId of allSubjectIds) {
-
-      const relations = await this.expandUserRelations(subjectId, objectId);
-      if (relations.length > 0) {
-        relatedUsers.push({
-          subjectId: subjectId,
-          relations: relations,
-        });
-      }
-    }
-    
+async renderSubjects(objectId) {
+  const relatedUsers = [];
+´
   const possibleDirect = await this.getObjectRelations(objectId);
 
-  possibleDirect.forEach((p) => {
-  const directTuples =
-    this.db.data.tupleStore.bySubject[p.subjectId]?.filter(
-      (t) => t.objectId === objectId
-    ) || [];
+  const uniqueSubjects = new Set(possibleDirect.map(p => p.subjectId));
 
-  if (directTuples.length > 0) {
-    relatedUsers.push({
-      subjectId: p.subjectId,
-      relations: directTuples.map((t) => t.relation),
-    });
+  for (const subjectId of uniqueSubjects) {
+    const directTuples =
+      this.db.data.tupleStore.bySubject[subjectId]?.filter(
+        (t) => t.objectId === objectId
+      ) || [];
+
+    // if direct relation exists push to relateduusers array
+    if (directTuples.length > 0) {
+      relatedUsers.push({
+        subjectId: subjectId,
+        relations: directTuples.map((t) => t.relation),
+      });
+    }
   }
-  });
+
   return relatedUsers;
-  }
+}
 
   async addTuple(subjectId, relation, objectId) {
     await this.db.read();
