@@ -412,53 +412,23 @@ const groupDetailsModal = document.getElementById("group-details");
     groupDetailsModal.close();
 });
 
-groupsList.addEventListener("click", async (event) => {
-    const btn = event.target.closest(".more-btn");
-    const selectedGroup = event.target.closest(".listitem");
-    if (btn){
+document.addEventListener("click", async (event) => {
+  // Tjek om det klikkede element er en "more_vert" knap
+  if (event.target.classList.contains("more-btn")) {
     event.preventDefault();
-
-    tempMembers = [];
-    addedUsers = [];
-    deletedUsers = [];
-    changedRelation.clear();
-
-    const groupNamesRes = await fetch("/api/groupNames", {
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-    });
-    const { groupNames: fetchedGroups } = await groupNamesRes.json();
-    groupNames = fetchedGroups;
-
-    const item = btn.closest(".listitem");
-    const { fileId, relations } = item.dataset;
-    selectedFile = item.dataset.fileId;
-    selectedFileType = "group";
-
-    const relationsArray = relations ? relations.split(",") : [];
-    const groupInviteContainer = document.getElementById("invite-container");
-
-    if (!relationsArray.some((el) => el === "owner")) {
-      groupInviteContainer.classList.add("hidden");
-    } else {
-      groupInviteContainer.classList.remove("hidden");
-    }
-
-    await renderMembers(selectedFile, {
-    membersContainerId: "group-members",
-    modalId: "group-details"
-    });
-    groupDetailsModal.showModal();
-  } else if(selectedGroup){
-    const { fileId, relations } = selectedGroup.dataset;
-
-    await renderFileListForGroup(fileId)
+    const listItem = event.target.closest(".listitem");
+    const fileId = listItem.dataset.fileId;
+    
+    window.selectedFile = fileId; 
+    
+    const modal = document.getElementById("file-details");
+    await renderMembers(fileId);
+    modal.showModal();
   }
-      
-  });
-
 });
 
+});
+  const groupsList = document.getElementById("GroupsList");
   function renderGroups(files) {
   groupsList.innerHTML = "";
 
@@ -483,6 +453,13 @@ groupsList.addEventListener("click", async (event) => {
 
 
 function renderMyFiles(files) {
+
+  const filesList = document.getElementById("filesList");
+
+  if (!filesList) {
+    console.warn("filesList element not found");
+    return;
+  }
   filesList.innerHTML = "";
 
   const ownedFiles = files.filter(
@@ -499,8 +476,12 @@ function renderMyFiles(files) {
 }
 
 function renderSharedFiles(files) {
-  const sharedList =
-    document.getElementById("SharedList");
+  const sharedList = document.getElementById("SharedList");
+
+    if (!sharedList) {
+      console.warn("Could not find element with id 'SharedList' in HTML");
+      return; 
+  }
 
     sharedList.innerHTML = "";
 
@@ -527,8 +508,9 @@ function renderSharedFiles(files) {
 }
 
 async function renderGroupFiles(files) {
-  const groupFileList =
-    document.getElementById("groups-files-list");
+  const groupFileList = document.getElementById("groups-files-list");
+
+  if (!groupFileList) return;
 
   groupFileList.innerHTML = "";
 
@@ -606,14 +588,21 @@ let deletedUsers = [];
 let changedRelation = new Map();
 
 export const renderMembers = async (fileId, options  ={}) => {
-selectedFileType = fileId.split(":")[0];
-const { membersContainerId = "members",
-  inviteContainerId = "invite-container",
-  modalId = "file-details"
-} = options;
+  const { 
+    membersContainerId = "members",
+    inviteContainerId = "invite-container",
+    modalId = "file-details"
+  } = options;
+  console.log("Forsøger at finde container:", membersContainerId);
+  const membersList = document.getElementById(membersContainerId);
+  
+  if (!membersList) {
+    console.error("Kunne ikke finde container med ID:", membersContainerId);
+    return; 
+  }
+  selectedFileType = fileId.split(":")[0];
 
   console.log(selectedFileType)
-  const membersList = document.getElementById(membersContainerId);
   const currentUser = await getCurrentUser();
   membersList.innerHTML = "";
     const res = await fetch("/api/relatedUsers", {
@@ -643,7 +632,7 @@ const { membersContainerId = "members",
       inviteContainer.classList.remove("hidden");
 
       }
-      
+      console.log(tempMembers)
       // check if tempmember contains the userlist
       if (tempMembers && tempMembers.length > 0) {
       //checking if the current user owns the file
@@ -656,6 +645,14 @@ const { membersContainerId = "members",
 
     //create a div element for each member to be displayed
     tempMembers.forEach((rel) => {
+      const isGroup = rel.subjectId.startsWith("group:");
+      const ownsGroup = rel.userIsOwner;
+      const userEntry = tempMembers.find((rel) => rel.subjectId === currentUser.id);
+      const userRelations = userEntry ? userEntry.relations : [];
+      const isOwnerOfGroup = userRelations.some(t => 
+      t.objectId === rel.subjectId && t.relation === "owner"
+      );
+      if(isGroup) console.log(rel)
       const member = document.createElement("div");
       member.className = "member";
       const user = document.createElement("p");
@@ -665,18 +662,28 @@ const { membersContainerId = "members",
         // relation part of member made to be a dropdown that allows owners to change relation
         const relationSel = document.createElement("select");
         relationSel.className = "changeRelation";
-        const relationOptions = Object.keys(schema?.[selectedFileType]?.relations || {});
-        
-        // format it beuatifully
-        relationOptions.forEach((r) => {
-          const option = document.createElement("option");
-          option.value = r;
-          option.innerText = r.charAt(0).toUpperCase() + r.slice(1);
-        // choose the relation specified in the db, so it displays the correct relation
-        if (rel.relations.includes(r)) {
-          option.selected = true;
+
+        let possibleRelationTypes;
+        if(selectedFileType === "file" || selectedFileType === "folder"){
+          possibleRelationTypes = "file"
+        } else {
+          possibleRelationTypes = "group"
         }
-        relationSel.appendChild(option);
+        console.log(possibleRelationTypes)
+        const relationOptions = Object.keys(schema?.[possibleRelationTypes]?.relations || {});
+
+        const strongest = dominance(rel);
+        
+        // format it beautifully
+       relationOptions.forEach((r) => {
+        const option = document.createElement("option");
+        option.value = r;
+        option.innerText = r.charAt(0).toUpperCase() + r.slice(1);
+
+        if (r === strongest) {
+        option.selected = true;
+      } 
+      relationSel.appendChild(option);
       });
       // if can't manage relations, disable select
       if (
@@ -750,7 +757,7 @@ const { membersContainerId = "members",
           await renderMembers(selectedFile, {
           membersContainerId: "group-members",
           modalId: "group-details"
-    });
+  });
           } else {
             renderMembers(fileId);
           }
@@ -764,7 +771,7 @@ const { membersContainerId = "members",
           deleteRel.disabled = true;
         }
       } else if (
-        rel.subjectId === currentUser.id
+        rel.subjectId === currentUser.id || (isGroup && ownsGroup)
       ) // create an option to revoke own access
       {
         const leaveSelectedFile = document.createElement("button");
@@ -1062,78 +1069,52 @@ export function resetChanges() {
   changedRelation.clear();
 }
 
-export const inviteMember = async ()=>{
-    let inviteInput;
-    const errorMessage = document.getElementById("modalErrorMessage");
-    if (selectedFileType === "file" || selectedFileType === "folder"){
-      inviteInput = document.getElementById("invite-field");
+export const inviteMember = async () => {
+  let inviteInput
+  console.log(selectedFile)
+  const type = selectedFile.split(":")[0]
+  if(type === "group"){
+    inviteInput = document.getElementById("invite-group-field");
+  }else{
+    inviteInput = document.getElementById("invite-field");
+  }
+    const response = await fetch("/api/validateUserName", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userName: inviteInput.value }),
+    });
+
+    if (!response.ok) {
+        document.getElementById("modalErrorMessage").innerText = "User or Group not found";
+        return;
+    }
+
+    const { userName } = await response.json(); 
+
+    if (tempMembers.some(u => u.subjectId === `user:${userName}`)) {
+        alert("Already invited");
+        return;
+    }
+    let addedRelation
+    if(type === "group"){
+    addedRelation = "member";
     } else {
-      inviteInput = document.getElementById("invite-group-field");
-    }
-    // Check the length of the input value, not the value itself.
-    if (inviteInput.value.length >= 2 && inviteInput.value.length <= 10) {
-    // validate input
-    if (!validateString(inviteInput.value)) {
-      alert("do not use special characters");
-      return;
+    addedRelation = "viewer"
     }
 
-    const res = await fetch("/api/validateUserName", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        userName: inviteInput.value,
-      }),
-    });
-
-    const data = await res.json();
-
-    if (data.status === "404") {
-      errorMessage.innerText = "User does not exist in the database";
-      return;
-    }
-
-    const newId = `user:${inviteInput.value.toLowerCase()}`;
-    if (!selectedFile) return;
-
-    // check if they already have a relation
-    if (tempMembers.some(u => u.subjectId === newId)) {
-      alert(`User is already related to this ${selectedFileType}`)
-    return;}
-
-    // remove from deleted if re-added
-    deletedUsers = deletedUsers.filter((u) => u.subjectId !== newId);
-
-    let addedRelation;
-    if (selectedFileType === "file" || selectedFileType === "folder"){
-      addedRelation = "viewer"
-    } else {
-      addedRelation = "member"
-    }
-    tempMembers.push({
-      subjectId: newId,
-      relations: [addedRelation]
-    });
-
-    addedUsers.push({
-      subjectId: newId,
-      relations: [addedRelation]
-    });
-
-    if (selectedFileType === "file" || selectedFileType === "folder"){
+    tempMembers.push({ subjectId: userName, relations: [addedRelation] });
+    addedUsers.push({ subjectId: userName, relations: [addedRelation] });
+    if(type === "group"){
+    await renderMembers(selectedFile, { membersContainerId: "group-members", modalId: "group-details" })
+    }else{
     await renderMembers(selectedFile);
-    } else {
-    await renderMembers(selectedFile, {
-    membersContainerId: "group-members",
-    modalId: "group-details"
-    });
     }
-      inviteInput.value = "";
-      console.log(tempMembers);
-}};
 
+    console.log(userName)
+    console.log(tempMembers)
+    console.log(addedUsers)
+    inviteInput.value = "";
+};
 const canPriv = (currentUser, tempMembers, schema, privilege, type = selectedFileType)=>{
   const userEntry = tempMembers.find(rel => rel.subjectId === currentUser.id);
   const userRelations = userEntry ? userEntry.relations : [];
@@ -1191,34 +1172,28 @@ async function renderFileListForGroup(groupId) {
 }
 
 // calculate weight of all roles and return "strongest"
-function dominance(files) {
-  //  weights for individual actions
+function dominance(rel) {
+  // weights for individual actions
   const actionWeights = {
-    view: 1,
-    comment: 2,
-    edit: 3,
-    create_child: 4,
-    share: 5,
-    delete: 10,
-    delete_folder: 12,
+    view: 1, comment: 2, edit: 3, create_child: 4, share: 5, delete: 10, delete_folder: 12,
   };
 
-  let strongest = files.relations[0];
+  let strongest = rel.relations[0];
   let maxscore = 0;
 
-  files.relations.forEach((relation) => {
-    const score = (files.actionsByRelation[relation] ?? []).reduce(
+  rel.relations.forEach((relation) => {
+    const actions = window.schema?.[selectedFileType]?.relations?.[relation] || [];
+    const score = actions.reduce(
       (sum, action) => sum + (actionWeights[action] ?? 0),
       0,
     );
-
     if (score > maxscore) {
       maxscore = score;
       strongest = relation;
     }
   });
-  console.log(strongest);
-  return strongest;
+  
+  return strongest || "viewer"; // Fallback til viewer
 }
 
 function createFileListItem(file, options = {}) {
@@ -1228,59 +1203,38 @@ function createFileListItem(file, options = {}) {
   } = options;
 
   const listItem = document.createElement("div");
-
   listItem.className = "listitem";
-
   listItem.dataset.fileId = file.objectId;
-
   const relationsArray = Array.isArray(file.relations)
     ? file.relations
     : [file.relations || "viewer"];
 
   listItem.dataset.relations = relationsArray.join(",");
-
   const fileType = file.objectId.split(":")[0];
-
-  // ICON
+  
   const icon = document.createElement("i");
-
   icon.className = "material-icons type";
-
   switch (fileType) {
     case "folder":
       icon.innerText = "folder";
       break;
-
     case "group":
       icon.innerText = "people";
       break;
-
     case "file":
       icon.innerText = "article";
       break;
-
     default:
       icon.innerText = "question_mark";
   }
-
-  // TITLE
   const itemTitle = document.createElement("div");
-
   itemTitle.className = "item-title";
-
   const h3 = document.createElement("h3");
-
   h3.innerText = file.objectId.split(":")[1];
-
   const p = document.createElement("p");
-
   p.innerText = subtitle;
-
   itemTitle.appendChild(h3);
-
   itemTitle.appendChild(p);
-
-  // RELATION
   const relation = document.createElement("div");
 
   relation.className = "relation";
@@ -1313,7 +1267,7 @@ function createFileListItem(file, options = {}) {
 
   listItem.addEventListener("click", async (event) => {
     const isMoreBtn = event.target.closest(".more-btn");
-
+    console.log("Clicked:", isMoreBtn ? "More Button" : "Row");
     if (isMoreBtn) {
       event.preventDefault();
 
@@ -1341,22 +1295,36 @@ function createFileListItem(file, options = {}) {
 }
 
 async function openDetailsModal(listItem) {
+  const fileId = listItem.dataset.fileId;
+  const type = fileId.split(":")[0];
+  
+  // Define which modal to use
+  const modalId = type === "group" ? "group-details" : "file-details";
+  const modal = document.getElementById(modalId);
+  
+  if (!modal) {
+    console.error(`Fatal: Modal #${modalId} not found in the DOM!`);
+    alert("This action is not available on this page.");
+    return;
+  }
+
   try {
-    selectedFile = listItem.dataset.fileId;
-
-    selectedFileType = selectedFile.split(":")[0];
-
+    selectedFile = fileId;
+    selectedFileType = type;
+    
+    // Reset state
     tempMembers = [];
     addedUsers = [];
     deletedUsers = [];
     changedRelation.clear();
 
-    await renderMembers(selectedFile);
+    if (type === "group") {
+      await renderMembers(fileId, { membersContainerId: "group-members", modalId: "group-details" });
+    } else {
+      await renderMembers(fileId);
+    }
 
-    document
-      .getElementById("file-details")
-      .showModal();
-
+    modal.showModal();
   } catch (err) {
     console.error("Modal failed:", err);
   }

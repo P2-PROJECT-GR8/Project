@@ -41,12 +41,9 @@
             <li>
               <a href="#groups"
                 ><i class="material-icons">article</i>Groups</a
-              <a href="#groups"
-                ><i class="material-icons">article</i>Groups</a
               >
             </li>
             <li>
-              <a href="#shared"><i class="material-icons">image</i>Shared Files</a>
               <a href="#shared"><i class="material-icons">image</i>Shared Files</a>
             </li>
           </ul>
@@ -55,17 +52,13 @@
       <main class="content">
 
 
-
-
         <div id="files" class="page">
-          <h1 id="allFilesHeader">My Files</h1>
           <h1 id="allFilesHeader">My Files</h1>
           <div class="pageHeader">
             <p id="allFIlesHeaderText">
               Here you will find an overview of all your files
             </p>
             <button class="btn-lift" id="UploadNewbtn">
-              <i class="material-icons">add</i>Create New
               <i class="material-icons">add</i>Create New
             </button>
 
@@ -82,77 +75,14 @@
               <a href="#"><i class="material-icons">more_vert</i></a>
             </div> -->
           </div>
-          <dialog id="file-details">
-            <div class="modal-body">
-              <div>
-                <h2 id = "manage-header">Manage Access</h2>
-                <p>Define who can view, edit, or manage this file or folder</p>
-              </div>
-              <div class="invite-container" id="invite-container">
-                <div class="input-container">
-                  <label for="invite-field">ADD USERS OR GROUPS</label>
-                  <input
-                    list="data-users, data-group"
-                    type="text"
-                    id="invite-field"
-                    placeholder="Write the name of a group or user"
-                    minlength="2"
-                  />
-                  <datalist id="data-users">
-                    <option value="Magnus"></option>
-                    <option value="Emil"></option>
-                    <option value="Admin"></option>
-                    <option value="Viktor"></option>
-                    <option value="Ditte"></option>
-                  </datalist>
-                  <datalist id="data-group">
-                    <option value="Group A"></option>
-                    <option value="Group B"></option>
-                    <option value="Group C"></option>
-                  </datalist>
-                  <datalist id="data-group">
-                    <option value="Group A"></option>
-                    <option value="Group B"></option>
-                    <option value="Group C"></option>
-                  </datalist>
-                </div>
-                <button id="invite-member" class="btn-lift">Invite</button>
-              </div>
-              <p
-                id="modalErrorMessage"
-                style="color: red; text-align: center"
-              ></p>
-              <h3>Current Members</h3>
-              <div id="members">
-              </div>
-              <div id="custom-access">
-                <i class="material-icons md-36">verified_user</i>
-                <div class="custom-info">
-                  <h2>Custom Access Roles</h2>
-                  <p>
-                    If you need more granular control, create a 'Custom' role.
-                  </p>
-                  <a href="" id="custom-btn">Configure Custom Role</a>
-                </div>
-              </div>
-              <div id="modal-buttons">
-                <button id="cancel-modal" class="cancel-modal">Cancel</button>
-                <div></div>
-                <button class="btn-lift" id="delete-file">Delete file</button>
-                <button class="btn-lift" id="save-changes">Save Changes</button>
-              </div>
-            </div>
-          </dialog>
           <dialog id="create-new">
             <div class="create-new-modal">
               <h2>Create a new file</h2>
               <form id="create-new-form">
                 <input
                   name="name"
-                  name="name"
                   type="text"
                   id="new-name-input"
-                  placeholder="Write the name of the file/folder"
                   placeholder="Write the name of the file/folder"
                 />
                 <select name="type" id="new-type-select" class="select-new-type">
@@ -165,17 +95,10 @@
                   <option value="">Me (personal)</option>
                 </select>
 
-                <label for="new-owner-select">Owner</label>
-                <select name="owner" id="new-owner-select">
-                  <option value="">Me (personal)</option>
-                </select>
-
-
                 <div class="create-new-buttons">
                   <button id="create-new-cancel" class="cancel-modal">Cancel</button>
                   <span></span>
                   <button id="create-new-button" class="btn-lift">Create</button>
-                </div>
                 </div>
               </form>
             </div>
@@ -235,8 +158,7 @@
               </div>
               <p
                 id="modalErrorMessage"
-                style="color: red; text-align: center"
-              ></p>
+                style="color: red; text-align: center"></p>
               <h3>Current Members</h3>
               <div id="group-members">
               </div>
@@ -285,20 +207,20 @@
           </p>
           <div id="SharedList"></div>
         </div>
-          <dialog id="shared-details">
+          <dialog id="file-details">
             <div class="modal-body">
               <div>
-                <h2>Manage Group</h2>
-                <p>Define who are members of this group</p>
+                <h2 id="manage-header">Manage Access</h2>
+                <p>Define who can view, edit, or manage this file or folder</p>
               </div>
               <div class="invite-container" id="invite-container">
                 <div class="input-container">
-                  <label for="invite-field">ADD USERS</label>
+                  <label for="invite-field">ADD USERS OR GROUPS</label>
                   <input
-                    list="data-users"
+                    list="data-users, data-group"
                     type="text"
                     id="invite-field"
-                    placeholder="Write the name of a user"
+                    placeholder="Write the name of a group or user"
                     minlength="2"
                   />
                   <datalist id="data-users">
@@ -308,39 +230,41 @@
                     <option value="Viktor"></option>
                     <option value="Ditte"></option>
                   </datalist>
+                  <datalist id="data-group">
+                    <option value="Group A"></option>
+                    <option value="Group B"></option>
+                    <option value="Group C"></option>
+                  </datalist>
                 </div>
                 <button id="invite-member" class="btn-lift">Invite</button>
+              </div>
+              <div id="members">
               </div>
               <p
                 id="modalErrorMessage"
                 style="color: red; text-align: center"
               ></p>
               <h3>Current Members</h3>
-              <div id="members">
-                <div class="member">
-                  <p>Magnus</p>
-                  <p>Owner</p>
-                </div>
-                <div class="member">
-                  <p>Emil</p>
-                  <p>Member</p>
-                </div>
-                <div class="member">
-                  <p>Kasper</p>
-                  <p>Member</p>
+              <div id="custom-access">
+                <i class="material-icons md-36">verified_user</i>
+                <div class="custom-info">
+                  <h2>Custom Access Roles</h2>
+                  <p>
+                    If you need more granular control, create a 'Custom' role.
+                  </p>
+                  <a href="" id="custom-btn">Configure Custom Role</a>
                 </div>
               </div>
               <div id="modal-buttons">
                 <button id="cancel-modal" class="cancel-modal">Cancel</button>
                 <div></div>
-
-                <button class="btn-lift">Save Changes</button>
+                <button class="btn-lift" id="delete-file">Delete file</button>
+                <button class="btn-lift" id="save-changes">Save Changes</button>
               </div>
             </div>
-
+          </dialog>
       </main>
       <footer class="footer"></footer>
     </div>
     <script src="../../js/dashboard.js" type="module"></script>
   </body>
-</html>

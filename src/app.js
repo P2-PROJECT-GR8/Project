@@ -107,17 +107,23 @@ app.get("/", redirectIfLoggedIn);
 app.use(express.static(path.join(__dirname, "public")));
 
 // Return a username to the client and logs whether the provided user exists in the db
-app.post("/api/validateUserName", function (req, res) {
-  console.log("recieved from index.js", req.body);
-  const userName = req.body.userName.toLowerCase();
+app.post("/api/validateUserName", async (req, res) => {
+  console.log("received from index.js", req.body);
+  const name = req.body.userName.toLowerCase();
 
-  db.read();
+  await db.read();
 
-  if (db.data.users.some((u) => u.name === userName) || db.data.groupNames.some((u) => u.name === userName)) {
-    res.json({ userName: userName, status: "200" });
-  } else {
-    res.json({ status: "404" });
+  const user = db.data.users.find(u => u.name === name);
+  if (user) {
+    return res.json({ userName: `user:${name}` });
   }
+
+  const groupKey = `group:${name}`;
+  if (Object.keys(db.data.tupleStore.byObject).includes(groupKey)) {
+    return res.json({ userName: groupKey });
+  }
+
+  res.status(404).json({ status: "404" });
 });
 
 app.get("/api/me", (req, res) => {
@@ -186,11 +192,30 @@ app.post("/api/relatedUsers", async (req, res) => {
   if (!objectId) {
     return res.status(400).send("Object ID is missing");
   }
+  try {
+    const relatedUsers = await accessControl.getObjectRelations(objectId);
+    const relatedGroups = await accessControl.getObjectGroups(objectId);
+    const allRelated = [...relatedUsers, ...relatedGroups];
 
-  const relatedUsers = await accessControl.getObjectRelations(objectId);
-  res.send({
-    relatedUsers: relatedUsers,
-  });
+    const userRelations = db.data.tupleStore.bySubject[user.id] || [];
+
+    const processedUsers = allRelated.map(member => {
+      return {
+        ...member,
+        userIsOwner: userRelations.some(t => 
+          t.objectId === member.subjectId && t.relation === "owner"
+        )
+      };
+    });
+
+    res.send({
+      relatedUsers: processedUsers,
+    });
+    
+  } catch (error) {
+    console.error("Fejl ved hentning af relationer:", error);
+    res.status(500).send("Internal server error");
+  }
 });
 
 // JWT sender for when a new user logs in
@@ -371,7 +396,6 @@ app.get("/api/folderContent", async (req, res) => {
 
   res.json({ files: userRelations });
 });
-
 app.post("/api/createNew", async (req, res) => {
   let currentUser;
   try {
@@ -382,59 +406,48 @@ app.post("/api/createNew", async (req, res) => {
   }
 
   const { objectId, parentFolder, ownerId } = req.body;
-  const objectType = objectId.split(":")[0];
+  if (!objectId) return res.status(400).send({ message: "Missing objectId" });
 
+  const objectType = objectId.split(":")[0];
   await db.read();
+
+  // 1. Tjek om objektet allerede findes
   if (Object.hasOwn(db.data.tupleStore.byObject, objectId)) {
     return res.status(409).send({ message: "An object with this ID already exists." });
   }
 
-  // Validate ownerId if provided and check if the user has permission to create under that owner
   let resolvedOwner = currentUser.id;
   if (ownerId && ownerId.startsWith("group:")) {
     const userRelationsToGroup = await accessControl.expandUserRelations(currentUser.id, ownerId);
     if (!userRelationsToGroup.includes("owner")) {
-      return res.status(403).send({ message: "You must be an owner of this group to create files on its behalf." });
+      return res.status(403).send({ message: "You must be an owner of this group to create objects on its behalf." });
     }
     resolvedOwner = ownerId;
   }
 
-  //checks for valid object types and permissions to create in the parent folder if specified
-  if (objectType === "folder" || objectType === "file" || objectType === "group") {
-
-    if (objectType === "group") {
-      const groupName = objectId.split(":")[1];
-
-      db.data.groups = db.data.groups || [];
-
-      db.data.groups.push({
-        id: objectId,
-        name: groupName
-      });
-
-      await accessControl.addTuple(resolvedOwner, "owner", objectId);
-      
-      await db.write(); 
-
-      return res.status(201).send({ message: "Group created successfully in DB!" });
-    }
-
-    if (parentFolder) {
-      const canCreate = await accessControl.can(currentUser.id, "create_child", parentFolder);
-      if (canCreate) {
-        await accessControl.addTuple(parentFolder, "parent", objectId);
-        return res.status(201).send({ message: "Object created successfully!" });
-      } else {
-        return res.status(403).send({ message: "User does not have permission to create objects within this folder" });
-      }
-    } else {
-
-      await accessControl.addTuple(resolvedOwner, "owner", objectId);
-      return res.status(201).send({ message: "Object created successfully!" });
-    }
-  } else {
+  if (objectType !== "folder" && objectType !== "file" && objectType !== "group") {
     return res.status(400).send({ message: "Not a valid object type" });
   }
+
+  if (objectType === "group") {
+    const groupName = objectId.split(":")[1];
+    db.data.groups = db.data.groups || [];
+    db.data.groups.push({ id: objectId, name: groupName });
+  }
+
+
+  if (parentFolder) {
+    const canCreate = await accessControl.can(currentUser.id, "create_child", parentFolder);
+    if (!canCreate) {
+      return res.status(403).send({ message: "User does not have permission to create objects within this folder" });
+    }
+    await accessControl.addTuple(parentFolder, "parent", objectId);
+  } else {
+    await accessControl.addTuple(resolvedOwner, "owner", objectId);
+  }
+  await db.write();
+
+  return res.status(201).send({ message: `${objectType} created successfully!` });
 });
 
 app.post("/api/newTuple", async (req, res) => {

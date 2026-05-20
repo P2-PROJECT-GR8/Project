@@ -135,11 +135,15 @@
           "relation": "viewer"
         },
         {
-          "subjectId": "user:jeff",
+          "subjectId": "user:magnus",
           "relation": "viewer"
         },
         {
-          "subjectId": "user:magnus",
+          "subjectId": "user:jeff",
+          "relation": "editor"
+        },
+        {
+          "subjectId": "group:grouptesting",
           "relation": "viewer"
         }
       ],
@@ -149,7 +153,15 @@
           "relation": "owner"
         },
         {
+          "subjectId": "bob",
+          "relation": "viewer"
+        },
+        {
           "subjectId": "user:magnus",
+          "relation": "member"
+        },
+        {
+          "subjectId": "group:testingasap",
           "relation": "member"
         }
       ],
@@ -163,19 +175,7 @@
           "relation": "viewer"
         }
       ],
-      "group:testing12": [
-        {
-          "subjectId": "user:emil",
-          "relation": "owner"
-        }
-      ],
-      "group:gruppedb": [
-        {
-          "subjectId": "user:emil",
-          "relation": "owner"
-        }
-      ],
-      "group:gruppedb2": [
+      "group:testingasap": [
         {
           "subjectId": "user:emil",
           "relation": "owner"
@@ -219,10 +219,6 @@
       ],
       "user:alice": [
         {
-          "relation": "owner",
-          "objectId": "file:ny_fil"
-        },
-        {
           "relation": "viewer",
           "objectId": "file:filestest"
         },
@@ -256,21 +252,7 @@
         },
         {
           "relation": "owner",
-          "objectId": "group:testing12"
-        },
-        {
-          "relation": "owner",
-          "objectId": "group:gruppedb"
-        },
-        {
-          "relation": "owner",
-          "objectId": "group:gruppedb2"
-        }
-      ],
-      "user:jeff": [
-        {
-          "relation": "viewer",
-          "objectId": "file:filestest"
+          "objectId": "group:testingasap"
         }
       ],
       "group:grouptesting": [
@@ -281,6 +263,28 @@
         {
           "relation": "viewer",
           "objectId": "folder:admin"
+        },
+        {
+          "relation": "viewer",
+          "objectId": "file:filestest"
+        }
+      ],
+      "user:jeff": [
+        {
+          "relation": "editor",
+          "objectId": "file:filestest"
+        }
+      ],
+      "bob": [
+        {
+          "relation": "viewer",
+          "objectId": "group:grouptesting"
+        }
+      ],
+      "group:testingasap": [
+        {
+          "relation": "member",
+          "objectId": "group:grouptesting"
         }
       ]
     }
@@ -315,6 +319,7 @@
       "name": "aau"
     }
   ],
+  "groups": [],
   "logs": {
     "bySubject": {
       "user:magnus": [
@@ -519,6 +524,118 @@
           "action": "manage_relations",
           "objectId": "folder:admin",
           "time": 1778841481971,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "folder:admin",
+          "time": 1779251863521,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "folder:nest1",
+          "time": 1779251865149,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "folder:deep_nest",
+          "time": 1779251865710,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "folder:nest1",
+          "time": 1779251868646,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "folder:admin",
+          "time": 1779251869229,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779252043525,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779252398383,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779260923842,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779260928058,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779262857478,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "share",
+          "objectId": "file:Project.pdf",
+          "time": 1779269256265,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "remove_relations",
+          "objectId": "file:Project.pdf",
+          "time": 1779269256271,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "manage_relations",
+          "objectId": "file:Project.pdf",
+          "time": 1779269256274,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "share",
+          "objectId": "file:Project.pdf",
+          "time": 1779269265232,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "remove_relations",
+          "objectId": "file:Project.pdf",
+          "time": 1779269265239,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "manage_relations",
+          "objectId": "file:Project.pdf",
+          "time": 1779269265245,
           "allowed": true
         }
       ],
@@ -3553,6 +3670,1350 @@
           "objectId": "group:grouptesting",
           "time": 1779221640867,
           "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779229959716,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779229964633,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779250461622,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:admin",
+          "time": 1779250466114,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779250474692,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:admin",
+          "time": 1779250478357,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779250902741,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779251050905,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779251268479,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779251280373,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779251337303,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:testing12",
+          "time": 1779251350272,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779251352949,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779251470104,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779251474970,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779251548005,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:admin",
+          "time": 1779251548706,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:nest1",
+          "time": 1779251550919,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:deep_nest",
+          "time": 1779251551756,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:nest1",
+          "time": 1779251553483,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:admin",
+          "time": 1779251566980,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779251568003,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:admin",
+          "time": 1779251571689,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:admin",
+          "time": 1779251574486,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:nest1",
+          "time": 1779251574971,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:admin",
+          "time": 1779251577825,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:admin",
+          "time": 1779251584453,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779251633217,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779251833086,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:admin",
+          "time": 1779251849602,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:nest1",
+          "time": 1779251850803,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:deep_nest",
+          "time": 1779251851553,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:nest1",
+          "time": 1779251853061,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:admin",
+          "time": 1779251853867,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779251854983,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779252416368,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779252539050,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779252568750,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779253124982,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779253132667,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779253135760,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779253233982,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779253430429,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779253510111,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779253513034,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779253690410,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:admin",
+          "time": 1779253717430,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "file:filestest",
+          "time": 1779254018934,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "file:filestest",
+          "time": 1779254018941,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "file:filestest",
+          "time": 1779254018946,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779254440028,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:grouptesting",
+          "time": 1779254471531,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779254471537,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779254471543,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779254591111,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779254867292,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:grouptesting",
+          "time": 1779254872326,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779254872331,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779254872336,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779254891391,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779255454226,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779255673299,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779256110578,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "user:emil",
+          "time": 1779256145060,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:gruppeejer",
+          "time": 1779256148762,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779262893090,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:admin",
+          "time": 1779262976149,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779264146078,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779264885747,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:grouptesting",
+          "time": 1779266125440,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779266125446,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779266125452,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:grouptesting",
+          "time": 1779267000207,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779267000215,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779267000221,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:grouptesting",
+          "time": 1779267035054,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779267035060,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779267035067,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:grouptesting",
+          "time": 1779267248677,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779267248684,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779267248690,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:testing12",
+          "time": 1779267258933,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "group:testing12",
+          "time": 1779267258936,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "group:testing12",
+          "time": 1779267258938,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:grouptesting",
+          "time": 1779268493385,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779268493392,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779268493398,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:grouptesting",
+          "time": 1779268595908,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779268595918,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779268595927,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:gruppeejer",
+          "time": 1779268605916,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779268609181,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779268617781,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779268646437,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779268651336,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779268653071,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779268656380,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:grouptesting",
+          "time": 1779268712940,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779268712951,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779268712959,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:grouptesting",
+          "time": 1779268854804,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779268854815,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779268854823,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "file:filestest",
+          "time": 1779268871947,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "file:filestest",
+          "time": 1779268871952,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "file:filestest",
+          "time": 1779268871956,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:grouptesting",
+          "time": 1779269186084,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779269186089,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779269186095,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:testing12",
+          "time": 1779269192728,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779269193715,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:admin",
+          "time": 1779269198512,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779269199819,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:testing12",
+          "time": 1779269200341,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:grouptesting",
+          "time": 1779269205006,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779269205017,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779269205024,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779269230101,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779269278928,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779269346849,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779269665649,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779269735819,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:admin",
+          "time": 1779269740181,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "delete",
+          "objectId": "group:gruppeejer",
+          "time": 1779272719470,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "delete",
+          "objectId": "group:gruppedb2",
+          "time": 1779272728068,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "delete",
+          "objectId": "group:gruppedb",
+          "time": 1779272731951,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779272733906,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:testing12",
+          "time": 1779272736184,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:admin",
+          "time": 1779272807433,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:testing12",
+          "time": 1779272814496,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:grouptesting",
+          "time": 1779272824148,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779272824155,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779272824160,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:testing12",
+          "time": 1779272826713,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779272827392,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:admin",
+          "time": 1779272829780,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:nest1",
+          "time": 1779272830733,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:deep_nest",
+          "time": 1779272831282,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:nest1",
+          "time": 1779272832172,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:admin",
+          "time": 1779272832583,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779272832830,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:testing12",
+          "time": 1779272833043,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "delete",
+          "objectId": "group:testing12",
+          "time": 1779272836202,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779272838162,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:grouptesting",
+          "time": 1779272852132,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779272852138,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779272852145,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "user:emil",
+          "time": 1779272867303,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:testing67",
+          "time": 1779272871185,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779272873766,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:grouptesting",
+          "time": 1779272882380,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779272882384,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779272882387,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:grouptesting",
+          "time": 1779273043184,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779273043198,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779273043203,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:testing67",
+          "time": 1779273048094,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:grouptesting",
+          "time": 1779273058015,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779273058020,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779273058024,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:testing67",
+          "time": 1779273068696,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779273074895,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:grouptesting",
+          "time": 1779273093749,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779273093756,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779273093762,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:grouptesting",
+          "time": 1779273119265,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779273119275,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779273119278,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:grouptesting",
+          "time": 1779273124070,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779273124074,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779273124076,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779273131514,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:testing67",
+          "time": 1779273144728,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:grouptesting",
+          "time": 1779273153248,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779273153255,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779273153262,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:testing67",
+          "time": 1779273157628,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:testing67",
+          "time": 1779273163276,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "delete",
+          "objectId": "group:testing67",
+          "time": 1779273177934,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779273180431,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:grouptesting",
+          "time": 1779273186247,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779273186254,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779273186260,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "user:emil",
+          "time": 1779273491455,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:testingasap",
+          "time": 1779273499713,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779273543695,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:grouptesting",
+          "time": 1779273552498,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779273552505,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779273552509,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:testingasap",
+          "time": 1779273567827,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:testingasap",
+          "time": 1779273576480,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:testingasap",
+          "time": 1779273615910,
+          "allowed": true
         }
       ],
       "user:admin": [
@@ -4430,6 +5891,27 @@
           "objectId": "file:Project.pdf",
           "time": 1779224800974,
           "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "file:ny_fil",
+          "time": 1779272502075,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "file:ny_fil",
+          "time": 1779272502082,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "file:ny_fil",
+          "time": 1779272502086,
+          "allowed": false
         }
       ]
     },
@@ -4672,6 +6154,139 @@
           "objectId": "folder:admin",
           "time": 1779221321895,
           "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:admin",
+          "time": 1779250466114,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:admin",
+          "time": 1779250478357,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:admin",
+          "time": 1779251548706,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:admin",
+          "time": 1779251566980,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:admin",
+          "time": 1779251571689,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:admin",
+          "time": 1779251574486,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:admin",
+          "time": 1779251577825,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:admin",
+          "time": 1779251584453,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:admin",
+          "time": 1779251849602,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:admin",
+          "time": 1779251853867,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "folder:admin",
+          "time": 1779251863521,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "folder:admin",
+          "time": 1779251869229,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:admin",
+          "time": 1779253717430,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:admin",
+          "time": 1779262976149,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:admin",
+          "time": 1779269198512,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:admin",
+          "time": 1779269740181,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:admin",
+          "time": 1779272807433,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:admin",
+          "time": 1779272829780,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:admin",
+          "time": 1779272832583,
+          "allowed": true
         }
       ],
       "folder:nest1": [
@@ -4737,6 +6352,69 @@
           "objectId": "folder:nest1",
           "time": 1779221319804,
           "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:nest1",
+          "time": 1779251550919,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:nest1",
+          "time": 1779251553483,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:nest1",
+          "time": 1779251574971,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:nest1",
+          "time": 1779251850803,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:nest1",
+          "time": 1779251853061,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "folder:nest1",
+          "time": 1779251865149,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "folder:nest1",
+          "time": 1779251868646,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:nest1",
+          "time": 1779272830733,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:nest1",
+          "time": 1779272832172,
+          "allowed": true
         }
       ],
       "folder:deep_nest": [
@@ -4766,6 +6444,34 @@
           "action": "view",
           "objectId": "folder:deep_nest",
           "time": 1779221210386,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:deep_nest",
+          "time": 1779251551756,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:deep_nest",
+          "time": 1779251851553,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "folder:deep_nest",
+          "time": 1779251865710,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:deep_nest",
+          "time": 1779272831282,
           "allowed": true
         }
       ],
@@ -5007,6 +6713,48 @@
           "objectId": "file:Project.pdf",
           "time": 1779224800974,
           "allowed": false
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "share",
+          "objectId": "file:Project.pdf",
+          "time": 1779269256265,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "remove_relations",
+          "objectId": "file:Project.pdf",
+          "time": 1779269256271,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "manage_relations",
+          "objectId": "file:Project.pdf",
+          "time": 1779269256274,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "share",
+          "objectId": "file:Project.pdf",
+          "time": 1779269265232,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "remove_relations",
+          "objectId": "file:Project.pdf",
+          "time": 1779269265239,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "manage_relations",
+          "objectId": "file:Project.pdf",
+          "time": 1779269265245,
+          "allowed": true
         }
       ],
       "folder:folderTester": [
@@ -5591,6 +7339,48 @@
           "action": "manage_relations",
           "objectId": "file:filestest",
           "time": 1779181918228,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "file:filestest",
+          "time": 1779254018934,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "file:filestest",
+          "time": 1779254018941,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "file:filestest",
+          "time": 1779254018946,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "file:filestest",
+          "time": 1779268871947,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "file:filestest",
+          "time": 1779268871952,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "file:filestest",
+          "time": 1779268871956,
           "allowed": true
         }
       ],
@@ -7467,6 +9257,944 @@
           "objectId": "group:grouptesting",
           "time": 1779221640867,
           "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779229959716,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779229964633,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779250461622,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779250474692,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779250902741,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779251050905,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779251268479,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779251280373,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779251337303,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779251352949,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779251470104,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779251474970,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779251548005,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779251568003,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779251633217,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779251833086,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779251854983,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779252043525,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779252398383,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779252416368,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779252539050,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779252568750,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779253124982,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779253132667,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779253135760,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779253233982,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779253430429,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779253510111,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779253513034,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779253690410,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779254440028,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:grouptesting",
+          "time": 1779254471531,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779254471537,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779254471543,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779254591111,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779254867292,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:grouptesting",
+          "time": 1779254872326,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779254872331,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779254872336,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779254891391,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779255454226,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779255673299,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779256110578,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779260923842,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779260928058,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779262857478,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779262893090,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779264146078,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779264885747,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:grouptesting",
+          "time": 1779266125440,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779266125446,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779266125452,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:grouptesting",
+          "time": 1779267000207,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779267000215,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779267000221,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:grouptesting",
+          "time": 1779267035054,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779267035060,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779267035067,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:grouptesting",
+          "time": 1779267248677,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779267248684,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779267248690,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:grouptesting",
+          "time": 1779268493385,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779268493392,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779268493398,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:grouptesting",
+          "time": 1779268595908,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779268595918,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779268595927,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779268609181,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779268617781,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779268646437,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779268651336,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779268653071,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779268656380,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:grouptesting",
+          "time": 1779268712940,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779268712951,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779268712959,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:grouptesting",
+          "time": 1779268854804,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779268854815,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779268854823,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:grouptesting",
+          "time": 1779269186084,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779269186089,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779269186095,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779269193715,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779269199819,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:grouptesting",
+          "time": 1779269205006,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779269205017,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779269205024,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779269230101,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779269278928,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779269346849,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779269665649,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779269735819,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779272733906,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:grouptesting",
+          "time": 1779272824148,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779272824155,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779272824160,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779272827392,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779272832830,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779272838162,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:grouptesting",
+          "time": 1779272852132,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779272852138,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779272852145,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779272873766,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:grouptesting",
+          "time": 1779272882380,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779272882384,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779272882387,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:grouptesting",
+          "time": 1779273043184,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779273043198,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779273043203,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:grouptesting",
+          "time": 1779273058015,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779273058020,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779273058024,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779273074895,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:grouptesting",
+          "time": 1779273093749,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779273093756,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779273093762,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:grouptesting",
+          "time": 1779273119265,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779273119275,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779273119278,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:grouptesting",
+          "time": 1779273124070,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779273124074,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779273124076,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779273131514,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:grouptesting",
+          "time": 1779273153248,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779273153255,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779273153262,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779273180431,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:grouptesting",
+          "time": 1779273186247,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779273186254,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779273186260,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptesting",
+          "time": 1779273543695,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:grouptesting",
+          "time": 1779273552498,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779273552505,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "group:grouptesting",
+          "time": 1779273552509,
+          "allowed": false
         }
       ],
       "group:groupingrouptest": [
@@ -7930,6 +10658,83 @@
           "objectId": "group:testing12",
           "time": 1779220569904,
           "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:testing12",
+          "time": 1779251350272,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "group:testing12",
+          "time": 1779267258933,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "group:testing12",
+          "time": 1779267258936,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "group:testing12",
+          "time": 1779267258938,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:testing12",
+          "time": 1779269192728,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:testing12",
+          "time": 1779269200341,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:testing12",
+          "time": 1779272736184,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:testing12",
+          "time": 1779272814496,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:testing12",
+          "time": 1779272826713,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:testing12",
+          "time": 1779272833043,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "delete",
+          "objectId": "group:testing12",
+          "time": 1779272836202,
+          "allowed": true
         }
       ],
       "user:emil": [
@@ -7973,6 +10778,27 @@
           "action": "view",
           "objectId": "user:emil",
           "time": 1779190942175,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "user:emil",
+          "time": 1779256145060,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "user:emil",
+          "time": 1779272867303,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "user:emil",
+          "time": 1779273491455,
           "allowed": false
         }
       ],
@@ -8080,6 +10906,13 @@
           "objectId": "group:gruppedb2",
           "time": 1779191657186,
           "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "delete",
+          "objectId": "group:gruppedb2",
+          "time": 1779272728068,
+          "allowed": true
         }
       ],
       "group:gruppedb": [
@@ -8095,6 +10928,140 @@
           "action": "view",
           "objectId": "group:gruppedb",
           "time": 1779191659136,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "delete",
+          "objectId": "group:gruppedb",
+          "time": 1779272731951,
+          "allowed": true
+        }
+      ],
+      "group:gruppeejer": [
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:gruppeejer",
+          "time": 1779256148762,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:gruppeejer",
+          "time": 1779268605916,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "delete",
+          "objectId": "group:gruppeejer",
+          "time": 1779272719470,
+          "allowed": true
+        }
+      ],
+      "file:ny_fil": [
+        {
+          "subjectId": "user:admin",
+          "action": "share",
+          "objectId": "file:ny_fil",
+          "time": 1779272502075,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "remove_relations",
+          "objectId": "file:ny_fil",
+          "time": 1779272502082,
+          "allowed": false
+        },
+        {
+          "subjectId": "user:admin",
+          "action": "manage_relations",
+          "objectId": "file:ny_fil",
+          "time": 1779272502086,
+          "allowed": false
+        }
+      ],
+      "group:testing67": [
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:testing67",
+          "time": 1779272871185,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:testing67",
+          "time": 1779273048094,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:testing67",
+          "time": 1779273068696,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:testing67",
+          "time": 1779273144728,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:testing67",
+          "time": 1779273157628,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:testing67",
+          "time": 1779273163276,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "delete",
+          "objectId": "group:testing67",
+          "time": 1779273177934,
+          "allowed": true
+        }
+      ],
+      "group:testingasap": [
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:testingasap",
+          "time": 1779273499713,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:testingasap",
+          "time": 1779273567827,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:testingasap",
+          "time": 1779273576480,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:testingasap",
+          "time": 1779273615910,
           "allowed": true
         }
       ]

@@ -237,6 +237,30 @@ class AccessControl {
     return relatedUsers;
   }
 
+   async getObjectGroups(objectId) {
+    const relatedUsers = [];
+    const allSubjectIds = new Set(
+      Object.keys(this.db.data.tupleStore.bySubject),
+    );
+    for (const subjectId of allSubjectIds) {
+      // We only care about users, not groups or other objects
+      if (!subjectId.startsWith("group:")) {
+        continue;
+      }
+
+      const relations = await this.expandUserRelations(subjectId, objectId);
+
+      if (relations.length > 0) {
+        relatedUsers.push({
+          subjectId: subjectId,
+          relations: relations,
+        });
+      }
+    }
+
+    return relatedUsers;
+  }
+
   async addTuple(subjectId, relation, objectId) {
     await this.db.read();
     const entryByObject = { subjectId, relation };
