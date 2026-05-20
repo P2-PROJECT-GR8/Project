@@ -227,8 +227,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   uploadNewBtn.addEventListener("click", async () => {
     createNewErrorMsg.innerText = "";
 
-    const ownerSelect = document.getElementById("new-owner-select");
-    ownerSelect.innerHTML = '<option value="">Me (personal)</option>';
+    const fileTypeSelect = document.getElementById("new-type-select")
 
     // Use the new endpoint instead of filtering /api/files
     const res = await fetch("/api/ownedGroups", { credentials: "include" });

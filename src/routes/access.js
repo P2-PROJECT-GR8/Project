@@ -459,31 +459,41 @@ class AccessControl {
   }
 
   async deleteFile(objectId) {
-    await this.db.read();
+  await this.db.read();
 
-    // Remove all relations to the file
-    // The deleteTuple function delete when there are no more relations
-    const objectType = objectId.split(":")[0];
-    if (objectType === "folder"){
-      const folderContent = this.db.data.tupleStore.bySubject[objectId] || [];
+  const objectType = objectId.split(":")[0];
 
-      for (const content of [...folderContent]) {
-        // run recursively for  children
-        await this.deleteFile(content.objectId);
+  if (objectType === "folder") {
+    const folderContent = this.db.data.tupleStore.bySubject[objectId] || [];
 
-        // remove relation
-        await this.deleteTuple(
-          content.subjectId,
-          content.relation,
-          content.objectId,
-        );
-      }
-    }
-    const tuples = this.db.data.tupleStore.byObject[objectId];
-    for (const tuple of [...tuples]) {
-      await this.deleteTuple(tuple.subjectId, tuple.relation, objectId);
+    for (const content of [...folderContent]) {
+      await this.deleteFile(content.objectId);
+
+      await this.deleteTuple(
+        content.subjectId,
+        content.relation,
+        content.objectId,
+      );
     }
   }
+
+  if (objectType === "group") {
+    const groupRelations = this.db.data.tupleStore.bySubject[objectId] || [];
+    
+    for (const tuple of [...groupRelations]) {
+      await this.deleteTuple(
+        objectId,
+        tuple.relation,
+        tuple.objectId
+      );
+    }
+  }
+
+  const tuples = this.db.data.tupleStore.byObject[objectId] || [];
+  for (const tuple of [...tuples]) {
+    await this.deleteTuple(tuple.subjectId, tuple.relation, objectId);
+  }
+}
 
   async log(subjectId, action, objectId, allowed) {
     const now = Date.now();
