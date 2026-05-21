@@ -58,7 +58,7 @@ describe("login test", () => {
     //console.log(fakeDb.data.users);
 
     const res = await request(app)
-      .post("/login")
+      .post("/api/login")
       .send({ userName: "Testuser" });
 
     // assert
@@ -82,7 +82,7 @@ describe("login test", () => {
 
   it("return status of 404 if username isnt found", async () => {
     const res = await request(app)
-      .post("/login")
+      .post("/api/login")
       .send({ userName: "TestUser" });
 
     //assert
@@ -92,7 +92,7 @@ describe("login test", () => {
 
   it("should respond with status 400 if no username is recieved", async () => {
     const res = await request(app)
-      .post("/login")
+      .post("/api/login")
       .set("Content-Type", "application/json")
       .send({ userName: "" });
 
@@ -100,7 +100,7 @@ describe("login test", () => {
     expect(res.body.message).toEqual("Username is missing");
   });
   it("should return status 500 if bad request", async () => {
-    const res = await request(app).post("/login").send();
+    const res = await request(app).post("/api/login").send();
 
     //assert
 
@@ -489,6 +489,11 @@ describe("foldercontent", async () => {
     fakeDb.data.tupleStore.byObject["file:testfile"] = [];
     fakeDb.data.tupleStore.byObject["folder:testfolder"] = [];
     fakeDb.data.tupleStore.bySubject["folder:testfolder"] = [];
+    fakeDb.data.schema.folder = {
+      relations: {
+        owner: ["view"],
+      },
+    };
 
     fakeDb.data.tupleStore.bySubject["user:testuser"].push({
       relation: "owner",

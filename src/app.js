@@ -439,7 +439,7 @@ app.post("/api/createNew", async (req, res) => {
   }
   await db.write();
 
-  return res.status(201).send({ message: `${objectType} created successfully!` });
+  return res.status(201).send({ message: "Object created successfully!" });
 });
 
 app.post("/api/newTuple", async (req, res) => {

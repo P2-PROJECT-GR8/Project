@@ -340,7 +340,11 @@ describe("locatePaths", () => {
 
     const ac = new AccessControl(fakeDb);
 
-    const paths = await ac.locatePaths("user:testUser", "file:testfile", "pathsToTarget");
+    const paths = await ac.locatePaths(
+      "user:testUser",
+      "file:testfile",
+      "pathsToTarget",
+    );
 
     // assert
     expect(paths.length).toBeGreaterThan(0);
@@ -393,7 +397,11 @@ describe("locatePaths", () => {
 
     const ac = new AccessControl(fakeDb);
 
-    const paths = await ac.locatePaths("file:testfile", null, "pathsFromTarget");
+    const paths = await ac.locatePaths(
+      "file:testfile",
+      null,
+      "pathsFromTarget",
+    );
 
     expect(paths.length).toBeGreaterThan(0);
     expect(paths).toBeInstanceOf(Array);
@@ -496,6 +504,30 @@ describe("_getSubjectGroups functions", () => {
     expect(groups).toBeDefined();
     expect(groups).toBeInstanceOf(Set);
     expect(groups).toEqual(new Set(["group:group1", "group:group2"]));
+  });
+  it("should treat a user who owns a group as part of that group", () => {
+    const fakeDb = {
+      read: vi.fn(),
+      data: {
+        tupleStore: {
+          bySubject: {
+            "user:testuser": [
+              {
+                relation: "owner",
+                objectId: "group:group1",
+              },
+            ],
+          },
+          byObject: {},
+        },
+      },
+    };
+
+    const ac = new AccessControl(fakeDb);
+
+    const groups = ac._getSubjectGroups("user:testuser");
+
+    expect(groups).toEqual(new Set(["group:group1"]));
   });
   it("should return an empty set if no groups are found", () => {
     const fakeDb = {
