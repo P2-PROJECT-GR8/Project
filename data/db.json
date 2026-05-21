@@ -146,6 +146,10 @@
         {
           "subjectId": "user:magnus",
           "relation": "viewer"
+        },
+        {
+          "subjectId": "user:emil",
+          "relation": "owner"
         }
       ],
       "group:testgruppe": [
@@ -200,6 +204,10 @@
         {
           "relation": "owner",
           "objectId": "file:file"
+        },
+        {
+          "relation": "owner",
+          "objectId": "file:nyfil"
         }
       ],
       "group:grouptest": [
@@ -961,6 +969,62 @@
           "action": "manage_relations",
           "objectId": "file:nyfil",
           "time": 1779351124733,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:testgruppe",
+          "time": 1779392739419,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:testgruppe",
+          "time": 1779393001645,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:testgruppe",
+          "time": 1779393004196,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "share",
+          "objectId": "file:nyfil",
+          "time": 1779393016923,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "remove_relations",
+          "objectId": "file:nyfil",
+          "time": 1779393016938,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "manage_relations",
+          "objectId": "file:nyfil",
+          "time": 1779393016952,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:grouptest",
+          "time": 1779393111499,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:grouptest",
+          "time": 1779393142233,
           "allowed": true
         }
       ],
@@ -13234,6 +13298,20 @@
           "objectId": "group:grouptest",
           "time": 1779348603521,
           "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:grouptest",
+          "time": 1779393111499,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:grouptest",
+          "time": 1779393142233,
+          "allowed": true
         }
       ],
       "file:filetest": [
@@ -13676,6 +13754,27 @@
           "objectId": "group:testgruppe",
           "time": 1779351114568,
           "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:testgruppe",
+          "time": 1779392739419,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:testgruppe",
+          "time": 1779393001645,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:testgruppe",
+          "time": 1779393004196,
+          "allowed": true
         }
       ],
       "file:nyfil": [
@@ -13845,6 +13944,27 @@
           "action": "manage_relations",
           "objectId": "file:nyfil",
           "time": 1779351124733,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "share",
+          "objectId": "file:nyfil",
+          "time": 1779393016923,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "remove_relations",
+          "objectId": "file:nyfil",
+          "time": 1779393016938,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "manage_relations",
+          "objectId": "file:nyfil",
+          "time": 1779393016952,
           "allowed": true
         }
       ],

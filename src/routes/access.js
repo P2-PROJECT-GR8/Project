@@ -223,6 +223,9 @@ class AccessControl {
     );
     for (const subjectId of allSubjectIds) {
       // We only care about users, not groups or other objects
+      if (!subjectId.startsWith("user:")) {
+        continue;
+      }
 
       const relations = await this.expandUserRelations(subjectId, objectId);
 

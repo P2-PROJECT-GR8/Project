@@ -113,7 +113,7 @@ app.post("/api/validateUserName", async (req, res) => {
 
   await db.read();
 
-  const user = db.data.users.find(u => u.name === name);
+  const user = db.data.users.find((u) => u.name === name);
   if (user) {
     return res.json({ userName: `user:${name}` });
   }
@@ -195,15 +195,44 @@ app.post("/api/relatedUsers", async (req, res) => {
   try {
     const relatedUsers = await accessControl.getObjectRelations(objectId);
     const relatedGroups = await accessControl.renderSubjects(objectId);
-    const allRelated = [...relatedUsers, ...relatedGroups];
-    console.log("relatedUsers:", relatedUsers)
-    console.log("relatedGroups:", relatedGroups)
-    console.log("allRelated:", allRelated)
+
+    const combinedRelated = new Map();
+    for (const item of [...relatedUsers, ...relatedGroups]) {
+      const existing = combinedRelated.get(item.subjectId);
+      if (!existing) {
+        combinedRelated.set(item.subjectId, {
+          subjectId: item.subjectId,
+          relations: new Set(item.relations),
+        });
+      } else {
+        for (const relation of item.relations) {
+          existing.relations.add(relation);
+        }
+      }
+    }
+
+    const mergedRelated = await Promise.all(
+      Array.from(combinedRelated.values()).map(async (entry) => {
+        const item = {
+          subjectId: entry.subjectId,
+          relations: Array.from(entry.relations),
+        };
+
+        if (item.subjectId.startsWith("group:")) {
+          const groupRelations = await accessControl.expandUserRelations(
+            user.id,
+            item.subjectId,
+          );
+          item.userIsOwner = groupRelations.includes("owner");
+        }
+
+        return item;
+      }),
+    );
 
     res.send({
-      relatedUsers: relatedGroups,
+      relatedUsers: mergedRelated,
     });
-    
   } catch (error) {
     console.error("Fejl ved hentning af relationer:", error);
     res.status(500).send("Internal server error");
@@ -288,12 +317,16 @@ app.get("/api/ownedGroups", async (req, res) => {
 
   await db.read();
 
-  const allGroups = Object.keys(db.data.tupleStore.byObject)
-    .filter(id => id.startsWith("group:"));
+  const allGroups = Object.keys(db.data.tupleStore.byObject).filter((id) =>
+    id.startsWith("group:"),
+  );
 
   const ownedGroups = [];
   for (const groupId of allGroups) {
-    const relations = await accessControl.expandUserRelations(currentUser.id, groupId);
+    const relations = await accessControl.expandUserRelations(
+      currentUser.id,
+      groupId,
+    );
     if (relations.includes("owner")) {
       ownedGroups.push(groupId.split(":")[1]);
     }
@@ -302,12 +335,11 @@ app.get("/api/ownedGroups", async (req, res) => {
   res.json({ ownedGroups });
 });
 
-
 app.get("/api/groupNames", (req, res) => {
   db.read();
   const groupNames = Object.keys(db.data.tupleStore.byObject)
-    .filter(id => id.startsWith("group:"))
-    .map(id => id.split(":")[1]);
+    .filter((id) => id.startsWith("group:"))
+    .map((id) => id.split(":")[1]);
   res.send({ groupNames });
 });
 
@@ -405,19 +437,33 @@ app.post("/api/createNew", async (req, res) => {
 
   // 1. Tjek om objektet allerede findes
   if (Object.hasOwn(db.data.tupleStore.byObject, objectId)) {
-    return res.status(409).send({ message: "An object with this ID already exists." });
+    return res
+      .status(409)
+      .send({ message: "An object with this ID already exists." });
   }
 
   let resolvedOwner = currentUser.id;
   if (ownerId && ownerId.startsWith("group:")) {
-    const userRelationsToGroup = await accessControl.expandUserRelations(currentUser.id, ownerId);
+    const userRelationsToGroup = await accessControl.expandUserRelations(
+      currentUser.id,
+      ownerId,
+    );
     if (!userRelationsToGroup.includes("owner")) {
-      return res.status(403).send({ message: "You must be an owner of this group to create objects on its behalf." });
+      return res
+        .status(403)
+        .send({
+          message:
+            "You must be an owner of this group to create objects on its behalf.",
+        });
     }
     resolvedOwner = ownerId;
   }
 
-  if (objectType !== "folder" && objectType !== "file" && objectType !== "group") {
+  if (
+    objectType !== "folder" &&
+    objectType !== "file" &&
+    objectType !== "group"
+  ) {
     return res.status(400).send({ message: "Not a valid object type" });
   }
 
@@ -427,11 +473,19 @@ app.post("/api/createNew", async (req, res) => {
     db.data.groups.push({ id: objectId, name: groupName });
   }
 
-
   if (parentFolder) {
-    const canCreate = await accessControl.can(currentUser.id, "create_child", parentFolder);
+    const canCreate = await accessControl.can(
+      currentUser.id,
+      "create_child",
+      parentFolder,
+    );
     if (!canCreate) {
-      return res.status(403).send({ message: "User does not have permission to create objects within this folder" });
+      return res
+        .status(403)
+        .send({
+          message:
+            "User does not have permission to create objects within this folder",
+        });
     }
     await accessControl.addTuple(parentFolder, "parent", objectId);
   } else {
@@ -439,7 +493,9 @@ app.post("/api/createNew", async (req, res) => {
   }
   await db.write();
 
-  return res.status(201).send({ message: "Object created successfully!" });
+  return res
+    .status(201)
+    .send({ message: `${objectType} created successfully!` });
 });
 
 app.post("/api/newTuple", async (req, res) => {
@@ -683,8 +739,8 @@ app.get("/api/adminGetGroups", async (req, res) => {
 app.get("/api/groupNames", (req, res) => {
   db.read();
   const groupNames = Object.keys(db.data.tupleStore.byObject)
-    .filter(id => id.startsWith("group:"))
-    .map(id => id.split(":")[1]);
+    .filter((id) => id.startsWith("group:"))
+    .map((id) => id.split(":")[1]);
   res.send({ groupNames });
 });
 
@@ -698,12 +754,16 @@ app.get("/api/ownedGroups", async (req, res) => {
 
   await db.read();
 
-  const allGroups = Object.keys(db.data.tupleStore.byObject)
-    .filter(id => id.startsWith("group:"));
+  const allGroups = Object.keys(db.data.tupleStore.byObject).filter((id) =>
+    id.startsWith("group:"),
+  );
 
   const ownedGroups = [];
   for (const groupId of allGroups) {
-    const relations = await accessControl.expandUserRelations(currentUser.id, groupId);
+    const relations = await accessControl.expandUserRelations(
+      currentUser.id,
+      groupId,
+    );
     if (relations.includes("owner")) {
       ownedGroups.push(groupId.split(":")[1]);
     }
@@ -750,17 +810,14 @@ app.post("/api/deleteFile", async (req, res) => {
     const objectType = objectId.split(":")[0];
     let canDelete;
     if (objectType === "file" || objectType === "group") {
-      canDelete = await accessControl.can(
-        currentUser.id, 
-        "delete", 
-        objectId)|| currentUser.id === "user:admin";
+      canDelete =
+        (await accessControl.can(currentUser.id, "delete", objectId)) ||
+        currentUser.id === "user:admin";
     } else if (objectType === "folder") {
-      canDelete = await accessControl.can(
-        currentUser.id,
-        "delete_folder",
-        objectId,
-      ) || currentUser.id === "user:admin";
-    } 
+      canDelete =
+        (await accessControl.can(currentUser.id, "delete_folder", objectId)) ||
+        currentUser.id === "user:admin";
+    }
     console.log(canDelete);
 
     if (!canDelete) {

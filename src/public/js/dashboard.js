@@ -658,13 +658,7 @@ export const renderMembers = async (fileId, options = {}) => {
     tempMembers.forEach((rel) => {
       const isGroup = rel.subjectId.startsWith("group:");
       const ownsGroup = rel.userIsOwner;
-      const userEntry = tempMembers.find(
-        (rel) => rel.subjectId === currentUser.id,
-      );
-      const userRelations = userEntry ? userEntry.relations : [];
-      const isOwnerOfGroup = userRelations.some(
-        (t) => t.objectId === rel.subjectId && t.relation === "owner",
-      );
+      const isOwnerOfGroup = ownsGroup === true;
       if (isGroup) console.log(rel);
       const member = document.createElement("div");
       member.className = "member";
@@ -705,7 +699,9 @@ export const renderMembers = async (fileId, options = {}) => {
       if (
         !canManageRel ||
         rel.subjectId === currentUser.id ||
-        (rel.relations.includes("owner") && currentUser.id !== "user:admin")
+        (rel.relations.includes("owner") &&
+          currentUser.id !== "user:admin" &&
+          !isOwnerOfGroup)
       ) {
         relationSel.disabled = true;
       }
@@ -1036,7 +1032,7 @@ if (deleteGroupBtn) {
   });
 }
 const deleteFileBtn = document.getElementById("delete-file");
-deleteFileBtn.className="btn-lift"
+deleteFileBtn.className = "btn-lift";
 deleteFileBtn.addEventListener("click", async (event) => {
   event.preventDefault();
   deleteObject(event);
