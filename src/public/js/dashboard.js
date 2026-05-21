@@ -374,7 +374,19 @@ document.addEventListener("DOMContentLoaded", async () => {
       event.preventDefault(); // Prevent default anchor link behavior (e.g., jumping to the top)
       const targetPageId = this.getAttribute("href");
       if (targetPageId && targetPageId.startsWith("#")) {
+
+        const url = new URL(window.location);
+        url.searchParams.delete("folderId");
+        url.searchParams.delete("groupId");
+        window.history.pushState({}, "", url);
+        document.getElementById("groups-main-view")?.classList.remove("hidden");
+        document.getElementById("groups-deeper-view")?.classList.add("hidden");
+        const groupFileList = document.getElementById("groups-files-list");
+        if (groupFileList) groupFileList.innerHTML = "";
+        resetChanges();
+        renderFileListForUser("");
         showPage(targetPageId);
+
       }
     });
   });
@@ -411,6 +423,7 @@ const groupDetailsModal = document.getElementById("group-details");
     groupDetailsModal.querySelector(".cancel-modal").addEventListener("click", () => {
     groupDetailsModal.close();
 });
+
 
 document.addEventListener("click", async (event) => {
   // Tjek om det klikkede element er en "more_vert" knap
@@ -605,6 +618,8 @@ export const renderMembers = async (fileId, options  ={}) => {
   console.log(selectedFileType)
   const currentUser = await getCurrentUser();
   membersList.innerHTML = "";
+
+  if (tempMembers.length === 0) {
     const res = await fetch("/api/relatedUsers", {
       method: "POST",
       credentials: "include",
@@ -621,6 +636,7 @@ export const renderMembers = async (fileId, options  ={}) => {
 
     tempMembers = structuredClone(normalized);
       } 
+  }
     const schemaRes = await fetch("/api/schema", { credentials: "include" });
       const schema = await schemaRes.json();
     window.schema = schema;
@@ -662,18 +678,19 @@ export const renderMembers = async (fileId, options  ={}) => {
         // relation part of member made to be a dropdown that allows owners to change relation
         const relationSel = document.createElement("select");
         relationSel.className = "changeRelation";
-
+        // Find dette stykke inde i renderMembers:
         let possibleRelationTypes;
-        if(selectedFileType === "file" || selectedFileType === "folder"){
-          possibleRelationTypes = "file"
+        if (selectedFileType === "file" || selectedFileType === "folder") {
+          possibleRelationTypes = "file";
         } else {
-          possibleRelationTypes = "group"
+          possibleRelationTypes = "group";
         }
-        console.log(possibleRelationTypes)
+
+        // Lige efter dette, når du kalder dominance(rel), skal du sende den rigtige type med:
+        const strongest = dominance(rel, possibleRelationTypes);
+
         const relationOptions = Object.keys(schema?.[possibleRelationTypes]?.relations || {});
 
-        const strongest = dominance(rel);
-        
         // format it beautifully
        relationOptions.forEach((r) => {
         const option = document.createElement("option");
@@ -1172,17 +1189,21 @@ async function renderFileListForGroup(groupId) {
 }
 
 // calculate weight of all roles and return "strongest"
-function dominance(rel) {
-  // weights for individual actions
+// Tilføj 'type' som et valgfrit parameter til dominance funktionen
+function dominance(rel, type = null) {
   const actionWeights = {
     view: 1, comment: 2, edit: 3, create_child: 4, share: 5, delete: 10, delete_folder: 12,
   };
+
+  // Hvis der ikke er givet en type, så find den ud fra rel.objectId (hvis det findes)
+  const actualType = type || (rel.objectId ? rel.objectId.split(":")[0] : window.selectedFileType);
 
   let strongest = rel.relations[0];
   let maxscore = 0;
 
   rel.relations.forEach((relation) => {
-    const actions = window.schema?.[selectedFileType]?.relations?.[relation] || [];
+    // Slå op i schemaet under den korrekte specifikke type (file, folder eller group)
+    const actions = window.schema?.[actualType]?.relations?.[relation] || [];
     const score = actions.reduce(
       (sum, action) => sum + (actionWeights[action] ?? 0),
       0,
@@ -1193,7 +1214,7 @@ function dominance(rel) {
     }
   });
   
-  return strongest || "viewer"; // Fallback til viewer
+  return strongest || "viewer";
 }
 
 function createFileListItem(file, options = {}) {
@@ -1239,7 +1260,7 @@ function createFileListItem(file, options = {}) {
 
   relation.className = "relation";
 
-  relation.innerText = dominance(file)
+  relation.innerText = dominance(file, fileType);
 
   // MORE BUTTON
   const moreLink = document.createElement("a");

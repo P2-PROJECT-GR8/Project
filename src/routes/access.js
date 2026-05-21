@@ -234,30 +234,56 @@ class AccessControl {
     return relatedUsers;
   }
 
-async renderSubjects(objectId) {
-  const relatedUsers = [];
-´
-  const possibleDirect = await this.getObjectRelations(objectId);
+  async renderSubjects(objectId) {
+    await this.db.read();
+    const { byObject, bySubject } = this.db.data.tupleStore;
 
-  const uniqueSubjects = new Set(possibleDirect.map(p => p.subjectId));
+    const discoveredSubjects = new Map(); 
+    const visitedObjects = new Set();
+    const queue = [objectId];
 
-  for (const subjectId of uniqueSubjects) {
-    const directTuples =
-      this.db.data.tupleStore.bySubject[subjectId]?.filter(
-        (t) => t.objectId === objectId
-      ) || [];
+    while (queue.length > 0) {
+      const currentTarget = queue.shift();
 
-    // if direct relation exists push to relateduusers array
-    if (directTuples.length > 0) {
-      relatedUsers.push({
-        subjectId: subjectId,
-        relations: directTuples.map((t) => t.relation),
-      });
+      if (visitedObjects.has(currentTarget)) continue;
+      visitedObjects.add(currentTarget);
+
+      const tuples = byObject[currentTarget] || [];
+
+      for (const tuple of tuples) {
+        if (tuple.relation === "parent") {
+          queue.push(tuple.subjectId);
+        } else {
+          if (tuple.subjectId) {
+            if (!discoveredSubjects.has(tuple.subjectId)) {
+              discoveredSubjects.set(tuple.subjectId, new Set());
+            }
+            discoveredSubjects.get(tuple.subjectId).add(tuple.relation);
+          }
+        }
+      }
     }
-  }
+    const relatedSubjects = [];
+    const isTargetAGroup = objectId.startsWith("group:");
 
-  return relatedUsers;
-}
+    for (const [subjectId, relationsSet] of discoveredSubjects.entries()) {
+  
+      relationsSet.delete("parent");
+    
+      if (!isTargetAGroup) {
+        relationsSet.delete("member");
+      }
+
+      if (relationsSet.size > 0) {
+        relatedSubjects.push({
+          subjectId: subjectId,
+          relations: Array.from(relationsSet),
+        });
+      }
+    }
+
+    return relatedSubjects;
+  }
 
   async addTuple(subjectId, relation, objectId) {
     await this.db.read();
