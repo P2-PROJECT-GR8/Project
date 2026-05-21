@@ -1036,6 +1036,7 @@ if (deleteGroupBtn) {
   });
 }
 const deleteFileBtn = document.getElementById("delete-file");
+deleteFileBtn.className="btn-lift"
 deleteFileBtn.addEventListener("click", async (event) => {
   event.preventDefault();
   deleteObject(event);

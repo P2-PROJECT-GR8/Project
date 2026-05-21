@@ -6375,6 +6375,13 @@
           "objectId": "folder:foldertest",
           "time": 1779342535647,
           "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:foldertest",
+          "time": 1779391561690,
+          "allowed": true
         }
       ],
       "user:admin": [
@@ -12937,6 +12944,13 @@
           "action": "view",
           "objectId": "folder:foldertest",
           "time": 1779348605014,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:foldertest",
+          "time": 1779391561690,
           "allowed": true
         }
       ],

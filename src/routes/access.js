@@ -359,7 +359,7 @@ class AccessControl {
     await this.db.write();
   }
 
-  async locatePaths(subjectId, objectId, mode, maxDepth = 5) {
+  async locatePaths(subjectId, objectId, mode, maxDepth = 15) {
     const paths = [];
     await this.db.read();
     const { bySubject } = this.db.data.tupleStore;
