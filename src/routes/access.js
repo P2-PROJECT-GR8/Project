@@ -211,6 +211,38 @@ class AccessControl {
   }
 
   /**
+   * Function that returns all the users that have a DIRECT relation to an object.
+   * This excludes users who only have access through group membership.
+   * @param {String} objectId
+   * @return {Promise<Array<Object>>}
+   * @memberof AccessControl
+   */
+  async getDirectObjectRelations(objectId) {
+    await this.db.read();
+    const relatedUsers = [];
+    const tuples = this.db.data.tupleStore.byObject[objectId] || [];
+
+    for (const tuple of tuples) {
+      // Only include users with direct relations (not parent relations)
+      if (tuple.relation !== "parent" && tuple.subjectId.startsWith("user:")) {
+        const existing = relatedUsers.find(u => u.subjectId === tuple.subjectId);
+        if (existing) {
+          if (!existing.relations.includes(tuple.relation)) {
+            existing.relations.push(tuple.relation);
+          }
+        } else {
+          relatedUsers.push({
+            subjectId: tuple.subjectId,
+            relations: [tuple.relation],
+          });
+        }
+      }
+    }
+
+    return relatedUsers;
+  }
+
+  /**
    * Function that returns all the users that have a relation to an object, and what relation that is:
    * @param {String} objectId
    * @return {Promise<Array<Object>>}

@@ -100,16 +100,12 @@
       ],
       "folder:foldertest": [
         {
-          "subjectId": "user:emil",
-          "relation": "owner"
+          "subjectId": "group:grouptest2",
+          "relation": "viewer"
         },
         {
           "subjectId": "group:grouptest",
-          "relation": "viewer"
-        },
-        {
-          "subjectId": "group:grouptest2",
-          "relation": "viewer"
+          "relation": "owner"
         }
       ],
       "group:grouptest": [
@@ -191,10 +187,6 @@
         },
         {
           "relation": "owner",
-          "objectId": "folder:foldertest"
-        },
-        {
-          "relation": "owner",
           "objectId": "group:grouptest"
         },
         {
@@ -216,7 +208,7 @@
           "objectId": "file:filetest"
         },
         {
-          "relation": "viewer",
+          "relation": "owner",
           "objectId": "folder:foldertest"
         }
       ],
@@ -1025,6 +1017,153 @@
           "action": "view",
           "objectId": "group:grouptest",
           "time": 1779393142233,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:grouptest",
+          "time": 1779394951339,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:grouptest",
+          "time": 1779395028685,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:grouptest",
+          "time": 1779395269075,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:grouptest",
+          "time": 1779395293698,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:grouptest",
+          "time": 1779395298461,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:grouptest",
+          "time": 1779395802324,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:grouptest",
+          "time": 1779395944284,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:testgruppe",
+          "time": 1779395961254,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:testgruppe",
+          "time": 1779396078367,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:grouptest",
+          "time": 1779396081450,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:testgruppe",
+          "time": 1779396101016,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:grouptest",
+          "time": 1779396121456,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:grouptest",
+          "time": 1779396195313,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:grouptest",
+          "time": 1779396197076,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:grouptest",
+          "time": 1779396204432,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:grouptest",
+          "time": 1779396263656,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:grouptest",
+          "time": 1779396267384,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:grouptest",
+          "time": 1779396350115,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:grouptest",
+          "time": 1779396353167,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:grouptest",
+          "time": 1779396369235,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:grouptest",
+          "time": 1779396372681,
           "allowed": true
         }
       ],
@@ -6445,6 +6584,104 @@
           "action": "view",
           "objectId": "folder:foldertest",
           "time": 1779391561690,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:foldertest",
+          "time": 1779394582632,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:foldertest",
+          "time": 1779394603969,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "folder:foldertest",
+          "time": 1779394745153,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "folder:foldertest",
+          "time": 1779394745161,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "folder:foldertest",
+          "time": 1779394745167,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptest",
+          "time": 1779394763825,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptest",
+          "time": 1779394776299,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptest",
+          "time": 1779394781836,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptest",
+          "time": 1779394847810,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptest2",
+          "time": 1779394852636,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptest2",
+          "time": 1779394859808,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptest2",
+          "time": 1779394861734,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptest2",
+          "time": 1779394896343,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptest",
+          "time": 1779394914938,
           "allowed": true
         }
       ],
@@ -13016,6 +13253,41 @@
           "objectId": "folder:foldertest",
           "time": 1779391561690,
           "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:foldertest",
+          "time": 1779394582632,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "folder:foldertest",
+          "time": 1779394603969,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "share",
+          "objectId": "folder:foldertest",
+          "time": 1779394745153,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "remove_relations",
+          "objectId": "folder:foldertest",
+          "time": 1779394745161,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "manage_relations",
+          "objectId": "folder:foldertest",
+          "time": 1779394745167,
+          "allowed": true
         }
       ],
       "group:grouptest": [
@@ -13311,6 +13583,167 @@
           "action": "view",
           "objectId": "group:grouptest",
           "time": 1779393142233,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptest",
+          "time": 1779394763825,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptest",
+          "time": 1779394776299,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptest",
+          "time": 1779394781836,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptest",
+          "time": 1779394847810,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptest",
+          "time": 1779394914938,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:grouptest",
+          "time": 1779394951339,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:grouptest",
+          "time": 1779395028685,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:grouptest",
+          "time": 1779395269075,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:grouptest",
+          "time": 1779395293698,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:grouptest",
+          "time": 1779395298461,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:grouptest",
+          "time": 1779395802324,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:grouptest",
+          "time": 1779395944284,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:grouptest",
+          "time": 1779396081450,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:grouptest",
+          "time": 1779396121456,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:grouptest",
+          "time": 1779396195313,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:grouptest",
+          "time": 1779396197076,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:grouptest",
+          "time": 1779396204432,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:grouptest",
+          "time": 1779396263656,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:grouptest",
+          "time": 1779396267384,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:grouptest",
+          "time": 1779396350115,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:grouptest",
+          "time": 1779396353167,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:grouptest",
+          "time": 1779396369235,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:grouptest",
+          "time": 1779396372681,
           "allowed": true
         }
       ],
@@ -13666,6 +14099,34 @@
           "objectId": "group:grouptest2",
           "time": 1779316153603,
           "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptest2",
+          "time": 1779394852636,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptest2",
+          "time": 1779394859808,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptest2",
+          "time": 1779394861734,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:emil",
+          "action": "view",
+          "objectId": "group:grouptest2",
+          "time": 1779394896343,
+          "allowed": true
         }
       ],
       "user:magnus": [
@@ -13774,6 +14235,27 @@
           "action": "view",
           "objectId": "group:testgruppe",
           "time": 1779393004196,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:testgruppe",
+          "time": 1779395961254,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:testgruppe",
+          "time": 1779396078367,
+          "allowed": true
+        },
+        {
+          "subjectId": "user:magnus",
+          "action": "view",
+          "objectId": "group:testgruppe",
+          "time": 1779396101016,
           "allowed": true
         }
       ],

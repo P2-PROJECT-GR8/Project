@@ -592,6 +592,7 @@ export let tempMembers = [];
 let addedUsers = [];
 let deletedUsers = [];
 let changedRelation = new Map();
+let currentUserAccess = {}; // Store user's full expanded permissions including inherited from groups
 
 export const renderMembers = async (fileId, options = {}) => {
   const {
@@ -621,13 +622,15 @@ export const renderMembers = async (fileId, options = {}) => {
     });
 
     if (res.ok) {
-      const { relatedUsers } = await res.json();
-      const normalized = relatedUsers.map((u) => ({
+      const { relatedUsers, renderUsers, currentUserAccess: userAccess } = await res.json();
+      const normalized = renderUsers.map((u) => ({
         ...u,
         relations: Array.isArray(u.relations) ? u.relations : [u.relations],
       }));
 
       tempMembers = structuredClone(normalized);
+      // Store the current user's full expanded permissions (including inherited from groups)
+      currentUserAccess = userAccess;
     }
   }
   const schemaRes = await fetch("/api/schema", { credentials: "include" });
@@ -645,10 +648,9 @@ export const renderMembers = async (fileId, options = {}) => {
   // check if tempmember contains the userlist
   if (tempMembers && tempMembers.length > 0) {
     //checking if the current user owns the file
-    const ownFile = tempMembers.some(
-      (rel) =>
-        rel.relations.includes("owner") && rel.subjectId === currentUser.id,
-    );
+    // Check if user has owner access through any means (direct or inherited from groups)
+    const ownFile = currentUserAccess && currentUserAccess.relations && currentUserAccess.relations.includes("owner");
+    
     const canDelRel =
       canPriv(currentUser, tempMembers, schema, "delete") || ownFile;
     const canManageRel =
@@ -658,7 +660,13 @@ export const renderMembers = async (fileId, options = {}) => {
     tempMembers.forEach((rel) => {
       const isGroup = rel.subjectId.startsWith("group:");
       const ownsGroup = rel.userIsOwner;
-      const isOwnerOfGroup = ownsGroup === true;
+      const userEntry = tempMembers.find(
+        (rel) => rel.subjectId === currentUser.id,
+      );
+      const userRelations = userEntry ? userEntry.relations : [];
+      const isOwnerOfGroup = userRelations.some(
+        (t) => t.objectId === rel.subjectId && t.relation === "owner",
+      );
       if (isGroup) console.log(rel);
       const member = document.createElement("div");
       member.className = "member";
@@ -699,9 +707,7 @@ export const renderMembers = async (fileId, options = {}) => {
       if (
         !canManageRel ||
         rel.subjectId === currentUser.id ||
-        (rel.relations.includes("owner") &&
-          currentUser.id !== "user:admin" &&
-          !isOwnerOfGroup)
+        (rel.relations.includes("owner") && currentUser.id !== "user:admin")
       ) {
         relationSel.disabled = true;
       }
@@ -739,7 +745,7 @@ export const renderMembers = async (fileId, options = {}) => {
         deleteObject(event);
       });
       // create an option for an owner to revoke acces from another member
-      if (canDelRel && rel.subjectId !== currentUser.id) {
+      if (canDelRel && rel.subjectId !== currentUser.id && (!rel.subjectId.startsWith("group:") || !rel.relations.includes("owner"))) {
         const deleteRel = document.createElement("button");
         deleteRel.innerText = "Revoke";
         deleteRel.className = "btn-lift";
@@ -1032,7 +1038,7 @@ if (deleteGroupBtn) {
   });
 }
 const deleteFileBtn = document.getElementById("delete-file");
-deleteFileBtn.className = "btn-lift";
+deleteFileBtn.className="btn-lift"
 deleteFileBtn.addEventListener("click", async (event) => {
   event.preventDefault();
   deleteObject(event);
@@ -1086,6 +1092,7 @@ export function resetChanges() {
   addedUsers.length = 0;
   deletedUsers.length = 0;
   changedRelation.clear();
+  currentUserAccess = {};
 }
 
 export const inviteMember = async () => {
@@ -1138,18 +1145,28 @@ export const inviteMember = async () => {
   console.log(addedUsers);
   inviteInput.value = "";
 };
+
 const canPriv = (
-  currentUser,
+  currentUserParam,
   tempMembers,
   schema,
   privilege,
   type = selectedFileType,
-) => {
-  const userEntry = tempMembers.find((rel) => rel.subjectId === currentUser.id);
+  ) => {
+  // First check if user has the privilege through their expanded permissions (including group membership)
+  if (currentUserAccess && currentUserAccess.relations) {
+    const hasPrivilegeViaGroups = currentUserAccess.relations.some((rel) =>
+      schema?.[type]?.relations?.[rel]?.includes(privilege),
+    );
+    if (hasPrivilegeViaGroups) return true;
+  }
+
+  // Fall back to direct user relations check
+  const userEntry = tempMembers.find((rel) => rel.subjectId === currentUserParam.id);
   const userRelations = userEntry ? userEntry.relations : [];
 
   return (
-    currentUser.id === "user:admin" ||
+    currentUserParam.id === "user:admin" ||
     userRelations.some((rel) =>
       schema?.[type]?.relations?.[rel]?.includes(privilege),
     )
@@ -1359,6 +1376,7 @@ async function openDetailsModal(listItem) {
     addedUsers = [];
     deletedUsers = [];
     changedRelation.clear();
+    currentUserAccess = {};
 
     if (type === "group") {
       await renderMembers(fileId, {

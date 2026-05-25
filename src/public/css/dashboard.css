@@ -158,6 +158,10 @@ dialog {
   padding: 2rem;
   overflow-x: visible;
   overflow-y: auto;
+  background-color: white;
+  max-width: 600px;
+  width: 90vw;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
 }
 
 dialog::backdrop {
@@ -239,6 +243,11 @@ dialog::backdrop {
 
 button {
   cursor: pointer;
+  border-radius: var(--radius-lg);
+  border: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 0.8rem 1.5rem;
 }
 
 .invite-container {
@@ -255,6 +264,9 @@ button {
 
 #invite-member {
   padding: 1rem;
+  background-color: var(--primary);
+  color: white;
+  border-radius: var(--radius-lg);
 }
 
 .hidden {
@@ -391,7 +403,7 @@ button {
 .create-new-modal {
   display: grid;
   gap: 1rem;
-  width: 40vw;
+  width: 100%;
 }
 
 .create-new-modal h2 {
@@ -403,8 +415,9 @@ button {
   display: grid;
   gap: 1rem;
   grid-template-areas:
-    "input-cn input-cn input-cn select-cn"
-    "buttons-cn buttons-cn buttons-cn buttons-cn";
+    "input-cn"
+    "select-cn"
+    "buttons-cn";
 }
 
 #create-new-form select {
@@ -415,6 +428,8 @@ button {
   text-align: center;
   font-weight: 500;
   font-size: 1rem;
+  width: 100%;
+  padding: 0.8rem;
 }
 
 #create-new-form input {
@@ -424,6 +439,8 @@ button {
   border-radius: 8px;
   grid-area: input-cn;
   font-size: 1rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .create-new-buttons {
@@ -431,6 +448,7 @@ button {
   display: grid;
   grid-template-columns: auto 1fr auto;
   grid-area: buttons-cn;
+  gap: 0.5rem;
 }
 
 .cancel-modal {
@@ -438,24 +456,33 @@ button {
   color: var(--on-surface-variant) !important;
   border: 0px;
   text-decoration: underline;
+  border-radius: var(--radius-lg);
 }
 
 .leave-btn{
   background-color: var(--primary);
+  color: white;
+  border-radius: var(--radius-lg);
 }
 
 #revoke-btn{
-  background-color: var(--on-secondary-container)
+  background-color: var(--primary);
+  color: white;
+  border-radius: var(--radius-lg);
 }
 
 #leave-file{
   background-color: rgb(192, 7, 44);
   position: relative;
+  border-radius: var(--radius-lg);
+  color: white;
 }
 
 #delete-file{
   background-color: rgb(192, 7, 44);
   position: relative;
+  border-radius: var(--radius-lg);
+  color: white;
 }
 
 #leave-file:hover .tooltip-leave {

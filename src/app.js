@@ -193,11 +193,13 @@ app.post("/api/relatedUsers", async (req, res) => {
     return res.status(400).send("Object ID is missing");
   }
   try {
-    const relatedUsers = await accessControl.getObjectRelations(objectId);
+    // 1. Get only DIRECT relations to the object (users + groups with direct tuples)
+    const directUserRelations = await accessControl.getDirectObjectRelations(objectId);
     const relatedGroups = await accessControl.renderSubjects(objectId);
 
+    // 2. Combine direct user relations and all groups
     const combinedRelated = new Map();
-    for (const item of [...relatedUsers, ...relatedGroups]) {
+    for (const item of [...directUserRelations, ...relatedGroups]) {
       const existing = combinedRelated.get(item.subjectId);
       if (!existing) {
         combinedRelated.set(item.subjectId, {
@@ -211,6 +213,12 @@ app.post("/api/relatedUsers", async (req, res) => {
       }
     }
 
+    // 3. Find the logged-in user's full permissions (including inherited from groups)
+    const currentUserDirectAndGroupRelations = await accessControl.expandUserRelations(
+      user.id,
+      objectId
+    );
+
     const mergedRelated = await Promise.all(
       Array.from(combinedRelated.values()).map(async (entry) => {
         const item = {
@@ -218,6 +226,7 @@ app.post("/api/relatedUsers", async (req, res) => {
           relations: Array.from(entry.relations),
         };
 
+        // If it's a group, check if the logged-in user owns it
         if (item.subjectId.startsWith("group:")) {
           const groupRelations = await accessControl.expandUserRelations(
             user.id,
@@ -230,8 +239,20 @@ app.post("/api/relatedUsers", async (req, res) => {
       }),
     );
 
+    // 4. Filter to show only groups and users with direct relations
+    // (Shadow members with only group-based access are now automatically excluded)
+    const filteredRelated = mergedRelated.filter(item => {
+      return item.subjectId.startsWith("group:") || 
+             directUserRelations.some(u => u.subjectId === item.subjectId);
+    });
+
     res.send({
-      relatedUsers: mergedRelated,
+      relatedUsers: filteredRelated,
+      renderUsers: filteredRelated,
+      currentUserAccess: {
+        id: user.id,
+        relations: currentUserDirectAndGroupRelations
+      }
     });
   } catch (error) {
     console.error("Fejl ved hentning af relationer:", error);
