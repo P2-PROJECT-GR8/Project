@@ -107,17 +107,23 @@ app.get("/", redirectIfLoggedIn);
 app.use(express.static(path.join(__dirname, "public")));
 
 // Return a username to the client and logs whether the provided user exists in the db
-app.post("/api/validateUserName", function (req, res) {
-  console.log("recieved from index.js", req.body);
-  const userName = req.body.userName.toLowerCase();
+app.post("/api/validateUserName", async (req, res) => {
+  console.log("received from index.js", req.body);
+  const name = req.body.userName.toLowerCase();
 
-  db.read();
+  await db.read();
 
-  if (db.data.users.some((u) => u.name === userName)) {
-    res.json({ userName: userName, status: "200" });
-  } else {
-    res.json({ status: "404" });
+  const user = db.data.users.find((u) => u.name === name);
+  if (user) {
+    return res.json({ userName: `user:${name}` });
   }
+
+  const groupKey = `group:${name}`;
+  if (Object.keys(db.data.tupleStore.byObject).includes(groupKey)) {
+    return res.json({ userName: groupKey });
+  }
+
+  res.status(404).json({ status: "404" });
 });
 
 app.get("/api/me", (req, res) => {
@@ -186,11 +192,72 @@ app.post("/api/relatedUsers", async (req, res) => {
   if (!objectId) {
     return res.status(400).send("Object ID is missing");
   }
+  try {
+    // 1. Get only DIRECT relations to the object (users + groups with direct tuples)
+    const directUserRelations = await accessControl.getDirectObjectRelations(objectId);
+    const relatedGroups = await accessControl.renderSubjects(objectId);
 
-  const relatedUsers = await accessControl.getObjectRelations(objectId);
-  res.send({
-    relatedUsers: relatedUsers,
-  });
+    // 2. Combine direct user relations and all groups
+    const combinedRelated = new Map();
+    for (const item of [...directUserRelations, ...relatedGroups]) {
+      const existing = combinedRelated.get(item.subjectId);
+      if (!existing) {
+        combinedRelated.set(item.subjectId, {
+          subjectId: item.subjectId,
+          relations: new Set(item.relations),
+        });
+      } else {
+        for (const relation of item.relations) {
+          existing.relations.add(relation);
+        }
+      }
+    }
+
+    // 3. Find the logged-in user's full permissions (including inherited from groups)
+    const currentUserDirectAndGroupRelations = await accessControl.expandUserRelations(
+      user.id,
+      objectId
+    );
+
+    const mergedRelated = await Promise.all(
+      Array.from(combinedRelated.values()).map(async (entry) => {
+        const item = {
+          subjectId: entry.subjectId,
+          relations: Array.from(entry.relations),
+        };
+
+        // If it's a group, check if the logged-in user owns it
+        if (item.subjectId.startsWith("group:")) {
+          const groupRelations = await accessControl.expandUserRelations(
+            user.id,
+            item.subjectId,
+          );
+          item.userIsOwner = groupRelations.includes("owner");
+        }
+
+        return item;
+      }),
+    );
+
+    // 4. Filter to show only groups and users with direct relations
+    // (Shadow members with only group-based access are now automatically excluded)
+    const filteredRelated = mergedRelated.filter(item => {
+      return item.subjectId.startsWith("group:") || 
+             directUserRelations.some(u => u.subjectId === item.subjectId);
+    });
+
+    res.send({
+      relatedUsers: filteredRelated,
+      renderUsers: filteredRelated,
+      currentUserAccess: {
+        id: user.id,
+        relations: currentUserDirectAndGroupRelations
+      }
+    });
+  } catch (error) {
+    console.error("Fejl ved hentning af relationer:", error);
+    res.status(500).send("Internal server error");
+  }
 });
 
 // JWT sender for when a new user logs in
@@ -261,6 +328,42 @@ app.get("/api/files", async (req, res) => {
   res.json({ files: userRelations });
 });
 
+app.get("/api/ownedGroups", async (req, res) => {
+  let currentUser;
+  try {
+    currentUser = getUser(req);
+  } catch {
+    return res.status(401).send({ message: "User not authenticated" });
+  }
+
+  await db.read();
+
+  const allGroups = Object.keys(db.data.tupleStore.byObject).filter((id) =>
+    id.startsWith("group:"),
+  );
+
+  const ownedGroups = [];
+  for (const groupId of allGroups) {
+    const relations = await accessControl.expandUserRelations(
+      currentUser.id,
+      groupId,
+    );
+    if (relations.includes("owner")) {
+      ownedGroups.push(groupId.split(":")[1]);
+    }
+  }
+
+  res.json({ ownedGroups });
+});
+
+app.get("/api/groupNames", (req, res) => {
+  db.read();
+  const groupNames = Object.keys(db.data.tupleStore.byObject)
+    .filter((id) => id.startsWith("group:"))
+    .map((id) => id.split(":")[1]);
+  res.send({ groupNames });
+});
+
 app.get("/api/folderContent", async (req, res) => {
   let currentUser;
   try {
@@ -269,7 +372,7 @@ app.get("/api/folderContent", async (req, res) => {
     return res.status(401).send({ message: "Invalid session" });
   }
 
-  const folderId = req.query.folderId || "";
+  const folderId = req.query.folderId || req.query.groupId || "";
   let userRelations = [];
 
   await db.read();
@@ -338,7 +441,6 @@ app.get("/api/folderContent", async (req, res) => {
 
   res.json({ files: userRelations });
 });
-
 app.post("/api/createNew", async (req, res) => {
   let currentUser;
   try {
@@ -348,42 +450,73 @@ app.post("/api/createNew", async (req, res) => {
     return res.status(401).send({ message: "User not authenticated" });
   }
 
-  const { objectId, parentFolder } = req.body;
-  const objectType = objectId.split(":")[0];
+  const { objectId, parentFolder, ownerId } = req.body;
+  if (!objectId) return res.status(400).send({ message: "Missing objectId" });
 
+  const objectType = objectId.split(":")[0];
   await db.read();
+
+  // 1. Tjek om objektet allerede findes
   if (Object.hasOwn(db.data.tupleStore.byObject, objectId)) {
     return res
       .status(409)
       .send({ message: "An object with this ID already exists." });
   }
 
+  let resolvedOwner = currentUser.id;
+  if (ownerId && ownerId.startsWith("group:")) {
+    const userRelationsToGroup = await accessControl.expandUserRelations(
+      currentUser.id,
+      ownerId,
+    );
+    if (!userRelationsToGroup.includes("owner")) {
+      return res
+        .status(403)
+        .send({
+          message:
+            "You must be an owner of this group to create objects on its behalf.",
+        });
+    }
+    resolvedOwner = ownerId;
+  }
+
   if (
-    objectType === "folder" ||
-    objectType === "file" ||
-    objectType === "group"
+    objectType !== "folder" &&
+    objectType !== "file" &&
+    objectType !== "group"
   ) {
-    if (parentFolder) {
-      if (
-        await accessControl.can(currentUser.id, "create_child", parentFolder)
-      ) {
-        await accessControl.addTuple(parentFolder, "parent", objectId);
-        return res
-          .status(201)
-          .send({ message: "Object created successfully!" });
-      } else {
-        return res.status(403).send({
+    return res.status(400).send({ message: "Not a valid object type" });
+  }
+
+  if (objectType === "group") {
+    const groupName = objectId.split(":")[1];
+    db.data.groups = db.data.groups || [];
+    db.data.groups.push({ id: objectId, name: groupName });
+  }
+
+  if (parentFolder) {
+    const canCreate = await accessControl.can(
+      currentUser.id,
+      "create_child",
+      parentFolder,
+    );
+    if (!canCreate) {
+      return res
+        .status(403)
+        .send({
           message:
             "User does not have permission to create objects within this folder",
         });
-      }
-    } else {
-      await accessControl.addTuple(currentUser.id, "owner", objectId);
-      return res.status(201).send({ message: "Object created successfully!" });
     }
+    await accessControl.addTuple(parentFolder, "parent", objectId);
   } else {
-    return res.status(400).send({ message: "Not a valid object type" });
+    await accessControl.addTuple(resolvedOwner, "owner", objectId);
   }
+  await db.write();
+
+  return res
+    .status(201)
+    .send({ message: `${objectType} created successfully!` });
 });
 
 app.post("/api/newTuple", async (req, res) => {
@@ -624,6 +757,42 @@ app.get("/api/adminGetGroups", async (req, res) => {
   }
 });
 
+app.get("/api/groupNames", (req, res) => {
+  db.read();
+  const groupNames = Object.keys(db.data.tupleStore.byObject)
+    .filter((id) => id.startsWith("group:"))
+    .map((id) => id.split(":")[1]);
+  res.send({ groupNames });
+});
+
+app.get("/api/ownedGroups", async (req, res) => {
+  let currentUser;
+  try {
+    currentUser = getUser(req);
+  } catch {
+    return res.status(401).send({ message: "User not authenticated" });
+  }
+
+  await db.read();
+
+  const allGroups = Object.keys(db.data.tupleStore.byObject).filter((id) =>
+    id.startsWith("group:"),
+  );
+
+  const ownedGroups = [];
+  for (const groupId of allGroups) {
+    const relations = await accessControl.expandUserRelations(
+      currentUser.id,
+      groupId,
+    );
+    if (relations.includes("owner")) {
+      ownedGroups.push(groupId.split(":")[1]);
+    }
+  }
+
+  res.json({ ownedGroups });
+});
+
 app.post("/api/newRelationType", async (req, res) => {
   let currentUser;
   try {
@@ -661,7 +830,7 @@ app.post("/api/deleteFile", async (req, res) => {
     await db.read();
     const objectType = objectId.split(":")[0];
     let canDelete;
-    if (objectType === "file") {
+    if (objectType === "file" || objectType === "group") {
       canDelete =
         (await accessControl.can(currentUser.id, "delete", objectId)) ||
         currentUser.id === "user:admin";

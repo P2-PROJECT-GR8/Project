@@ -2,6 +2,7 @@ import { renderHeader } from "./navRenderer.js";
 import { validateString } from "./utils.js";
 
 renderHeader();
+console.log("dashboard.js executed");
 
 // renders an overview of all users within the system
 async function renderAdminUSerList() {
@@ -52,6 +53,7 @@ async function renderAdminFilesForUser(userId) {
 }
 
 // renders received filelist to dashboard
+
 function renderFiles(files) {
   const filesList = document.getElementById("filesList");
   filesList.innerHTML = "";
@@ -138,7 +140,9 @@ async function renderFileListForUser(folderId = "") {
   }
 
   const { files } = await res.json();
-  renderFiles(files || []);
+  renderMyFiles(files);
+  renderSharedFiles(files);
+  renderGroups(files);
 }
 
 async function navigateToFolder(folderId) {
@@ -149,10 +153,31 @@ async function navigateToFolder(folderId) {
   renderFileListForUser(newParam);
 }
 
+async function navigateToGroup(groupId) {
+  const url = new URL(window.location);
+  const newParam = groupId;
+  url.searchParams.set("groupId", newParam);
+  window.history.pushState({}, "", url);
+  await renderFileListForGroup(newParam);
+}
+
 window.addEventListener("popstate", () => {
   const url = new URL(window.location);
-  const param = url.searchParams.get("folderId") || "";
-  renderFileListForUser(param);
+  const folderParam = url.searchParams.get("folderId") || "";
+  const groupParam = url.searchParams.get("groupId") || "";
+
+  if (groupParam) {
+    renderFileListForGroup(groupParam);
+  } else if (folderParam) {
+    renderFileListForUser(folderParam || "");
+  } else {
+    document.getElementById("groups-main-view")?.classList.remove("hidden");
+    document.getElementById("groups-deeper-view")?.classList.add("hidden");
+    const groupFileList = document.getElementById("groups-files-list");
+    if (groupFileList) groupFileList.innerHTML = "";
+
+    renderFileListForUser("");
+  }
 });
 
 function showPage(pageId) {
@@ -185,6 +210,8 @@ export const getCurrentUser = async () => {
 };
 
 export let selectedFile;
+let groupNames = [];
+let selectedFileType;
 
 // When the DOM is fully loaded, set up initial state and event listeners
 document.addEventListener("DOMContentLoaded", async () => {
@@ -196,52 +223,149 @@ document.addEventListener("DOMContentLoaded", async () => {
   const createNewErrorMsg = document.getElementById("create-new-error");
   const filesList = document.getElementById("filesList");
   const uploadNewBtn = document.getElementById("UploadNewbtn");
-  uploadNewBtn.addEventListener("click", () => {
-    createNewErrorMsg.innerText = "";
-    createNewModal.showModal();
-  });
+  if (uploadNewBtn) {
+    uploadNewBtn.addEventListener("click", async () => {
+      createNewErrorMsg.innerText = "";
 
-  const createNewCancelBtn = document.getElementById("create-new-cancel");
-  createNewCancelBtn.addEventListener("click", (e) => {
-    e.preventDefault();
-    createNewModal.close();
-    createNewForm.reset();
-  });
+      const fileTypeSelect = document.getElementById("new-type-select");
 
-  const createNewButton = document.getElementById("create-new-button");
-  createNewButton.addEventListener("click", async (e) => {
-    e.preventDefault();
-    const data = new FormData(createNewForm);
-    const formObject = Object.fromEntries(data);
-    if (validateString(formObject.name)) {
-      const urlParams = new URLSearchParams(window.location.search);
-      const parentFolder = urlParams.get("folderId") || "";
+      // Use the new endpoint instead of filtering /api/files
+      const res = await fetch("/api/ownedGroups", { credentials: "include" });
+      const { ownedGroups } = await res.json();
 
-      const res = await fetch("/api/createNew", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          objectId: `${formObject.type}:${formObject.name}`,
-          parentFolder: parentFolder,
-        }),
+      ownedGroups.forEach((group) => {
+        const option = document.createElement("option");
+        option.value = `group:${group}`;
+        option.innerText = `Group: ${group.charAt(0).toUpperCase() + group.slice(1)}`;
+        const ownerSelect = document.getElementById("new-group-owner-select");
+        ownerSelect.appendChild(option);
       });
-      const resData = await res.json();
-      if (!res.ok) {
-        createNewErrorMsg.innerText = resData.message;
-      } else {
-        createNewForm.reset();
-        createNewModal.close();
-        const url = new URL(window.location);
-        const param = url.searchParams.get("folderId") || "";
-        await renderFileListForUser(param);
-      }
-    } else {
-      createNewErrorMsg.innerText =
-        'Please only use letters, numbers and symbols like: ".-_"';
-    }
-  });
 
+      createNewModal.showModal();
+    });
+  }
+  const createNewCancelBtn = document.getElementById("create-new-cancel");
+  if (createNewCancelBtn) {
+    createNewCancelBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      createNewModal.close();
+      createNewForm.reset();
+    });
+  }
+  const createNewButton = document.getElementById("create-new-button");
+  if (createNewButton) {
+    createNewButton.addEventListener("click", async (e) => {
+      e.preventDefault();
+      const data = new FormData(createNewForm);
+      const formObject = Object.fromEntries(data);
+      if (validateString(formObject.name)) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const parentFolder = urlParams.get("folderId") || "";
+
+        const res = await fetch("/api/createNew", {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            objectId: `${formObject.type}:${formObject.name}`,
+            parentFolder: parentFolder,
+          }),
+        });
+        const resData = await res.json();
+        if (!res.ok) {
+          createNewErrorMsg.innerText = resData.message;
+        } else {
+          createNewForm.reset();
+          createNewModal.close();
+
+          const urlParams = new URLSearchParams(window.location.search);
+          const currentGroup = urlParams.get("groupId");
+          const currentFolder = urlParams.get("folderId") || "";
+
+          if (currentGroup) {
+            showPage("#files");
+            await renderFileListForGroup(currentGroup);
+          } else {
+            await renderFileListForUser(currentFolder);
+          }
+        }
+      } else {
+        createNewErrorMsg.innerText =
+          'Please only use letters, numbers and symbols like: ".-_"';
+      }
+    });
+  }
+
+  const createNewGroupModal = document.getElementById("create-new-group");
+  const createNewGroupForm = document.getElementById("create-new-group-form");
+  const createNewGroupErrorMsg = document.getElementById(
+    "create-new-group-error",
+  );
+  const groupsList = document.getElementById("GroupsList");
+  const newGroupBtn = document.getElementById("newGroupBtn");
+  if (newGroupBtn) {
+    newGroupBtn.addEventListener("click", async () => {
+      createNewGroupErrorMsg.innerText = "";
+
+      const ownerSelect = document.getElementById("new-group-owner-select");
+      ownerSelect.innerHTML = '<option value="">Me (personal)</option>';
+
+      // Use the new endpoint instead of filtering /api/files
+      const res = await fetch("/api/ownedGroups", { credentials: "include" });
+      const { ownedGroups } = await res.json();
+
+      ownedGroups.forEach((group) => {
+        const option = document.createElement("option");
+        option.value = `group:${group}`;
+        option.innerText = `Group: ${group.charAt(0).toUpperCase() + group.slice(1)}`;
+        ownerSelect.appendChild(option);
+      });
+
+      createNewGroupModal.showModal();
+    });
+  }
+
+  const createNewGroupCancelBtn = document.getElementById(
+    "create-new-group-cancel",
+  );
+  if (createNewGroupCancelBtn) {
+    createNewGroupCancelBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      createNewGroupModal.close();
+      createNewGroupForm.reset();
+    });
+  }
+  const createNewGroupButton = document.getElementById(
+    "create-new-group-button",
+  );
+  if (createNewGroupButton) {
+    createNewGroupButton.addEventListener("click", async (e) => {
+      e.preventDefault();
+      const data = new FormData(createNewGroupForm);
+      const formObject = Object.fromEntries(data);
+      if (validateString(formObject.name)) {
+        const res = await fetch("/api/createNew", {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            objectId: `group:${formObject.name}`,
+          }),
+        });
+        const resData = await res.json();
+        if (!res.ok) {
+          createNewGroupErrorMsg.innerText = resData.message;
+        } else {
+          createNewGroupForm.reset();
+          createNewGroupModal.close();
+          await renderFileListForUser(currentUser.id);
+        }
+      } else {
+        createNewGroupErrorMsg.innerText =
+          'Please only use letters, numbers and symbols like: ".-_"';
+      }
+    });
+  }
   // Set the initial active page
   showPage("#files"); // Set "All Files" as the default active page
 
@@ -256,17 +380,37 @@ document.addEventListener("DOMContentLoaded", async () => {
       event.preventDefault(); // Prevent default anchor link behavior (e.g., jumping to the top)
       const targetPageId = this.getAttribute("href");
       if (targetPageId && targetPageId.startsWith("#")) {
+        const url = new URL(window.location);
+        url.searchParams.delete("folderId");
+        url.searchParams.delete("groupId");
+        window.history.pushState({}, "", url);
+        document.getElementById("groups-main-view")?.classList.remove("hidden");
+        document.getElementById("groups-deeper-view")?.classList.add("hidden");
+        const groupFileList = document.getElementById("groups-files-list");
+        if (groupFileList) groupFileList.innerHTML = "";
+        resetChanges();
+        renderFileListForUser("");
         showPage(targetPageId);
       }
     });
   });
 
   // loads either defualt dashboard or admin dashboard
+  const urlParams = new URLSearchParams(window.location.search);
+  const currentGroupId = urlParams.get("groupId");
+  const currentFolderId = urlParams.get("folderId");
+
   const adminRes = await fetch("/api/isAdmin", { credentials: "include" });
+
   if (adminRes.ok) {
-    // any HTML changes needed for admin should be done here
+    await renderAdminUSerList();
   } else {
-    await renderFileListForUser();
+    if (currentGroupId) {
+      showPage("#files");
+      await renderFileListForGroup(currentGroupId);
+    } else {
+      await renderFileListForUser(currentFolderId || "");
+    }
   }
 
   const inviteBtn = document.getElementById("invite-member");
@@ -275,112 +419,139 @@ document.addEventListener("DOMContentLoaded", async () => {
     inviteMember(event);
   });
 
-  const inviteMember = async () => {
-    const errorMessage = document.getElementById("modalErrorMessage");
-    // Check the length of the input value, not the value itself.
-    if (inviteInput.value.length >= 2 && inviteInput.value.length <= 10) {
-      // validate input
-      if (!validateString(inviteInput.value)) {
-        alert("do not use special characters");
-        return;
-      }
+  const groupInviteBtn = document.getElementById("invite-group-member");
+  groupInviteBtn.addEventListener("click", inviteMember);
 
-      const res = await fetch("/api/validateUserName", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          userName: inviteInput.value,
-        }),
-      });
+  const groupDetailsModal = document.getElementById("group-details");
+  groupDetailsModal
+    .querySelector(".cancel-modal")
+    .addEventListener("click", () => {
+      groupDetailsModal.close();
+    });
 
-      const data = await res.json();
+  document.addEventListener("click", async (event) => {
+    // Tjek om det klikkede element er en "more_vert" knap
+    if (event.target.classList.contains("more-btn")) {
+      event.preventDefault();
+      const listItem = event.target.closest(".listitem");
+      const fileId = listItem.dataset.fileId;
 
-      if (data.status === "404") {
-        errorMessage.innerText = "User does not exist in the database";
-        return;
-      }
+      window.selectedFile = fileId;
 
-      const newId = `user:${inviteInput.value.toLowerCase()}`;
-      if (!selectedFile) return;
-
-      // check if they already have a relation
-      if (tempMembers.some((u) => u.subjectId === newId)) {
-        alert("User is already related to this file");
-        return;
-      }
-
-      // remove from deleted if re-added
-      deletedUsers = deletedUsers.filter((u) => u.subjectId !== newId);
-
-      tempMembers.push({
-        subjectId: newId,
-        relations: ["viewer"],
-      });
-
-      addedUsers.push({
-        subjectId: newId,
-        relations: ["viewer"],
-      });
-
-      renderMembers(selectedFile);
-      inviteInput.value = "";
-      console.log(tempMembers);
+      const modal = document.getElementById("file-details");
+      await renderMembers(fileId);
+      modal.showModal();
     }
-  };
-
-  filesList.addEventListener("click", async (event) => {
-    const btn = event.target.closest(".more-btn");
-    if (!btn) return;
-
-    event.preventDefault();
-
-    const userList = document.getElementById("data-users");
-    const userNamesRes = await fetch("/api/userNames", {
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-    });
-    const { userNames } = await userNamesRes.json();
-    console.log(userNamesRes);
-
-    userList.innerHTML = "";
-    userNames.forEach((user) => {
-      const option = document.createElement("option");
-      option.innerText = user;
-      userList.appendChild(option);
-    });
-
-    const item = btn.closest(".listitem");
-    const { fileId, relations } = item.dataset;
-    selectedFile = fileId;
-    console.log("selected:", selectedFile);
-
-    document.getElementById("manage-header").innerText =
-      `Manage Acces For ${selectedFile.split(":")[1]}`;
-
-    tempMembers = [];
-    addedUsers = [];
-    deletedUsers = [];
-    changedRelation.clear();
-
-    const relationsArray = relations ? relations.split(",") : [];
-
-    const inviteContainer = document.getElementById("invite-container");
-    console.log(relationsArray);
-
-    inviteContainer.classList.remove("hidden");
-    renderMembers(selectedFile);
-    fileDetailsModal.showModal();
   });
 });
+const groupsList = document.getElementById("GroupsList");
+function renderGroups(files) {
+  groupsList.innerHTML = "";
 
+  const groups = files.filter((file) => file.objectId.startsWith("group:"));
+
+  if (groups.length === 0) {
+    groupsList.innerHTML = "<p style='padding:1rem;'>No groups.</p>";
+    return;
+  }
+
+  groups.forEach((file) => {
+    const item = createFileListItem(file, {
+      subtitle: "Group",
+    });
+
+    groupsList.appendChild(item);
+  });
+}
+
+function renderMyFiles(files) {
+  const filesList = document.getElementById("filesList");
+
+  if (!filesList) {
+    console.warn("filesList element not found");
+    return;
+  }
+  filesList.innerHTML = "";
+
+  const ownedFiles = files.filter(
+    (file) =>
+      file.relations.includes("owner") && !file.objectId.startsWith("group:"),
+  );
+
+  ownedFiles.forEach((file) => {
+    const item = createFileListItem(file);
+
+    filesList.appendChild(item);
+  });
+}
+
+function renderSharedFiles(files) {
+  const sharedList = document.getElementById("SharedList");
+
+  if (!sharedList) {
+    console.warn("Could not find element with id 'SharedList' in HTML");
+    return;
+  }
+
+  sharedList.innerHTML = "";
+
+  const sharedFiles = files.filter(
+    (file) =>
+      !file.relations.includes("owner") && !file.objectId.startsWith("group:"),
+  );
+
+  if (sharedFiles.length === 0) {
+    sharedList.innerHTML = "<p style='padding:1rem;'>No shared files.</p>";
+
+    return;
+  }
+
+  sharedFiles.forEach((file) => {
+    const item = createFileListItem(file, {
+      subtitle: "Shared with you",
+    });
+
+    sharedList.appendChild(item);
+  });
+}
+
+async function renderGroupFiles(files) {
+  const groupFileList = document.getElementById("groups-files-list");
+
+  if (!groupFileList) return;
+
+  groupFileList.innerHTML = "";
+
+  if (files.length === 0) {
+    groupFileList.innerHTML = "<p style='padding:1rem;'>No files.</p>";
+    return;
+  }
+
+  files.forEach((file) => {
+    const item = createFileListItem(file, {
+      subtitle: "Shared with group",
+      containerType: "group",
+    });
+
+    groupFileList.appendChild(item);
+  });
+}
 // fetch the server when saving all changes
 const saveChanges = document.getElementById("save-changes");
 saveChanges.addEventListener("click", async (e) => {
   e.preventDefault();
   saveAllChanges(e);
 });
+
+// fetch the server when saving all changes
+const saveGroupChanges = document.getElementById("save-group-changes");
+if (saveGroupChanges) {
+  saveGroupChanges.addEventListener("click", async (e) => {
+    e.preventDefault();
+    console.log("trykket");
+    saveAllChanges(e);
+  });
+}
 
 const saveAllChanges = async (event) => {
   const changes = Array.from(changedRelation.entries()).map(
@@ -421,12 +592,27 @@ export let tempMembers = [];
 let addedUsers = [];
 let deletedUsers = [];
 let changedRelation = new Map();
+let currentUserAccess = {}; // Store user's full expanded permissions including inherited from groups
 
-export const renderMembers = async (fileId) => {
-  console.log(fileId);
-  const membersList = document.getElementById("members");
+export const renderMembers = async (fileId, options = {}) => {
+  const {
+    membersContainerId = "members",
+    inviteContainerId = "invite-container",
+    modalId = "file-details",
+  } = options;
+  console.log("Forsøger at finde container:", membersContainerId);
+  const membersList = document.getElementById(membersContainerId);
+
+  if (!membersList) {
+    console.error("could not find container ID:", membersContainerId);
+    return;
+  }
+  selectedFileType = fileId.split(":")[0];
+
+  console.log(selectedFileType);
   const currentUser = await getCurrentUser();
   membersList.innerHTML = "";
+
   if (tempMembers.length === 0) {
     const res = await fetch("/api/relatedUsers", {
       method: "POST",
@@ -436,40 +622,59 @@ export const renderMembers = async (fileId) => {
     });
 
     if (res.ok) {
-      const { relatedUsers } = await res.json();
-      const normalized = relatedUsers.map((u) => ({
+      const { relatedUsers, renderUsers, currentUserAccess: userAccess } = await res.json();
+      const normalized = renderUsers.map((u) => ({
         ...u,
         relations: Array.isArray(u.relations) ? u.relations : [u.relations],
       }));
 
       tempMembers = structuredClone(normalized);
+      // Store the current user's full expanded permissions (including inherited from groups)
+      currentUserAccess = userAccess;
     }
   }
   const schemaRes = await fetch("/api/schema", { credentials: "include" });
   const schema = await schemaRes.json();
   window.schema = schema;
 
-  const inviteContainer = document.getElementById("invite-container");
+  // Update modal header with filename
+  const fileName = fileId.split(":")[1];
+  const manageHeader = document.getElementById("manage-header");
+  if (manageHeader) {
+    manageHeader.innerText = `Manage Access: ${fileName}`;
+  }
+
+  const inviteContainer = document.getElementById(inviteContainerId);
   const canShare = canPriv(currentUser, tempMembers, schema, "share");
   if (!canShare) {
     inviteContainer.classList.add("hidden");
   } else {
     inviteContainer.classList.remove("hidden");
   }
-
+  console.log(tempMembers);
   // check if tempmember contains the userlist
   if (tempMembers && tempMembers.length > 0) {
     //checking if the current user owns the file
-    const ownFile = tempMembers.some(
-      (rel) =>
-        rel.relations.includes("owner") && rel.subjectId === currentUser.id,
-    );
+    // Check if user has owner access through any means (direct or inherited from groups)
+    const ownFile = currentUserAccess && currentUserAccess.relations && currentUserAccess.relations.includes("owner");
+    
     const canDelRel =
       canPriv(currentUser, tempMembers, schema, "delete") || ownFile;
-    const canManageRel = canPriv(currentUser, tempMembers, schema, "manage");
+    const canManageRel =
+      canPriv(currentUser, tempMembers, schema, "share") || ownFile;
 
     //create a div element for each member to be displayed
     tempMembers.forEach((rel) => {
+      const isGroup = rel.subjectId.startsWith("group:");
+      const ownsGroup = rel.userIsOwner;
+      const userEntry = tempMembers.find(
+        (rel) => rel.subjectId === currentUser.id,
+      );
+      const userRelations = userEntry ? userEntry.relations : [];
+      const isOwnerOfGroup = userRelations.some(
+        (t) => t.objectId === rel.subjectId && t.relation === "owner",
+      );
+      if (isGroup) console.log(rel);
       const member = document.createElement("div");
       member.className = "member";
       const user = document.createElement("p");
@@ -479,15 +684,28 @@ export const renderMembers = async (fileId) => {
       // relation part of member made to be a dropdown that allows owners to change relation
       const relationSel = document.createElement("select");
       relationSel.className = "changeRelation";
-      const relationOptions = Object.keys(schema?.file?.relations || {});
+      // Find dette stykke inde i renderMembers:
+      let possibleRelationTypes;
+      if (selectedFileType === "file" || selectedFileType === "folder") {
+        possibleRelationTypes = "file";
+      } else {
+        possibleRelationTypes = "group";
+      }
 
-      // format it beuatifully
+      // Lige efter dette, når du kalder dominance(rel), skal du sende den rigtige type med:
+      const strongest = dominance(rel, possibleRelationTypes);
+
+      const relationOptions = Object.keys(
+        schema?.[possibleRelationTypes]?.relations || {},
+      );
+
+      // format it beautifully
       relationOptions.forEach((r) => {
         const option = document.createElement("option");
         option.value = r;
         option.innerText = r.charAt(0).toUpperCase() + r.slice(1);
-        // choose the relation specified in the db, so it displays the correct relation
-        if (rel.relations.includes(r)) {
+
+        if (r === strongest) {
           option.selected = true;
         }
         relationSel.appendChild(option);
@@ -534,12 +752,12 @@ export const renderMembers = async (fileId) => {
         deleteObject(event);
       });
       // create an option for an owner to revoke acces from another member
-      if (canDelRel && rel.subjectId !== currentUser.id) {
+      if (canDelRel && rel.subjectId !== currentUser.id && (!rel.subjectId.startsWith("group:") || !rel.relations.includes("owner"))) {
         const deleteRel = document.createElement("button");
         deleteRel.innerText = "Revoke";
         deleteRel.className = "btn-lift";
         deleteRel.id = "revoke-btn";
-        deleteRel.addEventListener("click", (event) => {
+        deleteRel.addEventListener("click", async (event) => {
           event.preventDefault();
           if (tempMembers.length === 1) {
             const modal = document.getElementById("modalErrorMessage");
@@ -563,7 +781,14 @@ export const renderMembers = async (fileId) => {
               console.log(deletedUsers);
             }
           }
-          renderMembers(fileId);
+          if (selectedFileType === "group") {
+            await renderMembers(selectedFile, {
+              membersContainerId: "group-members",
+              modalId: "group-details",
+            });
+          } else {
+            renderMembers(fileId, options);
+          }
         });
         const helpDelete = document.createElement("span");
         helpDelete.className = "tooltip";
@@ -577,7 +802,8 @@ export const renderMembers = async (fileId) => {
           deleteRel.disabled = true;
         }
       } else if (
-        rel.subjectId === currentUser.id
+        rel.subjectId === currentUser.id ||
+        (isGroup && ownsGroup)
       ) // create an option to revoke own access
       {
         const leaveSelectedFile = document.createElement("button");
@@ -640,7 +866,6 @@ const customBtn = document
   .addEventListener("click", async (event) => {
     createCustomRel(event);
   });
-
 export const createCustomRel = async (event) => {
   event.preventDefault();
 
@@ -805,14 +1030,22 @@ export const createCustomRel = async (event) => {
     }
 
     if (selectedFile) {
-      renderMembers(selectedFile);
+      await renderMembers(selectedFile);
     }
     customRelation.close();
     customRelation.remove();
   });
 };
 
+const deleteGroupBtn = document.getElementById("delete-group");
+if (deleteGroupBtn) {
+  deleteGroupBtn.addEventListener("click", async (event) => {
+    event.preventDefault();
+    deleteObject(event);
+  });
+}
 const deleteFileBtn = document.getElementById("delete-file");
+deleteFileBtn.className="btn-lift"
 deleteFileBtn.addEventListener("click", async (event) => {
   event.preventDefault();
   deleteObject(event);
@@ -866,79 +1099,141 @@ export function resetChanges() {
   addedUsers.length = 0;
   deletedUsers.length = 0;
   changedRelation.clear();
+  currentUserAccess = {};
 }
 
-const inviteInput = document.getElementById("invite-field");
-
 export const inviteMember = async () => {
-  const errorMessage = document.getElementById("modalErrorMessage");
-  // Check the length of the input value, not the value itself.
-  if (inviteInput.value.length >= 2 && inviteInput.value.length <= 10) {
-    // validate input
-    if (!validateString(inviteInput.value)) {
-      alert("do not use special characters");
-      return;
-    }
-
-    const res = await fetch("/api/validateUserName", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        userName: inviteInput.value,
-      }),
-    });
-
-    const data = await res.json();
-
-    if (data.status === "404") {
-      errorMessage.innerText = "User does not exist in the database";
-      return;
-    }
-
-    const newId = `user:${inviteInput.value.toLowerCase()}`;
-    if (!selectedFile) return;
-
-    // check if they already have a relation
-    if (tempMembers.some((u) => u.subjectId === newId)) {
-      alert("User is already related to this file");
-      return;
-    }
-
-    // remove from deleted if re-added
-    deletedUsers = deletedUsers.filter((u) => u.subjectId !== newId);
-
-    tempMembers.push({
-      subjectId: newId,
-      relations: ["viewer"],
-    });
-
-    addedUsers.push({
-      subjectId: newId,
-      relations: ["viewer"],
-    });
-
-    renderMembers(selectedFile);
-    inviteInput.value = "";
-    console.log(tempMembers);
+  let inviteInput;
+  console.log(selectedFile);
+  const type = selectedFile.split(":")[0];
+  if (type === "group") {
+    inviteInput = document.getElementById("invite-group-field");
+  } else {
+    inviteInput = document.getElementById("invite-field");
   }
+  const response = await fetch("/api/validateUserName", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ userName: inviteInput.value }),
+  });
+
+  if (!response.ok) {
+    document.getElementById("modalErrorMessage").innerText =
+      "User or Group not found";
+    return;
+  }
+
+  const { userName } = await response.json();
+
+  if (tempMembers.some((u) => u.subjectId === `user:${userName}`)) {
+    alert("Already invited");
+    return;
+  }
+  let addedRelation;
+  if (type === "group") {
+    addedRelation = "member";
+  } else {
+    addedRelation = "viewer";
+  }
+
+  tempMembers.push({ subjectId: userName, relations: [addedRelation] });
+  addedUsers.push({ subjectId: userName, relations: [addedRelation] });
+  if (type === "group") {
+    await renderMembers(selectedFile, {
+      membersContainerId: "group-members",
+      modalId: "group-details",
+    });
+  } else {
+    await renderMembers(selectedFile);
+  }
+
+  console.log(userName);
+  console.log(tempMembers);
+  console.log(addedUsers);
+  inviteInput.value = "";
 };
 
-const canPriv = (currentUser, tempMembers, schema, privilege) => {
-  const userEntry = tempMembers.find((rel) => rel.subjectId === currentUser.id);
+const canPriv = (
+  currentUserParam,
+  tempMembers,
+  schema,
+  privilege,
+  type = selectedFileType,
+  ) => {
+  // First check if user has the privilege through their expanded permissions (including group membership)
+  if (currentUserAccess && currentUserAccess.relations) {
+    const hasPrivilegeViaGroups = currentUserAccess.relations.some((rel) =>
+      schema?.[type]?.relations?.[rel]?.includes(privilege),
+    );
+    if (hasPrivilegeViaGroups) return true;
+  }
+
+  // Fall back to direct user relations check
+  const userEntry = tempMembers.find((rel) => rel.subjectId === currentUserParam.id);
   const userRelations = userEntry ? userEntry.relations : [];
 
   return (
-    currentUser.id === "user:admin" ||
+    currentUserParam.id === "user:admin" ||
     userRelations.some((rel) =>
-      schema?.file?.relations?.[rel]?.includes(privilege),
+      schema?.[type]?.relations?.[rel]?.includes(privilege),
     )
   );
 };
+
+async function renderFileListForGroup(groupId) {
+  if (!groupId) {
+    const url = new URL(window.location);
+    groupId = url.searchParams.get("groupId") || "";
+  }
+
+  try {
+    const res = await fetch(
+      `/api/folderContent?groupId=${encodeURIComponent(groupId)}`,
+      {
+        credentials: "include",
+      },
+    );
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.error("Failed to load group files via server:", errorText);
+      return;
+    }
+
+    const { files } = await res.json();
+
+    const groupsFilesList = document.getElementById("groups-files-list");
+    if (groupsFilesList) groupsFilesList.innerHTML = "";
+
+    document.getElementById("group-files-title")?.classList.remove("hidden");
+
+    document.getElementById("groups-main-view")?.classList.add("hidden");
+
+    document.getElementById("groups-deeper-view")?.classList.remove("hidden");
+
+    if (files.length === 0) {
+      if (groupsFilesList) {
+        groupsFilesList.innerHTML =
+          "<p style='padding: 1rem;'>No files shared with this group.</p>";
+      }
+      return;
+    }
+
+    const filesList = document.getElementById("filesList");
+    if (filesList) filesList.innerHTML = "";
+
+    const sharedList = document.getElementById("SharedList");
+    if (sharedList) sharedList.innerHTML = "";
+
+    await renderGroupFiles(files);
+  } catch (error) {
+    console.error("Error fetching group content on frontend:", error);
+  }
+}
+
 // calculate weight of all roles and return "strongest"
-function dominance(files) {
-  //  weights for individual actions
+// Tilføj 'type' som et valgfrit parameter til dominance funktionen
+function dominance(rel, type = null) {
   const actionWeights = {
     view: 1,
     comment: 2,
@@ -949,21 +1244,159 @@ function dominance(files) {
     delete_folder: 12,
   };
 
-  let strongest = files.relations[0];
+  // Hvis der ikke er givet en type, så find den ud fra rel.objectId (hvis det findes)
+  const actualType =
+    type ||
+    (rel.objectId ? rel.objectId.split(":")[0] : window.selectedFileType);
+
+  let strongest = rel.relations[0];
   let maxscore = 0;
 
-  files.relations.forEach((relation) => {
-    const score = (files.actionsByRelation[relation] ?? []).reduce(
+  rel.relations.forEach((relation) => {
+    // Slå op i schemaet under den korrekte specifikke type (file, folder eller group)
+    const actions = window.schema?.[actualType]?.relations?.[relation] || [];
+    const score = actions.reduce(
       (sum, action) => sum + (actionWeights[action] ?? 0),
       0,
     );
-
     if (score > maxscore) {
       maxscore = score;
       strongest = relation;
     }
   });
-  console.log(strongest);
-  return strongest;
+
+  return strongest || "viewer";
+}
+
+function createFileListItem(file, options = {}) {
+  const { subtitle = "Updated recently", containerType = "default" } = options;
+
+  const listItem = document.createElement("div");
+  listItem.className = "listitem";
+  listItem.dataset.fileId = file.objectId;
+  const relationsArray = Array.isArray(file.relations)
+    ? file.relations
+    : [file.relations || "viewer"];
+
+  listItem.dataset.relations = relationsArray.join(",");
+  const fileType = file.objectId.split(":")[0];
+
+  const icon = document.createElement("i");
+  icon.className = "material-icons type";
+  switch (fileType) {
+    case "folder":
+      icon.innerText = "folder";
+      break;
+    case "group":
+      icon.innerText = "people";
+      break;
+    case "file":
+      icon.innerText = "article";
+      break;
+    default:
+      icon.innerText = "question_mark";
+  }
+  const itemTitle = document.createElement("div");
+  itemTitle.className = "item-title";
+  const h3 = document.createElement("h3");
+  h3.innerText = file.objectId.split(":")[1];
+  const p = document.createElement("p");
+  p.innerText = subtitle;
+  itemTitle.appendChild(h3);
+  itemTitle.appendChild(p);
+  const relation = document.createElement("div");
+
+  relation.className = "relation";
+
+  relation.innerText = dominance(file, fileType);
+
+  // MORE BUTTON
+  const moreLink = document.createElement("a");
+
+  moreLink.href = "#";
+
+  moreLink.className = "more-btn";
+
+  const moreIcon = document.createElement("i");
+
+  moreIcon.className = "material-icons";
+
+  moreIcon.innerText = "more_vert";
+
+  moreLink.appendChild(moreIcon);
+
+  listItem.appendChild(icon);
+
+  listItem.appendChild(itemTitle);
+
+  listItem.appendChild(relation);
+
+  listItem.appendChild(moreLink);
+
+  listItem.addEventListener("click", async (event) => {
+    const isMoreBtn = event.target.closest(".more-btn");
+    console.log("Clicked:", isMoreBtn ? "More Button" : "Row");
+    if (isMoreBtn) {
+      event.preventDefault();
+
+      await openDetailsModal(listItem);
+
+      return;
+    }
+
+    if (fileType === "group") {
+      navigateToGroup(file.objectId);
+
+      return;
+    }
+
+    if (fileType === "folder") {
+      if (containerType === "group") {
+        navigateToGroup(file.objectId);
+      } else {
+        navigateToFolder(file.objectId);
+      }
+    }
+  });
+
+  return listItem;
+}
+
+async function openDetailsModal(listItem) {
+  const fileId = listItem.dataset.fileId;
+  const type = fileId.split(":")[0];
+
+  const modalId = type === "group" ? "group-details" : "file-details";
+  const modal = document.getElementById(modalId);
+
+  if (!modal) {
+    console.error(`Fatal: Modal #${modalId} not found in the DOM!`);
+    alert("This action is not available on this page.");
+    return;
+  }
+
+  try {
+    selectedFile = fileId;
+    selectedFileType = type;
+
+    tempMembers = [];
+    addedUsers = [];
+    deletedUsers = [];
+    changedRelation.clear();
+    currentUserAccess = {};
+
+    if (type === "group") {
+      await renderMembers(fileId, {
+        membersContainerId: "group-members",
+        modalId: "group-details",
+      });
+    } else {
+      await renderMembers(fileId);
+    }
+
+    modal.showModal();
+  } catch (err) {
+    console.error("Modal failed:", err);
+  }
 }
 export { saveAllChanges };

@@ -60,9 +60,10 @@ class AccessControl {
    * @memberof AccessControl
    */
   async can(userId, action, objectId) {
-    if(!objectId){
-      console.log("no objectId")
+    if (!objectId) {
+      console.log("no objectId");
     }
+    console.log(".can revieved " + userId + " " + action + " " + objectId);
     await this.db.read();
     // Get all relations this user has to an object
     const relations = await this.expandUserRelations(userId, objectId);
@@ -76,7 +77,7 @@ class AccessControl {
     });
     // log access attempt
     await this.log(userId, action, objectId, allowed);
-
+    console.log("and . can concluded that it was " + allowed);
     return allowed;
   }
 
@@ -157,12 +158,14 @@ class AccessControl {
     const queue = [subjectId];
     const visited = new Set([subjectId]);
 
+    const groupMembershipRelations = new Set(["member", "owner", "subgroup"]);
+
     while (queue.length > 0) {
       const current = queue.shift();
       const memberships = bySubject[current] || [];
       for (const tuple of memberships) {
         if (
-          tuple.relation === "member" &&
+          groupMembershipRelations.has(tuple.relation) &&
           tuple.objectId.startsWith("group:")
         ) {
           if (!visited.has(tuple.objectId)) {
@@ -208,6 +211,38 @@ class AccessControl {
   }
 
   /**
+   * Function that returns all the users that have a DIRECT relation to an object.
+   * This excludes users who only have access through group membership.
+   * @param {String} objectId
+   * @return {Promise<Array<Object>>}
+   * @memberof AccessControl
+   */
+  async getDirectObjectRelations(objectId) {
+    await this.db.read();
+    const relatedUsers = [];
+    const tuples = this.db.data.tupleStore.byObject[objectId] || [];
+
+    for (const tuple of tuples) {
+      // Only include users with direct relations (not parent relations)
+      if (tuple.relation !== "parent" && tuple.subjectId.startsWith("user:")) {
+        const existing = relatedUsers.find(u => u.subjectId === tuple.subjectId);
+        if (existing) {
+          if (!existing.relations.includes(tuple.relation)) {
+            existing.relations.push(tuple.relation);
+          }
+        } else {
+          relatedUsers.push({
+            subjectId: tuple.subjectId,
+            relations: [tuple.relation],
+          });
+        }
+      }
+    }
+
+    return relatedUsers;
+  }
+
+  /**
    * Function that returns all the users that have a relation to an object, and what relation that is:
    * @param {String} objectId
    * @return {Promise<Array<Object>>}
@@ -235,6 +270,56 @@ class AccessControl {
     }
 
     return relatedUsers;
+  }
+
+  async renderSubjects(objectId) {
+    await this.db.read();
+    const { byObject, bySubject } = this.db.data.tupleStore;
+
+    const discoveredSubjects = new Map();
+    const visitedObjects = new Set();
+    const queue = [objectId];
+
+    while (queue.length > 0) {
+      const currentTarget = queue.shift();
+
+      if (visitedObjects.has(currentTarget)) continue;
+      visitedObjects.add(currentTarget);
+
+      const tuples = byObject[currentTarget] || [];
+
+      for (const tuple of tuples) {
+        if (tuple.relation === "parent") {
+          queue.push(tuple.subjectId);
+        } else {
+          if (tuple.subjectId) {
+            if (!discoveredSubjects.has(tuple.subjectId)) {
+              discoveredSubjects.set(tuple.subjectId, new Set());
+            }
+            discoveredSubjects.get(tuple.subjectId).add(tuple.relation);
+          }
+        }
+      }
+    }
+    const relatedSubjects = [];
+    const isTargetAGroup = objectId.startsWith("group:");
+
+    for (const [subjectId, relationsSet] of discoveredSubjects.entries()) {
+      relationsSet.delete("parent");
+
+      if (!isTargetAGroup) {
+        relationsSet.delete("member");
+      }
+
+      if (relationsSet.size > 0) {
+        relatedSubjects.push({
+          subjectId: subjectId,
+          relations: Array.from(relationsSet),
+        });
+      }
+    }
+
+    return relatedSubjects;
   }
 
   async addTuple(subjectId, relation, objectId) {
@@ -309,13 +394,14 @@ class AccessControl {
     await this.db.write();
   }
 
-  async locatePaths(subjectId, objectId, mode, maxDepth = 5) {
+  async locatePaths(subjectId, objectId, mode, maxDepth = 15) {
     const paths = [];
     await this.db.read();
     const { bySubject } = this.db.data.tupleStore;
     const { byObject } = this.db.data.tupleStore;
-    
-    const rootId = mode === "pathsFromTarget" && subjectId === "null" ? objectId : subjectId;
+
+    const rootId =
+      mode === "pathsFromTarget" && subjectId === "null" ? objectId : subjectId;
 
     if (!rootId) {
       return [];
@@ -326,17 +412,15 @@ class AccessControl {
     let adjacency;
     let idType;
 
-    if(type === "user" || type === "group"){
+    if (type === "user" || type === "group") {
       adjacency = this.db.data.tupleStore.bySubject;
       idType = "objectId";
-
-    } else if (type === "file" || type === "folder"){
+    } else if (type === "file" || type === "folder") {
       adjacency = this.db.data.tupleStore.byObject;
       idType = "subjectId";
     } else {
       return [];
     }
-
 
     // all paths to target
     if (mode === "pathsToTarget") {
@@ -390,20 +474,27 @@ class AccessControl {
         // intialize edges for current node
         const edges = adjacency[currentNode] || [];
 
-        // base case        
+        // base case
 
         // Case 1: root is user/group → push path on every file/folder hit
-        if ((type === "user" || type === "group") && (currentNode.startsWith("file:") || currentNode.startsWith("folder:")) && path.length > 0) {
+        if (
+          (type === "user" || type === "group") &&
+          (currentNode.startsWith("file:") ||
+            currentNode.startsWith("folder:")) &&
+          path.length > 0
+        ) {
           paths.push([...path]);
         }
 
         // Case 2: root is file/folder → push path when traversal ends
-        if ((type === "file" || type === "folder") && edges.length === 0 && path.length > 0) {
+        if (
+          (type === "file" || type === "folder") &&
+          edges.length === 0 &&
+          path.length > 0
+        ) {
           paths.push([...path]);
-          return; 
+          return;
         }
-
-
 
         // run through all edges at this node
         for (const edge of edges) {
@@ -437,17 +528,14 @@ class AccessControl {
   async deleteFile(objectId) {
     await this.db.read();
 
-    // Remove all relations to the file
-    // The deleteTuple function delete when there are no more relations
     const objectType = objectId.split(":")[0];
+
     if (objectType === "folder") {
       const folderContent = this.db.data.tupleStore.bySubject[objectId] || [];
 
       for (const content of [...folderContent]) {
-        // run recursively for  children
         await this.deleteFile(content.objectId);
 
-        // remove relation
         await this.deleteTuple(
           content.subjectId,
           content.relation,
@@ -455,7 +543,16 @@ class AccessControl {
         );
       }
     }
-    const tuples = this.db.data.tupleStore.byObject[objectId];
+
+    if (objectType === "group") {
+      const groupRelations = this.db.data.tupleStore.bySubject[objectId] || [];
+
+      for (const tuple of [...groupRelations]) {
+        await this.deleteTuple(objectId, tuple.relation, tuple.objectId);
+      }
+    }
+
+    const tuples = this.db.data.tupleStore.byObject[objectId] || [];
     for (const tuple of [...tuples]) {
       await this.deleteTuple(tuple.subjectId, tuple.relation, objectId);
     }

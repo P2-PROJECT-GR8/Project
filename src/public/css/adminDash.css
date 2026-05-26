@@ -99,6 +99,20 @@
   font-weight: 600;
 }
 
+.more-btn {
+  position: relative;
+  z-index: 10;
+}
+.relation {
+  /* Prevent the text from overlapping the button area */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 10px; 
+}
+
+
+
 .btn-style {
   padding: 10px 18px;
   font-size: 0.95rem;
