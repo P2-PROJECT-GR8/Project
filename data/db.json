@@ -167,6 +167,12 @@
           "subjectId": "user:emil",
           "relation": "owner"
         }
+      ],
+      "file:newfile": [
+        {
+          "subjectId": "user:emil",
+          "relation": "owner"
+        }
       ]
     },
     "bySubject": {
@@ -200,6 +206,10 @@
         {
           "relation": "owner",
           "objectId": "file:nyfil"
+        },
+        {
+          "relation": "owner",
+          "objectId": "file:newfile"
         }
       ],
       "group:grouptest": [

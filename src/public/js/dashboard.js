@@ -604,7 +604,7 @@ export const renderMembers = async (fileId, options = {}) => {
   const membersList = document.getElementById(membersContainerId);
 
   if (!membersList) {
-    console.error("Kunne ikke finde container med ID:", membersContainerId);
+    console.error("could not find container ID:", membersContainerId);
     return;
   }
   selectedFileType = fileId.split(":")[0];
@@ -636,6 +636,13 @@ export const renderMembers = async (fileId, options = {}) => {
   const schemaRes = await fetch("/api/schema", { credentials: "include" });
   const schema = await schemaRes.json();
   window.schema = schema;
+
+  // Update modal header with filename
+  const fileName = fileId.split(":")[1];
+  const manageHeader = document.getElementById("manage-header");
+  if (manageHeader) {
+    manageHeader.innerText = `Manage Access: ${fileName}`;
+  }
 
   const inviteContainer = document.getElementById(inviteContainerId);
   const canShare = canPriv(currentUser, tempMembers, schema, "share");
